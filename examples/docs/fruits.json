@@ -1,0 +1,6 @@
+{
+  "fruits": [
+    { "name": "Red Apple", "emoji": "🍎" },
+    { "name": "Green Apple", "emoji": "🍏" }
+  ]
+}

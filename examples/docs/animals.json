@@ -1,0 +1,6 @@
+{
+  "animals": [
+    { "name": "Dog", "emoji": "🐶" },
+    { "name": "Cat", "emoji": "🐱" }
+  ]
+}
