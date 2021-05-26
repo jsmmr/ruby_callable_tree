@@ -136,7 +136,7 @@ tree = CallableTree::Node::Root.new.append(
 
 Dir.glob(__dir__ + '/docs/*') do |file|
   options = { foo: :bar }
-  puts tree.call(file, **options)
+  pp tree.call(file, **options)
   puts '---'
 end
 ```
@@ -181,13 +181,25 @@ tree = CallableTree::Node::Root.new.append(
 Run `examples/example2.rb`:
 ```sh
 % ruby examples/example2.rb
-#<struct CallableTree::Node::External::Output value={"Dog"=>"🐶", "Cat"=>"🐱"}, options={:foo=>:bar}, routes=[Node::JSON::Scraper, Node::JSON::Parser, CallableTree::Node::Root]>
+#<struct CallableTree::Node::External::Output
+ value={"Dog"=>"🐶", "Cat"=>"🐱"},
+ options={:foo=>:bar},
+ routes=[Node::JSON::Scraper, Node::JSON::Parser, CallableTree::Node::Root]>
 ---
-#<struct CallableTree::Node::External::Output value={"Dog"=>"🐶", "Cat"=>"🐱"}, options={:foo=>:bar}, routes=[Node::XML::Scraper, Node::XML::Parser, CallableTree::Node::Root]>
+#<struct CallableTree::Node::External::Output
+ value={"Dog"=>"🐶", "Cat"=>"🐱"},
+ options={:foo=>:bar},
+ routes=[Node::XML::Scraper, Node::XML::Parser, CallableTree::Node::Root]>
 ---
-#<struct CallableTree::Node::External::Output value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"}, options={:foo=>:bar}, routes=[Node::JSON::Scraper, Node::JSON::Parser, CallableTree::Node::Root]>
+#<struct CallableTree::Node::External::Output
+ value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"},
+ options={:foo=>:bar},
+ routes=[Node::JSON::Scraper, Node::JSON::Parser, CallableTree::Node::Root]>
 ---
-#<struct CallableTree::Node::External::Output value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"}, options={:foo=>:bar}, routes=[Node::XML::Scraper, Node::XML::Parser, CallableTree::Node::Root]>
+#<struct CallableTree::Node::External::Output
+ value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"},
+ options={:foo=>:bar},
+ routes=[Node::XML::Scraper, Node::XML::Parser, CallableTree::Node::Root]>
 ---
 ```
 
@@ -257,13 +269,45 @@ end
 Run `examples/example3.rb`:
 ```sh
 % ruby examples/example3.rb
-#<struct CallableTree::Node::External::Output value={"Dog"=>"🐶", "Cat"=>"🐱"}, options={:foo=>:bar}, routes=[#<Node::Identity:0x00007ff1f78e09e0 @klass=Node::JSON::Scraper, @type=:animals>, Node::JSON::Parser, CallableTree::Node::Root]>
+#<struct CallableTree::Node::External::Output
+ value={"Dog"=>"🐶", "Cat"=>"🐱"},
+ options={:foo=>:bar},
+ routes=
+  [#<Node::Identity:0x00007fb4378a9718
+    @klass=Node::JSON::Scraper,
+    @type=:animals>,
+   Node::JSON::Parser,
+   CallableTree::Node::Root]>
 ---
-#<struct CallableTree::Node::External::Output value={"Dog"=>"🐶", "Cat"=>"🐱"}, options={:foo=>:bar}, routes=[#<Node::Identity:0x00007ff1e7885208 @klass=Node::XML::Scraper, @type=:animals>, Node::XML::Parser, CallableTree::Node::Root]>
+#<struct CallableTree::Node::External::Output
+ value={"Dog"=>"🐶", "Cat"=>"🐱"},
+ options={:foo=>:bar},
+ routes=
+  [#<Node::Identity:0x00007fb41002b6d0
+    @klass=Node::XML::Scraper,
+    @type=:animals>,
+   Node::XML::Parser,
+   CallableTree::Node::Root]>
 ---
-#<struct CallableTree::Node::External::Output value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"}, options={:foo=>:bar}, routes=[#<Node::Identity:0x00007ff1e78771a8 @klass=Node::JSON::Scraper, @type=:fruits>, Node::JSON::Parser, CallableTree::Node::Root]>
+#<struct CallableTree::Node::External::Output
+ value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"},
+ options={:foo=>:bar},
+ routes=
+  [#<Node::Identity:0x00007fb41001b3e8
+    @klass=Node::JSON::Scraper,
+    @type=:fruits>,
+   Node::JSON::Parser,
+   CallableTree::Node::Root]>
 ---
-#<struct CallableTree::Node::External::Output value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"}, options={:foo=>:bar}, routes=[#<Node::Identity:0x00007ff1f20d7f50 @klass=Node::XML::Scraper, @type=:fruits>, Node::XML::Parser, CallableTree::Node::Root]>
+#<struct CallableTree::Node::External::Output
+ value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"},
+ options={:foo=>:bar},
+ routes=
+  [#<Node::Identity:0x00007fb410049d38
+    @klass=Node::XML::Scraper,
+    @type=:fruits>,
+   Node::XML::Parser,
+   CallableTree::Node::Root]>
 ---
 ```
 
@@ -351,21 +395,45 @@ Run `examples/example4.rb`:
   * Node::JSON::Scraper(animals): [matched: true]
     Input : {"animals"=>[{"name"=>"Dog", "emoji"=>"🐶"}, {"name"=>"Cat", "emoji"=>"🐱"}]}
     Output: {"Dog"=>"🐶", "Cat"=>"🐱"}
-#<struct CallableTree::Node::External::Output value={"Dog"=>"🐶", "Cat"=>"🐱"}, options={:foo=>:bar}, routes=[#<Node::Identity:0x00007f9737074060 @klass=Node::JSON::Scraper, @type=:animals>, Node::JSON::Parser, CallableTree::Node::Root]>
+#<struct CallableTree::Node::External::Output
+ value={"Dog"=>"🐶", "Cat"=>"🐱"},
+ options={:foo=>:bar},
+ routes=
+  [#<Node::Identity:0x00007ffd840347b8
+    @klass=Node::JSON::Scraper,
+    @type=:animals>,
+   Node::JSON::Parser,
+   CallableTree::Node::Root]>
 ---
 * Node::JSON::Parser: [matched: false]
 * Node::XML::Parser: [matched: true]
   * Node::XML::Scraper(animals): [matched: true]
     Input : <root><animals><animal emoji='🐶' name='Dog'/><animal emoji='🐱' name='Cat'/></animals></root>
     Output: {"Dog"=>"🐶", "Cat"=>"🐱"}
-#<struct CallableTree::Node::External::Output value={"Dog"=>"🐶", "Cat"=>"🐱"}, options={:foo=>:bar}, routes=[#<Node::Identity:0x00007f973710d0f8 @klass=Node::XML::Scraper, @type=:animals>, Node::XML::Parser, CallableTree::Node::Root]>
+#<struct CallableTree::Node::External::Output
+ value={"Dog"=>"🐶", "Cat"=>"🐱"},
+ options={:foo=>:bar},
+ routes=
+  [#<Node::Identity:0x00007ffd7403f1f0
+    @klass=Node::XML::Scraper,
+    @type=:animals>,
+   Node::XML::Parser,
+   CallableTree::Node::Root]>
 ---
 * Node::JSON::Parser: [matched: true]
   * Node::JSON::Scraper(animals): [matched: false]
   * Node::JSON::Scraper(fruits): [matched: true]
     Input : {"fruits"=>[{"name"=>"Red Apple", "emoji"=>"🍎"}, {"name"=>"Green Apple", "emoji"=>"🍏"}]}
     Output: {"Red Apple"=>"🍎", "Green Apple"=>"🍏"}
-#<struct CallableTree::Node::External::Output value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"}, options={:foo=>:bar}, routes=[#<Node::Identity:0x00007f97370ffed0 @klass=Node::JSON::Scraper, @type=:fruits>, Node::JSON::Parser, CallableTree::Node::Root]>
+#<struct CallableTree::Node::External::Output
+ value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"},
+ options={:foo=>:bar},
+ routes=
+  [#<Node::Identity:0x00007ffd8512bdf0
+    @klass=Node::JSON::Scraper,
+    @type=:fruits>,
+   Node::JSON::Parser,
+   CallableTree::Node::Root]>
 ---
 * Node::JSON::Parser: [matched: false]
 * Node::XML::Parser: [matched: true]
@@ -373,7 +441,15 @@ Run `examples/example4.rb`:
   * Node::XML::Scraper(fruits): [matched: true]
     Input : <root><fruits><fruit emoji='🍎' name='Red Apple'/><fruit emoji='🍏' name='Green Apple'/></fruits></root>
     Output: {"Red Apple"=>"🍎", "Green Apple"=>"🍏"}
-#<struct CallableTree::Node::External::Output value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"}, options={:foo=>:bar}, routes=[#<Node::Identity:0x00007f97370cceb8 @klass=Node::XML::Scraper, @type=:fruits>, Node::XML::Parser, CallableTree::Node::Root]>
+#<struct CallableTree::Node::External::Output
+ value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"},
+ options={:foo=>:bar},
+ routes=
+  [#<Node::Identity:0x00007ffd8407a740
+    @klass=Node::XML::Scraper,
+    @type=:fruits>,
+   Node::XML::Parser,
+   CallableTree::Node::Root]>
 ---
 ```
 
