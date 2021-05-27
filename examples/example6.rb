@@ -3,53 +3,9 @@ require 'json'
 require 'rexml/document'
 
 module Node
-  module Logging
-    INDENT_SIZE = 2
-    BLANK = ' '.freeze
-
-    module Match
-      LIST_STYLE = '*'.freeze
-
-      def match?(_input, **)
-        super.tap do |matched|
-          prefix = LIST_STYLE.rjust(self.depth * INDENT_SIZE - INDENT_SIZE + LIST_STYLE.length, BLANK)
-          puts "#{prefix} #{self.identity}: [matched: #{matched}]"
-        end
-      end
-    end
-
-    module Call
-      INPUT_LABEL  = 'Input :'.freeze
-      OUTPUT_LABEL = 'Output:'.freeze
-
-      def call(input, **)
-        super.tap do |output|
-          input_prefix = INPUT_LABEL.rjust(self.depth * INDENT_SIZE + INPUT_LABEL.length, BLANK)
-          puts "#{input_prefix} #{input}"
-          output_prefix = OUTPUT_LABEL.rjust(self.depth * INDENT_SIZE + OUTPUT_LABEL.length, BLANK)
-          puts "#{output_prefix} #{output}"
-        end
-      end
-    end
-  end
-
-  class Identity
-    attr_reader :klass, :type
-
-    def initialize(klass:, type:)
-      @klass = klass
-      @type = type
-    end
-
-    def to_s
-      "#{klass}(#{type})"
-    end
-  end
-
   module JSON
     class Parser
       include CallableTree::Node::Internal
-      prepend Logging::Match
 
       def match?(input, **options)
         File.extname(input) == '.json'
@@ -69,15 +25,9 @@ module Node
 
     class Scraper
       include CallableTree::Node::External
-      prepend Logging::Match
-      prepend Logging::Call
 
       def initialize(type:)
         @type = type
-      end
-
-      def identity
-        Identity.new(klass: super, type: @type)
       end
 
       def match?(input, **options)
@@ -95,7 +45,6 @@ module Node
   module XML
     class Parser
       include CallableTree::Node::Internal
-      prepend Logging::Match
 
       def match?(input, **options)
         File.extname(input) == '.xml'
@@ -114,15 +63,9 @@ module Node
 
     class Scraper
       include CallableTree::Node::External
-      prepend Logging::Match
-      prepend Logging::Call
 
       def initialize(type:)
         @type = type
-      end
-
-      def identity
-        Identity.new(klass: super, type: @type)
       end
 
       def match?(input, **options)
@@ -142,13 +85,13 @@ end
 
 tree = CallableTree::Node::Root.new.append(
   Node::JSON::Parser.new.append(
-    Node::JSON::Scraper.new(type: :animals).verbosify,
-    Node::JSON::Scraper.new(type: :fruits).verbosify
-  ),
+    Node::JSON::Scraper.new(type: :animals),
+    Node::JSON::Scraper.new(type: :fruits)
+  ).broadcast,
   Node::XML::Parser.new.append(
-    Node::XML::Scraper.new(type: :animals).verbosify,
-    Node::XML::Scraper.new(type: :fruits).verbosify
-  )
+    Node::XML::Scraper.new(type: :animals),
+    Node::XML::Scraper.new(type: :fruits)
+  ).broadcast
 )
 
 Dir.glob(__dir__ + '/docs/*') do |file|

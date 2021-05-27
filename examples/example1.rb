@@ -96,6 +96,6 @@ tree = CallableTree::Node::Root.new.append(
 
 Dir.glob(__dir__ + '/docs/*') do |file|
   options = { foo: :bar }
-  puts tree.call(file, **options)
+  pp tree.call(file, **options)
   puts '---'
 end

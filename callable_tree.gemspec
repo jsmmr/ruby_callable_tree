@@ -8,15 +8,15 @@ Gem::Specification.new do |spec|
   spec.authors       = ['jsmmr']
   spec.email         = ['jsmmr@icloud.com']
 
-  spec.summary       = 'Builds a tree by linking callable nodes. The nodes that match the calling condition are called in a chain from the root node to the leaf node. This is like nested case statements.'
-  spec.description   = 'Builds a tree by linking callable nodes. The nodes that match the calling condition are called in a chain from the root node to the leaf node. This is like nested case statements.'
+  spec.summary       = 'Builds a tree by linking callable nodes. The nodes that match the calling condition are called in a chain from the root node to the leaf node. These are like nested case statements.'
+  spec.description   = 'Builds a tree by linking callable nodes. The nodes that match the calling condition are called in a chain from the root node to the leaf node. These are like nested case statements.'
   spec.homepage      = 'https://github.com/jsmmr/ruby_callable_tree'
   spec.license       = 'MIT'
   spec.required_ruby_version = Gem::Requirement.new('>= 2.4.0')
 
   spec.metadata['homepage_uri'] = spec.homepage
   spec.metadata['source_code_uri'] = 'https://github.com/jsmmr/ruby_callable_tree'
-  spec.metadata['changelog_uri'] = 'https://github.com/jsmmr/ruby_callable_tree/CHANGELOG.md'
+  spec.metadata['changelog_uri'] = 'https://github.com/jsmmr/ruby_callable_tree/blob/v#{version}/CHANGELOG.md'
 
   # Specify which files should be added to the gem when it is released.
   # The `git ls-files -z` loads the files in the RubyGem that have been added into git.

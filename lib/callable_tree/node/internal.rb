@@ -31,54 +31,36 @@ module CallableTree
       end
 
       def call(input = nil, **options)
-        children
-          .lazy
-          .map { |node| Input.new(input, options, node) }
-          .select { |input| input.valid? }
-          .map { |input| input.call }
-          .select { |output| output.valid? }
-          .map { |output| output.call }
-          .first
+        strategy.call(children, input: input, options: options)
       end
 
-      class Input < BasicObject
-        def initialize(value, options, node)
-          @value = value
-          @options = options
-          @node = node
-        end
-
-        def valid?
-          @node.match?(@value, **@options)
-        end
-
-        def call
-          value = @node.call(@value, **@options)
-          Output.new(value, @options, @node)
+      def seek
+        if strategy.is_a?(Seek)
+          self
+        else
+          clone.tap do |node|
+            node.send(:strategy=, Seek.new)
+          end
         end
       end
 
-      class Output < BasicObject
-        def initialize(value, options, node)
-          @value = value
-          @options = options
-          @node = node
-        end
-
-        def valid?
-          @node.terminate?(@value, **@options)
-        end
-
-        def call
-          @value
+      def broadcast
+        if strategy.is_a?(Broadcast)
+          self
+        else
+          clone.tap do |node|
+            node.send(:strategy=, Broadcast.new)
+          end
         end
       end
-
-      private_constant :Input, :Output
 
       private
 
-      attr_writer :children
+      attr_writer :children, :strategy
+
+      def strategy
+        @strategy ||= Seek.new
+      end
 
       def initialize_copy(_node)
         super
