@@ -503,6 +503,41 @@ after_call output: 8
 result: 16
 ```
 
+#### `CallableTree::Node::Internal#broadcast` (experimental)
+
+If you want to call and output all child nodes of the internal node, call it. Broadcast strategy ignores the `terminate?` method of the child node.
+
+`examples/example6.rb`:
+```ruby
+...
+
+tree = CallableTree::Node::Root.new.append(
+  Node::JSON::Parser.new.append(
+    Node::JSON::Scraper.new(type: :animals),
+    Node::JSON::Scraper.new(type: :fruits)
+  ).broadcast,
+  Node::XML::Parser.new.append(
+    Node::XML::Scraper.new(type: :animals),
+    Node::XML::Scraper.new(type: :fruits)
+  ).broadcast
+)
+
+...
+```
+
+Run `examples/example6.rb`:
+```sh
+% ruby examples/example6.rb
+[{"Dog"=>"🐶", "Cat"=>"🐱"}, nil]
+---
+[{"Dog"=>"🐶", "Cat"=>"🐱"}, nil]
+---
+[nil, {"Red Apple"=>"🍎", "Green Apple"=>"🍏"}]
+---
+[nil, {"Red Apple"=>"🍎", "Green Apple"=>"🍏"}]
+---
+```
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/jsmmr/callable_tree.

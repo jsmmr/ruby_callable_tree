@@ -123,30 +123,20 @@ RSpec.describe CallableTree::Node::Internal do
   end
 
   describe '#call' do
-    subject { root_node.call(input, **options) }
+    subject { node.call(input, **options) }
 
-    let(:root_node) do
-      CallableTree::Node::Root.new.append(a_matcher, b_matcher)
-    end
+    let(:node) { ::Class.new { include CallableTree::Node::Internal }.new.append(*child_nodes) }
+    let(:child_nodes) { [->(input) { input }, ->(input) { input }] }
 
-    let(:a_matcher) { InternalSpec::AMatcher.new << leaf }
-    let(:b_matcher) { InternalSpec::BMatcher.new << leaf }
+    let(:input) { 'input' }
+    let(:options) { { foo: :bar } }
 
-    let(:leaf) do
-      ->(input, prefix:, suffix:) { "#{prefix}#{input}#{suffix}" }
-    end
+    let(:strategy) { double(:strategy) }
 
-    context 'input: :a' do
-      let(:input) { :a }
-      let(:options) { { prefix: '(', suffix: ')' } }
-      it { is_expected.to eq '(a)' }
-    end
+    before { node.send(:strategy=, strategy) }
+    before { expect(strategy).to receive(:call).with(child_nodes, input: input, options: options).and_return('output') }
 
-    context 'input: :b' do
-      let(:input) { :b }
-      let(:options) { { prefix: '[', suffix: ']' } }
-      it { is_expected.to eq '[b]' }
-    end
+    it { is_expected.to eq 'output' }
   end
 
   describe '#ancestors' do
@@ -233,6 +223,36 @@ RSpec.describe CallableTree::Node::Internal do
     context 'of leaf' do
       let(:node) { root_node.children[0].children[0].children[0] }
       it { is_expected.to eq 3 }
+    end
+  end
+
+  describe '#seek' do
+    subject { node.seek }
+
+    let(:node) { CallableTree::Node::Root.new }
+
+    context 'when current strategy is `seek`' do
+      it { is_expected.to be node }
+    end
+
+    context 'when current strategy is `broadcast`' do
+      before { node.send(:strategy=, CallableTree::Node::Internal::Broadcast.new) }
+      it { is_expected.not_to be node }
+    end
+  end
+
+  describe '#broadcast' do
+    subject { node.broadcast }
+
+    let(:node) { CallableTree::Node::Root.new }
+
+    context 'when current strategy is `seek`' do
+      it { is_expected.not_to be node }
+    end
+
+    context 'when current strategy is `broadcast`' do
+      before { node.send(:strategy=, CallableTree::Node::Internal::Broadcast.new) }
+      it { is_expected.to be node }
     end
   end
 end
