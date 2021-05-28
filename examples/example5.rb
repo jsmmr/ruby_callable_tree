@@ -13,6 +13,7 @@ Node::HooksSample.new
     input + 1
   end
   .append(
+    # anonymous external node
     lambda do |input, **options|
       puts "external input: #{input}"
       input * 2

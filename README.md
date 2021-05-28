@@ -470,6 +470,7 @@ Node::HooksSample.new
     input + 1
   end
   .append(
+    # anonymous external node
     lambda do |input, **options|
       puts "external input: #{input}"
       input * 2
@@ -505,7 +506,7 @@ result: 16
 
 #### `CallableTree::Node::Internal#broadcast` (experimental)
 
-If you want to call and output all child nodes of the internal node, call it. Broadcast strategy ignores the `terminate?` method of the child node.
+If you want to call all child nodes of the internal node in order to output their results as array, call it. The `broadcast` strategy ignores the `terminate?` method of the nodes.
 
 `examples/example6.rb`:
 ```ruby
