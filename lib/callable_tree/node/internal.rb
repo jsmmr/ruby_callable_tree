@@ -54,6 +54,16 @@ module CallableTree
         end
       end
 
+      def compose
+        if strategy.is_a?(Compose)
+          self
+        else
+          clone.tap do |node|
+            node.send(:strategy=, Compose.new)
+          end
+        end
+      end
+
       private
 
       attr_writer :children, :strategy

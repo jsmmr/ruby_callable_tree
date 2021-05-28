@@ -539,6 +539,60 @@ Run `examples/example6.rb`:
 ---
 ```
 
+#### `CallableTree::Node::Internal#compose` (experimental)
+
+If you want to call all child nodes of the internal node in order to input the output of the previous node to the next node and output a single result , call it. The `compose` strategy ignores the `terminate?` method of the nodes.
+
+`examples/example7.rb`:
+```ruby
+module Node
+  class LessThan
+    include CallableTree::Node::Internal
+
+    def initialize(num)
+      @num = num
+    end
+
+    def match?(input)
+      super && input < @num
+    end
+  end
+end
+
+tree = CallableTree::Node::Root.new.append(
+  Node::LessThan.new(5).append(
+    proc { |input| input * 2 }, # anonymous external node
+    proc { |input| input + 1 }  # anonymous external node
+  ).compose,
+  Node::LessThan.new(10).append(
+    proc { |input| input * 3 }, # anonymous external node
+    proc { |input| input - 1 }  # anonymous external node
+  ).compose
+).compose
+
+(0..10).each do |input|
+  output = tree.call(input)
+  puts "#{input} -> #{output}"
+end
+
+```
+
+Run `examples/example7.rb`:
+```sh
+% ruby examples/example7.rb
+0 -> 2
+1 -> 8
+2 -> 14
+3 -> 20
+4 -> 26
+5 -> 14
+6 -> 17
+7 -> 20
+8 -> 23
+9 -> 26
+10 -> 10
+```
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/jsmmr/callable_tree.
