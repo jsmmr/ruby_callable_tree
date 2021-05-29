@@ -10,7 +10,7 @@ RSpec.describe CallableTree::Node::Internal::Broadcast do
       end
 
       def call(input, **options)
-        super(format("%03d", input), **options)
+        super(format('%03d', input), **options)
       end
     end
 
@@ -22,7 +22,7 @@ RSpec.describe CallableTree::Node::Internal::Broadcast do
       end
 
       def call(input, **options)
-        super(format("%04d", input), **options)
+        super(format('%04d', input), **options)
       end
     end
   end

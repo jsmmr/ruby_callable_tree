@@ -6,11 +6,7 @@ module CallableTree
       class Broadcast
         def call(nodes, input:, options:)
           nodes.map do |node|
-            if node.match?(input, **options)
-              node.call(input, **options)
-            else
-              nil
-            end
+            node.call(input, **options) if node.match?(input, **options)
           end
         end
       end
