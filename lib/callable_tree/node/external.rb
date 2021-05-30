@@ -9,12 +9,12 @@ module CallableTree
         Proxy.new(callable)
       end
 
-      def self.proxified?(node)
-        node.is_a?(Proxy)
+      def proxified?
+        false
       end
 
-      def self.unproxify(node)
-        node.callable
+      def verbosified?
+        false
       end
 
       def verbosify
@@ -23,8 +23,8 @@ module CallableTree
       end
 
       def identity
-        if External.proxified?(self)
-          External.unproxify(self)
+        if proxified?
+          unproxify
         else
           self
         end
@@ -36,10 +36,17 @@ module CallableTree
         include External
 
         def_delegators :@callable, :call
-        attr_reader :callable
 
         def initialize(callable)
           @callable = callable
+        end
+
+        def proxified?
+          true
+        end
+
+        def unproxify
+          @callable
         end
       end
 
