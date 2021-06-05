@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Minor improvements
+
 ## [0.1.2] - 2021-05-29
 
 - Add `CallableTree::Node::Internal#compose` (experimental)
