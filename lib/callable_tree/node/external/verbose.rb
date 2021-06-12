@@ -6,6 +6,10 @@ module CallableTree
       Output = Struct.new(:value, :options, :routes)
 
       module Verbose
+        def verbosified?
+          true
+        end
+
         def call(input = nil, **options)
           output = super(input, **options)
           routes = self.routes

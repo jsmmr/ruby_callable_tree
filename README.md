@@ -18,19 +18,22 @@ Or install it yourself as:
 
 ## Usage
 
+Builds a tree by linking instances of the nodes. The `call` method of the node where the `match?` method returns a truthy value is called in a chain from the root node to the leaf node.
+
 - `CallableTree::Node::Internal`
-  - This `module` is used to define a node that can have child nodes.
+  - This `module` is used to define a node that can have child nodes. An instance of this node has several strategies. The strategy can be changed by calling the method of the instance.
 - `CallableTree::Node::External`
   - This `module` is used to define a leaf node that cannot have child nodes.
 - `CallableTree::Node::Root`
   - This `class` includes `CallableTree::Node::Internal`. When there is no need to customize the internal node, use this `class`.
 
-Builds a tree by linking instances of the nodes. The `call` method of the node where the `match?` method returns a truthy value is called in a chain from the root node to the leaf node.
-If the `call` method returns a value other than `nil`, the next sibling node does not be called. This behavior is changeable by overriding the `terminate?` method.
-
 ### Basic
 
-`examples/example1.rb`:
+#### `CallableTree::Node::Internal#seek` (default)
+
+This strategy does not call the next sibling node if the `call` method of the current node returns a value other than `nil`. This behavior is changeable by overriding the `terminate?` method.
+
+`examples/internal-seek.rb`:
 ```ruby
 module Node
   module JSON
@@ -123,16 +126,17 @@ module Node
   end
 end
 
+# The `seek` method call can be omitted since it is the default strategy.
 tree = CallableTree::Node::Root.new.append(
   Node::JSON::Parser.new.append(
     Node::JSON::Scraper.new(type: :animals),
     Node::JSON::Scraper.new(type: :fruits)
-  ),
+  ),#.seek,
   Node::XML::Parser.new.append(
     Node::XML::Scraper.new(type: :animals),
     Node::XML::Scraper.new(type: :fruits)
-  )
-)
+  )#.seek
+)#.seek
 
 Dir.glob(__dir__ + '/docs/*') do |file|
   options = { foo: :bar }
@@ -141,9 +145,9 @@ Dir.glob(__dir__ + '/docs/*') do |file|
 end
 ```
 
-Run `examples/example1.rb`:
+Run `examples/internal-seek.rb`:
 ```sh
-% ruby examples/example1.rb
+% ruby examples/internal-seek.rb
 {"Dog"=>"🐶", "Cat"=>"🐱"}
 ---
 {"Dog"=>"🐶", "Cat"=>"🐱"}
@@ -154,13 +158,121 @@ Run `examples/example1.rb`:
 ---
 ```
 
+#### `CallableTree::Node::Internal#broadcast` (experimental)
+
+This strategy calls all child nodes of the internal node and ignores their `terminate?` methods, and then outputs their results as array.
+
+`examples/internal-broadcast.rb`:
+```ruby
+module Node
+  class LessThan
+    include CallableTree::Node::Internal
+
+    def initialize(num)
+      @num = num
+    end
+
+    def match?(input)
+      super && input < @num
+    end
+  end
+end
+
+tree = CallableTree::Node::Root.new.append(
+  Node::LessThan.new(5).append(
+    lambda { |input, **| input * 2 }, # anonymous external node
+    lambda { |input, **| input + 1 }  # anonymous external node
+  ).broadcast,
+  Node::LessThan.new(10).append(
+    lambda { |input, **| input * 3 }, # anonymous external node
+    lambda { |input, **| input - 1 }  # anonymous external node
+  ).broadcast
+).broadcast
+
+(0..10).each do |input|
+  output = tree.call(input)
+  puts "#{input} -> #{output}"
+end
+
+```
+
+Run `examples/internal-broadcast.rb`:
+```sh
+% ruby examples/internal-broadcast.rb
+0 -> [[0, 1], [0, -1]]
+1 -> [[2, 2], [3, 0]]
+2 -> [[4, 3], [6, 1]]
+3 -> [[6, 4], [9, 2]]
+4 -> [[8, 5], [12, 3]]
+5 -> [nil, [15, 4]]
+6 -> [nil, [18, 5]]
+7 -> [nil, [21, 6]]
+8 -> [nil, [24, 7]]
+9 -> [nil, [27, 8]]
+10 -> [nil, nil]
+```
+
+#### `CallableTree::Node::Internal#compose` (experimental)
+
+This strategy calls all child nodes of the internal node in order to input the output of the previous node to the next node and ignores their `terminate?` methods, and then outputs a single result.
+
+`examples/internal-compose.rb`:
+```ruby
+module Node
+  class LessThan
+    include CallableTree::Node::Internal
+
+    def initialize(num)
+      @num = num
+    end
+
+    def match?(input)
+      super && input < @num
+    end
+  end
+end
+
+tree = CallableTree::Node::Root.new.append(
+  Node::LessThan.new(5).append(
+    proc { |input| input * 2 }, # anonymous external node
+    proc { |input| input + 1 }  # anonymous external node
+  ).compose,
+  Node::LessThan.new(10).append(
+    proc { |input| input * 3 }, # anonymous external node
+    proc { |input| input - 1 }  # anonymous external node
+  ).compose
+).compose
+
+(0..10).each do |input|
+  output = tree.call(input)
+  puts "#{input} -> #{output}"
+end
+
+```
+
+Run `examples/internal-compose.rb`:
+```sh
+% ruby examples/internal-compose.rb
+0 -> 2
+1 -> 8
+2 -> 14
+3 -> 20
+4 -> 26
+5 -> 14
+6 -> 17
+7 -> 20
+8 -> 23
+9 -> 26
+10 -> 10
+```
+
 ### Advanced
 
 #### `CallableTree::Node::External#verbosify`
 
-If you want verbose result, call it.
+If you want verbose output results, call this method.
 
-`examples/example2.rb`:
+`examples/external-verbosify.rb`:
 ```ruby
 ...
 
@@ -178,9 +290,9 @@ tree = CallableTree::Node::Root.new.append(
 ...
 ```
 
-Run `examples/example2.rb`:
+Run `examples/external-verbosify.rb`:
 ```sh
-% ruby examples/example2.rb
+% ruby examples/external-verbosify.rb
 #<struct CallableTree::Node::External::Output
  value={"Dog"=>"🐶", "Cat"=>"🐱"},
  options={:foo=>:bar},
@@ -208,9 +320,9 @@ You can work around it by overriding the `identity` method of the node.
 
 #### `CallableTree::Node#identity`
 
-If you want to customize the node identity, override it.
+If you want to customize the node identity, override this method.
 
-`examples/example3.rb`:
+`examples/identity.rb`:
 ```ruby
 module Node
   class Identity
@@ -266,9 +378,9 @@ end
 ...
 ```
 
-Run `examples/example3.rb`:
+Run `examples/identity.rb`:
 ```sh
-% ruby examples/example3.rb
+% ruby examples/identity.rb
 #<struct CallableTree::Node::External::Output
  value={"Dog"=>"🐶", "Cat"=>"🐱"},
  options={:foo=>:bar},
@@ -315,7 +427,7 @@ Run `examples/example3.rb`:
 
 This is an example of logging.
 
-`examples/example4.rb`:
+`examples/logging.rb`:
 ```ruby
 module Node
   module Logging
@@ -388,9 +500,9 @@ end
 ...
 ```
 
-Run `examples/example4.rb`:
+Run `examples/logging.rb`:
 ```sh
-% ruby examples/example4.rb
+% ruby examples/logging.rb
 * Node::JSON::Parser: [matched: true]
   * Node::JSON::Scraper(animals): [matched: true]
     Input : {"animals"=>[{"name"=>"Dog", "emoji"=>"🐶"}, {"name"=>"Cat", "emoji"=>"🐱"}]}
@@ -455,7 +567,7 @@ Run `examples/example4.rb`:
 
 #### `CallableTree::Node::Hooks::Call` (experimental)
 
-`examples/example5.rb`:
+`examples/hooks-call.rb`:
 ```ruby
 module Node
   class HooksSample
@@ -493,104 +605,15 @@ Node::HooksSample.new
   end
 ```
 
-Run `examples/example5.rb`:
+Run `examples/hooks-call.rb`:
 ```sh
-% ruby examples/example5.rb
+% ruby examples/hooks-call.rb
 before_call input: 1
 external input: 2
 around_call input: 2
 around_call output: 4
 after_call output: 8
 result: 16
-```
-
-#### `CallableTree::Node::Internal#broadcast` (experimental)
-
-If you want to call all child nodes of the internal node in order to output their results as array, call it. The `broadcast` strategy ignores the `terminate?` method of the nodes.
-
-`examples/example6.rb`:
-```ruby
-...
-
-tree = CallableTree::Node::Root.new.append(
-  Node::JSON::Parser.new.append(
-    Node::JSON::Scraper.new(type: :animals),
-    Node::JSON::Scraper.new(type: :fruits)
-  ).broadcast,
-  Node::XML::Parser.new.append(
-    Node::XML::Scraper.new(type: :animals),
-    Node::XML::Scraper.new(type: :fruits)
-  ).broadcast
-)
-
-...
-```
-
-Run `examples/example6.rb`:
-```sh
-% ruby examples/example6.rb
-[{"Dog"=>"🐶", "Cat"=>"🐱"}, nil]
----
-[{"Dog"=>"🐶", "Cat"=>"🐱"}, nil]
----
-[nil, {"Red Apple"=>"🍎", "Green Apple"=>"🍏"}]
----
-[nil, {"Red Apple"=>"🍎", "Green Apple"=>"🍏"}]
----
-```
-
-#### `CallableTree::Node::Internal#compose` (experimental)
-
-If you want to call all child nodes of the internal node in order to input the output of the previous node to the next node and output a single result , call it. The `compose` strategy ignores the `terminate?` method of the nodes.
-
-`examples/example7.rb`:
-```ruby
-module Node
-  class LessThan
-    include CallableTree::Node::Internal
-
-    def initialize(num)
-      @num = num
-    end
-
-    def match?(input)
-      super && input < @num
-    end
-  end
-end
-
-tree = CallableTree::Node::Root.new.append(
-  Node::LessThan.new(5).append(
-    proc { |input| input * 2 }, # anonymous external node
-    proc { |input| input + 1 }  # anonymous external node
-  ).compose,
-  Node::LessThan.new(10).append(
-    proc { |input| input * 3 }, # anonymous external node
-    proc { |input| input - 1 }  # anonymous external node
-  ).compose
-).compose
-
-(0..10).each do |input|
-  output = tree.call(input)
-  puts "#{input} -> #{output}"
-end
-
-```
-
-Run `examples/example7.rb`:
-```sh
-% ruby examples/example7.rb
-0 -> 2
-1 -> 8
-2 -> 14
-3 -> 20
-4 -> 26
-5 -> 14
-6 -> 17
-7 -> 20
-8 -> 23
-9 -> 26
-10 -> 10
 ```
 
 ## Contributing
