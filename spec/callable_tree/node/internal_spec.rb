@@ -139,6 +139,41 @@ RSpec.describe CallableTree::Node::Internal do
     it { is_expected.to eq 'output' }
   end
 
+  describe '#identity' do
+    subject { node.identity }
+    let(:node) { InternalSpec::AMatcher.new  }
+    it { is_expected.to eq InternalSpec::AMatcher }
+  end
+
+  describe '#parent' do
+    subject { node.parent }
+
+    let(:root_node) { CallableTree::Node::Root.new << a_node }
+    let(:a_node) { InternalSpec::AMatcher.new << b_node }
+    let(:b_node) { InternalSpec::BMatcher.new << leaf }
+    let(:leaf) { ->(input) { input } }
+
+    context 'of root_node' do
+      let(:node) { root_node }
+      it { is_expected.to eq nil }
+    end
+
+    context 'of a_node' do
+      let(:node) { root_node.children[0] }
+      it { is_expected.to eq root_node }
+    end
+
+    context 'of b_node' do
+      let(:node) { root_node.children[0].children[0] }
+      it { is_expected.to eq root_node.children[0] }
+    end
+
+    context 'of leaf' do
+      let(:node) { root_node.children[0].children[0].children[0] }
+      it { is_expected.to eq root_node.children[0].children[0] }
+    end
+  end
+
   describe '#ancestors' do
     subject { node.ancestors.to_a }
 
