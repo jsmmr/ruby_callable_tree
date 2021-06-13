@@ -18,7 +18,7 @@ module CallableTree
       def append!(*callables)
         callables
           .map { |callable| nodeify(callable) }
-          .tap { |nodes| children.append(*nodes) }
+          .tap { |nodes| children.push(*nodes) } # Use Array#push for Ruby 2.4
 
         self
       end
