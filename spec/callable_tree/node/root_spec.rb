@@ -31,7 +31,17 @@ RSpec.describe CallableTree::Node::Root do
   describe '#append' do
     subject { node.append(*child_nodes) }
     let(:child_nodes) { [->(input) { input }, ->(input) { input }] }
+    it { is_expected.not_to eq node }
+    it { expect { subject }.not_to change { node.children.size } }
+    it { expect(subject.children.map(&:object_id)).not_to match_array child_nodes.map(&:object_id) }
+  end
+
+  describe '#append!' do
+    subject { node.append!(*child_nodes) }
+    let(:child_nodes) { [->(input) { input }, ->(input) { input }] }
+    it { is_expected.to eq node }
     it { expect { subject }.to change { node.children.size }.by(2) }
+    it { expect(subject.children.map(&:object_id)).not_to match_array child_nodes.map(&:object_id) }
   end
 
   describe '#match?' do
@@ -42,7 +52,7 @@ RSpec.describe CallableTree::Node::Root do
     end
 
     context 'when root node has child nodes' do
-      before { node.append(->(input) { input }) }
+      before { node.append!(->(input) { input }) }
       it { is_expected.to eq true }
     end
   end
@@ -71,7 +81,7 @@ RSpec.describe CallableTree::Node::Root do
     end
 
     context 'when root node has child nodes' do
-      before { node.append(->(input, **) { input }) }
+      before { node.append!(->(input, **) { input }) }
       it { is_expected.to eq input }
     end
   end

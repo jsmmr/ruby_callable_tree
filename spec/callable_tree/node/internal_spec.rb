@@ -31,8 +31,24 @@ RSpec.describe CallableTree::Node::Internal do
     subject { node.append(*child_nodes) }
 
     let(:node) { InternalSpec::AMatcher.new }
-    let(:child_nodes) { [InternalSpec::BMatcher.new.append(->(input) { input })] }
+    let(:child_nodes) { [InternalSpec::BMatcher.new.append!(->(input) { input })] }
 
+    it { is_expected.not_to eq node }
+    it { expect { subject }.not_to change { node.children.size } }
+
+    it 'should generate new child nodes' do
+      expect(subject.children[0].object_id).not_to eq child_nodes[0].object_id
+      expect(subject.children[0].children[0].object_id).not_to eq child_nodes[0].children[0].object_id
+    end
+  end
+
+  describe '#append!' do
+    subject { node.append!(*child_nodes) }
+
+    let(:node) { InternalSpec::AMatcher.new }
+    let(:child_nodes) { [InternalSpec::BMatcher.new.append!(->(input) { input })] }
+
+    it { is_expected.to eq node }
     it { expect { subject }.to change { node.children.size }.by(1) }
 
     it 'should generate new child nodes' do
@@ -52,7 +68,7 @@ RSpec.describe CallableTree::Node::Internal do
     end
 
     context 'when node has child nodes' do
-      before { node.append(->(input) { input }) }
+      before { node.append!(->(input) { input }) }
       it { is_expected.to eq true }
     end
   end
@@ -76,7 +92,7 @@ RSpec.describe CallableTree::Node::Internal do
   describe '#call' do
     subject { node.call(input, **options) }
 
-    let(:node) { ::Class.new { include CallableTree::Node::Internal }.new.append(*child_nodes) }
+    let(:node) { ::Class.new { include CallableTree::Node::Internal }.new.append!(*child_nodes) }
     let(:child_nodes) { [->(input) { input }, ->(input) { input }] }
 
     let(:input) { 'input' }
@@ -99,9 +115,9 @@ RSpec.describe CallableTree::Node::Internal do
   describe '#parent' do
     subject { node.parent }
 
-    let(:root_node) { CallableTree::Node::Root.new.append(a_node) }
-    let(:a_node) { InternalSpec::AMatcher.new.append(b_node) }
-    let(:b_node) { InternalSpec::BMatcher.new.append(leaf) }
+    let(:root_node) { CallableTree::Node::Root.new.append!(a_node) }
+    let(:a_node) { InternalSpec::AMatcher.new.append!(b_node) }
+    let(:b_node) { InternalSpec::BMatcher.new.append!(leaf) }
     let(:leaf) { ->(input) { input } }
 
     context 'of root_node' do
@@ -128,9 +144,9 @@ RSpec.describe CallableTree::Node::Internal do
   describe '#ancestors' do
     subject { node.ancestors.to_a }
 
-    let(:root_node) { CallableTree::Node::Root.new.append(a_node) }
-    let(:a_node) { InternalSpec::AMatcher.new.append(b_node) }
-    let(:b_node) { InternalSpec::BMatcher.new.append(leaf) }
+    let(:root_node) { CallableTree::Node::Root.new.append!(a_node) }
+    let(:a_node) { InternalSpec::AMatcher.new.append!(b_node) }
+    let(:b_node) { InternalSpec::BMatcher.new.append!(leaf) }
     let(:leaf) { ->(input) { input } }
 
     context 'of root_node' do
@@ -157,9 +173,9 @@ RSpec.describe CallableTree::Node::Internal do
   describe '#routes' do
     subject { node.routes }
 
-    let(:root_node) { CallableTree::Node::Root.new.append(a_node) }
-    let(:a_node) { InternalSpec::AMatcher.new.append(b_node) }
-    let(:b_node) { InternalSpec::BMatcher.new.append(leaf) }
+    let(:root_node) { CallableTree::Node::Root.new.append!(a_node) }
+    let(:a_node) { InternalSpec::AMatcher.new.append!(b_node) }
+    let(:b_node) { InternalSpec::BMatcher.new.append!(leaf) }
     let(:leaf) { ->(input) { input } }
 
     context 'of root_node' do
@@ -186,9 +202,9 @@ RSpec.describe CallableTree::Node::Internal do
   describe '#depth' do
     subject { node.depth }
 
-    let(:root_node) { CallableTree::Node::Root.new.append(a_node) }
-    let(:a_node) { InternalSpec::AMatcher.new.append(b_node) }
-    let(:b_node) { InternalSpec::BMatcher.new.append(leaf) }
+    let(:root_node) { CallableTree::Node::Root.new.append!(a_node) }
+    let(:a_node) { InternalSpec::AMatcher.new.append!(b_node) }
+    let(:b_node) { InternalSpec::BMatcher.new.append!(leaf) }
     let(:leaf) { ->(input) { input } }
 
     context 'of root_node' do

@@ -10,6 +10,12 @@ module CallableTree
       end
 
       def append(*callables)
+        clone.tap do |node|
+          node.append!(*callables)
+        end
+      end
+
+      def append!(*callables)
         callables
           .map { |callable| nodeify(callable) }
           .tap { |nodes| children.append(*nodes) }
@@ -74,6 +80,7 @@ module CallableTree
 
       def initialize_copy(_node)
         super
+        send(:parent=, nil)
         self.children = children.map do |node|
           node.clone.tap { |new_node| new_node.send(:parent=, self) }
         end
