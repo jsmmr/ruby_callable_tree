@@ -27,68 +27,19 @@ RSpec.describe CallableTree::Node::Internal do
     end
   end
 
-  describe '#<<' do
-    subject { node << child_node }
-
-    let(:root_node) { CallableTree::Node::Root.new }
-    let(:a_node) { InternalSpec::AMatcher.new }
-    let(:b_node) { InternalSpec::BMatcher.new }
-    let(:leaf) { ->(input) { input } }
-
-    context 'of root_node' do
-      let(:node) { root_node }
-      let(:child_node) { a_node << b_node }
-
-      it { expect { subject }.to change { node.children.size }.by(1) }
-
-      it 'should generate new node' do
-        subject
-        expect(node.children[0].object_id).not_to eq child_node.object_id
-      end
-
-      it 'should generate new child nodes' do
-        subject
-        expect(node.children[0].children.map(&:object_id)).not_to eq child_node.children.map(&:object_id)
-      end
-    end
-
-    context 'of a_node' do
-      let(:node) { a_node }
-      let(:child_node) { b_node << leaf }
-
-      it { expect { subject }.to change { node.children.size }.by(1) }
-
-      it 'should generate new node' do
-        subject
-        expect(node.children[0].object_id).not_to eq child_node.object_id
-      end
-
-      it 'should generate new child nodes' do
-        subject
-        expect(node.children[0].children.map(&:object_id)).not_to eq child_node.children.map(&:object_id)
-      end
-    end
-
-    context 'of b_node' do
-      let(:node) { b_node }
-      let(:child_node) { leaf }
-
-      it { expect { subject }.to change { node.children.size }.by(1) }
-
-      it 'should generate new node' do
-        subject
-        expect(node.children[0].object_id).not_to eq child_node.object_id
-      end
-    end
-  end
-
   describe '#append' do
     subject { node.append(*child_nodes) }
 
-    let(:node) { ::Class.new { include CallableTree::Node::Internal }.new }
-    let(:child_nodes) { [->(input) { input }, ->(input) { input }] }
+    let(:node) { InternalSpec::AMatcher.new }
+    let(:child_nodes) { [InternalSpec::BMatcher.new.append(->(input) { input })] }
 
-    it { expect { subject }.to change { node.children.size }.by(2) }
+    it { expect { subject }.to change { node.children.size }.by(1) }
+
+    it 'should generate new child nodes' do
+      subject
+      expect(node.children[0].object_id).not_to eq child_nodes[0].object_id
+      expect(node.children[0].children[0].object_id).not_to eq child_nodes[0].children[0].object_id
+    end
   end
 
   describe '#match?' do
@@ -101,7 +52,7 @@ RSpec.describe CallableTree::Node::Internal do
     end
 
     context 'when node has child nodes' do
-      before { node << ->(input) { input } }
+      before { node.append(->(input) { input }) }
       it { is_expected.to eq true }
     end
   end
@@ -148,9 +99,9 @@ RSpec.describe CallableTree::Node::Internal do
   describe '#parent' do
     subject { node.parent }
 
-    let(:root_node) { CallableTree::Node::Root.new << a_node }
-    let(:a_node) { InternalSpec::AMatcher.new << b_node }
-    let(:b_node) { InternalSpec::BMatcher.new << leaf }
+    let(:root_node) { CallableTree::Node::Root.new.append(a_node) }
+    let(:a_node) { InternalSpec::AMatcher.new.append(b_node) }
+    let(:b_node) { InternalSpec::BMatcher.new.append(leaf) }
     let(:leaf) { ->(input) { input } }
 
     context 'of root_node' do
@@ -177,9 +128,9 @@ RSpec.describe CallableTree::Node::Internal do
   describe '#ancestors' do
     subject { node.ancestors.to_a }
 
-    let(:root_node) { CallableTree::Node::Root.new << a_node }
-    let(:a_node) { InternalSpec::AMatcher.new << b_node }
-    let(:b_node) { InternalSpec::BMatcher.new << leaf }
+    let(:root_node) { CallableTree::Node::Root.new.append(a_node) }
+    let(:a_node) { InternalSpec::AMatcher.new.append(b_node) }
+    let(:b_node) { InternalSpec::BMatcher.new.append(leaf) }
     let(:leaf) { ->(input) { input } }
 
     context 'of root_node' do
@@ -206,9 +157,9 @@ RSpec.describe CallableTree::Node::Internal do
   describe '#routes' do
     subject { node.routes }
 
-    let(:root_node) { CallableTree::Node::Root.new << a_node }
-    let(:a_node) { InternalSpec::AMatcher.new << b_node }
-    let(:b_node) { InternalSpec::BMatcher.new << leaf }
+    let(:root_node) { CallableTree::Node::Root.new.append(a_node) }
+    let(:a_node) { InternalSpec::AMatcher.new.append(b_node) }
+    let(:b_node) { InternalSpec::BMatcher.new.append(leaf) }
     let(:leaf) { ->(input) { input } }
 
     context 'of root_node' do
@@ -235,9 +186,9 @@ RSpec.describe CallableTree::Node::Internal do
   describe '#depth' do
     subject { node.depth }
 
-    let(:root_node) { CallableTree::Node::Root.new << a_node }
-    let(:a_node) { InternalSpec::AMatcher.new << b_node }
-    let(:b_node) { InternalSpec::BMatcher.new << leaf }
+    let(:root_node) { CallableTree::Node::Root.new.append(a_node) }
+    let(:a_node) { InternalSpec::AMatcher.new.append(b_node) }
+    let(:b_node) { InternalSpec::BMatcher.new.append(leaf) }
     let(:leaf) { ->(input) { input } }
 
     context 'of root_node' do

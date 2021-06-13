@@ -9,20 +9,11 @@ module CallableTree
         @children ||= []
       end
 
-      def <<(callable)
-        children <<
-          if callable.is_a?(Node)
-            callable.clone
-          else
-            External.proxify(callable)
-          end
-          .tap { |node| node.send(:parent=, self) }
-
-        self
-      end
-
       def append(*callables)
-        callables.each { |callable| self.<<(callable) }
+        callables
+          .map { |callable| nodeify(callable) }
+          .tap { |nodes| children.append(*nodes) }
+
         self
       end
 
@@ -67,6 +58,15 @@ module CallableTree
       private
 
       attr_writer :children, :strategy
+
+      def nodeify(callable)
+        if callable.is_a?(Node)
+          callable.clone
+        else
+          External.proxify(callable)
+        end
+        .tap { |node| node.send(:parent=, self) }
+      end
 
       def strategy
         @strategy ||= Seek.new

@@ -24,8 +24,8 @@ RSpec.describe CallableTree::Node::Internal::Compose do
 
     let(:nodes) do
       [
-        InternalComposeSpec::AMatcher.new << ->(input, **) { input * 2 },
-        InternalComposeSpec::BMatcher.new << ->(input, **) { input * 3 }
+        InternalComposeSpec::AMatcher.new.append(->(input, **) { input * 2 }),
+        InternalComposeSpec::BMatcher.new.append(->(input, **) { input * 3 })
       ]
     end
 

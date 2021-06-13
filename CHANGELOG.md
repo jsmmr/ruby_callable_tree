@@ -1,4 +1,5 @@
 ## [Unreleased]
+- Remove `CallableTree::Node::Internal#<<`. Use `CallableTree::Node::External#append` instead.
 
 ## [0.1.3] - 2021-06-12
 - Minor improvements

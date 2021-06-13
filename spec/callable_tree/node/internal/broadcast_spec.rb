@@ -32,8 +32,8 @@ RSpec.describe CallableTree::Node::Internal::Broadcast do
 
     let(:nodes) do
       [
-        InternalSeekSpec::AMatcher.new << leaf,
-        InternalSeekSpec::BMatcher.new << leaf
+        InternalSeekSpec::AMatcher.new.append(leaf),
+        InternalSeekSpec::BMatcher.new.append(leaf)
       ]
     end
 
