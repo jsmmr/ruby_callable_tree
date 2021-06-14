@@ -1,5 +1,12 @@
 ## [Unreleased]
 
+## [0.2.0] - 2021-06-15
+- Change `CallableTree::Node::Internal#append` to return a new instance.
+  To keep the same behavior as the older version, use `CallableTree::Node::External#append!` that make destructive change.
+- Remove `CallableTree::Node::Internal#<<`. Use `CallableTree::Node::External#append!` instead.
+- Change `CallableTree::Node::External#verbosify` to return a new instance.
+  To keep the same behavior as the older version, use `CallableTree::Node::External#verbosify!` that make destructive change.
+
 ## [0.1.3] - 2021-06-12
 - Minor improvements
 

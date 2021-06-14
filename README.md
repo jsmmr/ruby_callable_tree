@@ -158,7 +158,7 @@ Run `examples/internal-seek.rb`:
 ---
 ```
 
-#### `CallableTree::Node::Internal#broadcast` (experimental)
+#### `CallableTree::Node::Internal#broadcast`
 
 This strategy calls all child nodes of the internal node and ignores their `terminate?` methods, and then outputs their results as array.
 
@@ -212,7 +212,7 @@ Run `examples/internal-broadcast.rb`:
 10 -> [nil, nil]
 ```
 
-#### `CallableTree::Node::Internal#compose` (experimental)
+#### `CallableTree::Node::Internal#compose`
 
 This strategy calls all child nodes of the internal node in order to input the output of the previous node to the next node and ignores their `terminate?` methods, and then outputs a single result.
 
