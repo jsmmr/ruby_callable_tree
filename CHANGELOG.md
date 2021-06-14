@@ -1,4 +1,6 @@
 ## [Unreleased]
+- Change `CallableTree::Node::External#verbosify` to return a new instance.
+  To keep the same behavior as the older version, use `CallableTree::Node::External#verbosify!` that make destructive change.
 
 ## [0.1.3] - 2021-06-12
 - Minor improvements

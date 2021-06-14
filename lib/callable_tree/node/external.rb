@@ -18,6 +18,12 @@ module CallableTree
       end
 
       def verbosify
+        clone.tap do |node|
+          node.extend Verbose
+        end
+      end
+
+      def verbosify!
         extend Verbose
         self
       end
@@ -29,6 +35,13 @@ module CallableTree
           self
         end
           .class
+      end
+
+      private
+
+      def initialize_copy(_node)
+        super
+        send(:parent=, nil)
       end
 
       class Proxy

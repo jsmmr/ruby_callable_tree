@@ -11,12 +11,6 @@ RSpec.describe CallableTree::Node::External do
     end
   end
 
-  let(:verbose) { [true, false].sample }
-
-  before do
-    node.verbosify if verbose
-  end
-
   context 'when node is not proxified' do
     let(:node) { ExternalSpec::Stringifier.new }
 
@@ -71,7 +65,7 @@ RSpec.describe CallableTree::Node::External do
       end
 
       context 'when node has been verbosified' do
-        let(:verbose) { true }
+        before { node.verbosify! }
         it 'returns verbose output' do
           expect(subject.value).to eq 'input'
           expect(subject.options).to eq({ foo: :bar })
@@ -89,28 +83,26 @@ RSpec.describe CallableTree::Node::External do
       subject { node.verbosified? }
 
       context 'when node has not been verbosified' do
-        let(:verbose) { false }
-        it { is_expected.to eq false }
+        it { is_expected.to be false }
       end
 
       context 'when node has been verbosified' do
-        let(:verbose) { true }
-        it { is_expected.to eq true }
+        before { node.verbosify! }
+        it { is_expected.to be true }
       end
     end
 
     describe '#verbosify' do
       subject { node.verbosify }
+      it { expect { subject }.not_to change { node.verbosified? } }
+      it { is_expected.not_to eq node }
+      it { is_expected.to be_verbosified }
+    end
 
-      context 'when node has not been verbosified' do
-        let(:verbose) { false }
-        it { expect { subject }.to change { node.verbosified? }.from(false).to(true) }
-      end
-
-      context 'when node has been verbosified' do
-        let(:verbose) { true }
-        it { expect { subject }.not_to change { node.verbosified? } }
-      end
+    describe '#verbosify!' do
+      subject { node.verbosify! }
+      it { expect { subject }.to change { node.verbosified? }.from(false).to(true) }
+      it { is_expected.to eq node }
     end
 
     describe '#identity' do
@@ -173,7 +165,7 @@ RSpec.describe CallableTree::Node::External do
       end
 
       context 'when node has been verbosified' do
-        let(:verbose) { true }
+        before { node.verbosify! }
         it 'returns verbose output' do
           expect(subject.value).to eq 'input'
           expect(subject.options).to eq({ foo: :bar })
@@ -191,28 +183,26 @@ RSpec.describe CallableTree::Node::External do
       subject { node.verbosified? }
 
       context 'when node has not been verbosified' do
-        let(:verbose) { false }
-        it { is_expected.to eq false }
+        it { is_expected.to be false }
       end
 
       context 'when node has been verbosified' do
-        let(:verbose) { true }
-        it { is_expected.to eq true }
+        before { node.verbosify! }
+        it { is_expected.to be true }
       end
     end
 
     describe '#verbosify' do
       subject { node.verbosify }
+      it { expect { subject }.not_to change { node.verbosified? } }
+      it { is_expected.not_to eq node }
+      it { is_expected.to be_verbosified }
+    end
 
-      context 'when node has not been verbosified' do
-        let(:verbose) { false }
-        it { expect { subject }.to change { node.verbosified? }.from(false).to(true) }
-      end
-
-      context 'when node has been verbosified' do
-        let(:verbose) { true }
-        it { expect { subject }.not_to change { node.verbosified? } }
-      end
+    describe '#verbosify!' do
+      subject { node.verbosify! }
+      it { expect { subject }.to change { node.verbosified? }.from(false).to(true) }
+      it { is_expected.to eq node }
     end
 
     describe '#identity' do
