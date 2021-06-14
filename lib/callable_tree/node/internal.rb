@@ -9,20 +9,17 @@ module CallableTree
         @children ||= []
       end
 
-      def <<(callable)
-        children <<
-          if callable.is_a?(Node)
-            callable.clone
-          else
-            External.proxify(callable)
-          end
-          .tap { |node| node.send(:parent=, self) }
-
-        self
+      def append(*callables)
+        clone.tap do |node|
+          node.append!(*callables)
+        end
       end
 
-      def append(*callables)
-        callables.each { |callable| self.<<(callable) }
+      def append!(*callables)
+        callables
+          .map { |callable| nodeify(callable) }
+          .tap { |nodes| children.push(*nodes) } # Use Array#push for Ruby 2.4
+
         self
       end
 
@@ -68,12 +65,22 @@ module CallableTree
 
       attr_writer :children, :strategy
 
+      def nodeify(callable)
+        if callable.is_a?(Node)
+          callable.clone
+        else
+          External.proxify(callable)
+        end
+        .tap { |node| node.send(:parent=, self) }
+      end
+
       def strategy
         @strategy ||= Seek.new
       end
 
       def initialize_copy(_node)
         super
+        send(:parent=, nil)
         self.children = children.map do |node|
           node.clone.tap { |new_node| new_node.send(:parent=, self) }
         end
