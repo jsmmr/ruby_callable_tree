@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-RSpec.describe CallableTree::Node::Internal::Seek do
-  module InternalSeekSpec
+RSpec.describe CallableTree::Node::Internal::Strategy::Broadcast do
+  module InternalBroadcastSpec
     class AMatcher
       include CallableTree::Node::Internal
 
@@ -44,13 +44,13 @@ RSpec.describe CallableTree::Node::Internal::Seek do
     context 'input: less than 10' do
       let(:input) { 9 }
       let(:options) { { prefix: '(', suffix: ')' } }
-      it { is_expected.to eq '(009)' }
+      it { is_expected.to eq ['(009)', '(0009)'] }
     end
 
     context 'input: less than 20' do
       let(:input) { 13 }
       let(:options) { { prefix: '[', suffix: ']' } }
-      it { is_expected.to eq '[0013]' }
+      it { is_expected.to eq [nil, '[0013]'] }
     end
   end
 end

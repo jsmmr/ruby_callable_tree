@@ -32,31 +32,31 @@ module CallableTree
       end
 
       def seek
-        if strategy.is_a?(Seek)
+        if strategy.is_a?(Strategy::Seek)
           self
         else
           clone.tap do |node|
-            node.send(:strategy=, Seek.new)
+            node.send(:strategy=, Strategy::Seek.new)
           end
         end
       end
 
       def broadcast
-        if strategy.is_a?(Broadcast)
+        if strategy.is_a?(Strategy::Broadcast)
           self
         else
           clone.tap do |node|
-            node.send(:strategy=, Broadcast.new)
+            node.send(:strategy=, Strategy::Broadcast.new)
           end
         end
       end
 
       def compose
-        if strategy.is_a?(Compose)
+        if strategy.is_a?(Strategy::Compose)
           self
         else
           clone.tap do |node|
-            node.send(:strategy=, Compose.new)
+            node.send(:strategy=, Strategy::Compose.new)
           end
         end
       end
@@ -75,7 +75,7 @@ module CallableTree
       end
 
       def strategy
-        @strategy ||= Seek.new
+        @strategy ||= Strategy::Seek.new
       end
 
       def initialize_copy(_node)
