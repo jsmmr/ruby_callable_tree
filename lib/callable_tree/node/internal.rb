@@ -80,7 +80,7 @@ module CallableTree
 
       def initialize_copy(_node)
         super
-        send(:parent=, nil)
+        self.parent = nil
         self.children = children.map do |node|
           node.clone.tap { |new_node| new_node.send(:parent=, self) }
         end

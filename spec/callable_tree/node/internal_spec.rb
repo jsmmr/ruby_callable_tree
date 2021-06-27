@@ -240,11 +240,39 @@ RSpec.describe CallableTree::Node::Internal do
     context 'when current strategy is `broadcast`' do
       before { node.send(:strategy=, CallableTree::Node::Internal::Broadcast.new) }
       it { is_expected.not_to be node }
+
+      context 'when node has parent' do
+        before do
+          parent = CallableTree::Node::Root.new
+          parent.children << node
+          node.send(:parent=, parent)
+        end
+
+        it { expect(subject.parent).to be_nil }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.parent).to be_nil }
+      end
     end
 
     context 'when current strategy is `compose`' do
       before { node.send(:strategy=, CallableTree::Node::Internal::Compose.new) }
       it { is_expected.not_to be node }
+
+      context 'when node has parent' do
+        before do
+          parent = CallableTree::Node::Root.new
+          parent.children << node
+          node.send(:parent=, parent)
+        end
+
+        it { expect(subject.parent).to be_nil }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.parent).to be_nil }
+      end
     end
   end
 
@@ -255,6 +283,20 @@ RSpec.describe CallableTree::Node::Internal do
 
     context 'when current strategy is `seek`' do
       it { is_expected.not_to be node }
+
+      context 'when node has parent' do
+        before do
+          parent = CallableTree::Node::Root.new
+          parent.children << node
+          node.send(:parent=, parent)
+        end
+
+        it { expect(subject.parent).to be_nil }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.parent).to be_nil }
+      end
     end
 
     context 'when current strategy is `broadcast`' do
@@ -265,6 +307,20 @@ RSpec.describe CallableTree::Node::Internal do
     context 'when current strategy is `compose`' do
       before { node.send(:strategy=, CallableTree::Node::Internal::Compose.new) }
       it { is_expected.not_to be node }
+
+      context 'when node has parent' do
+        before do
+          parent = CallableTree::Node::Root.new
+          parent.children << node
+          node.send(:parent=, parent)
+        end
+
+        it { expect(subject.parent).to be_nil }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.parent).to be_nil }
+      end
     end
   end
 
@@ -275,11 +331,39 @@ RSpec.describe CallableTree::Node::Internal do
 
     context 'when current strategy is `seek`' do
       it { is_expected.not_to be node }
+
+      context 'when node has parent' do
+        before do
+          parent = CallableTree::Node::Root.new
+          parent.children << node
+          node.send(:parent=, parent)
+        end
+
+        it { expect(subject.parent).to be_nil }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.parent).to be_nil }
+      end
     end
 
     context 'when current strategy is `broadcast`' do
       before { node.send(:strategy=, CallableTree::Node::Internal::Broadcast.new) }
       it { is_expected.not_to be node }
+
+      context 'when node has parent' do
+        before do
+          parent = CallableTree::Node::Root.new
+          parent.children << node
+          node.send(:parent=, parent)
+        end
+
+        it { expect(subject.parent).to be_nil }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.parent).to be_nil }
+      end
     end
 
     context 'when current strategy is `compose`' do
