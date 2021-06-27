@@ -97,12 +97,40 @@ RSpec.describe CallableTree::Node::External do
       it { expect { subject }.not_to change { node.verbosified? } }
       it { is_expected.not_to eq node }
       it { is_expected.to be_verbosified }
+
+      context 'when node has parent' do
+        before do
+          parent = CallableTree::Node::Root.new
+          parent.children << node
+          node.send(:parent=, parent)
+        end
+
+        it { expect(subject.parent).to be_nil }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.parent).to be_nil }
+      end
     end
 
     describe '#verbosify!' do
       subject { node.verbosify! }
       it { expect { subject }.to change { node.verbosified? }.from(false).to(true) }
       it { is_expected.to eq node }
+
+      context 'when node has parent' do
+        before do
+          parent = CallableTree::Node::Root.new
+          parent.children << node
+          node.send(:parent=, parent)
+        end
+
+        it { expect(subject.parent).not_to be_nil }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.parent).to be_nil }
+      end
     end
 
     describe '#identity' do
@@ -197,12 +225,40 @@ RSpec.describe CallableTree::Node::External do
       it { expect { subject }.not_to change { node.verbosified? } }
       it { is_expected.not_to eq node }
       it { is_expected.to be_verbosified }
+
+      context 'when node has parent' do
+        before do
+          parent = ::Class.new { include CallableTree::Node::Internal }.new
+          parent.children << node
+          node.send(:parent=, parent)
+        end
+
+        it { expect(subject.parent).to be_nil }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.parent).to be_nil }
+      end
     end
 
     describe '#verbosify!' do
       subject { node.verbosify! }
       it { expect { subject }.to change { node.verbosified? }.from(false).to(true) }
       it { is_expected.to eq node }
+
+      context 'when node has parent' do
+        before do
+          parent = ::Class.new { include CallableTree::Node::Internal }.new
+          parent.children << node
+          node.send(:parent=, parent)
+        end
+
+        it { expect(subject.parent).not_to be_nil }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.parent).to be_nil }
+      end
     end
 
     describe '#identity' do
