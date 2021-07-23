@@ -359,6 +359,31 @@ RSpec.describe CallableTree::Node::Internal do
     end
   end
 
+  describe '#broadcast!' do
+    subject { node.broadcast! }
+
+    let(:node) { CallableTree::Node::Root.new }
+
+    context 'when current strategy is `seek`' do
+      it { is_expected.to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Broadcast }
+    end
+
+    context 'when current strategy is `broadcast`' do
+      before { node.send(:strategy=, CallableTree::Node::Internal::Strategy::Broadcast.new) }
+
+      it { is_expected.to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Broadcast }
+    end
+
+    context 'when current strategy is `compose`' do
+      before { node.send(:strategy=, CallableTree::Node::Internal::Strategy::Compose.new) }
+
+      it { is_expected.to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Broadcast }
+    end
+  end
+
   describe '#compose' do
     subject { node.compose }
 

@@ -1,5 +1,6 @@
 ## [Unreleased]
 - Add `CallableTree::Node::Internal#seek!` that make destructive change.
+- Add `CallableTree::Node::Internal#broadcast!` that make destructive change.
 
 ## [0.2.0] - 2021-06-15
 - Change `CallableTree::Node::Internal#append` to return a new instance.

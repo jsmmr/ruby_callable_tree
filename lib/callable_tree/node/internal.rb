@@ -56,6 +56,11 @@ module CallableTree
         end
       end
 
+      def broadcast!
+        self.strategy = Strategy::Broadcast.new unless strategy.is_a?(Strategy::Broadcast)
+        self
+      end
+
       def compose
         if strategy.is_a?(Strategy::Compose)
           self
