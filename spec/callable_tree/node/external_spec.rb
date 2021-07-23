@@ -36,6 +36,19 @@ RSpec.describe CallableTree::Node::External do
       end
     end
 
+    describe '#root?' do
+      subject { node.root? }
+
+      context 'when node has parent' do
+        include_context 'with parent node'
+        it { is_expected.to be false }
+      end
+
+      context 'when node does not have parent' do
+        it { is_expected.to be true }
+      end
+    end
+
     describe '#ancestors' do
       subject { node.ancestors.to_a }
 
@@ -141,11 +154,11 @@ RSpec.describe CallableTree::Node::External do
 
       context 'when node has parent' do
         include_context 'with parent node'
-        it { expect(subject.parent).to be_nil }
+        it { expect(subject.root?).to be true }
       end
 
       context 'when node does not have parent' do
-        it { expect(subject.parent).to be_nil }
+        it { expect(subject.root?).to be true }
       end
     end
 
@@ -156,11 +169,11 @@ RSpec.describe CallableTree::Node::External do
 
       context 'when node has parent' do
         include_context 'with parent node'
-        it { expect(subject.parent).not_to be_nil }
+        it { expect(subject.root?).to be false }
       end
 
       context 'when node does not have parent' do
-        it { expect(subject.parent).to be_nil }
+        it { expect(subject.root?).to be true }
       end
     end
 
@@ -183,6 +196,19 @@ RSpec.describe CallableTree::Node::External do
 
       context 'when node does not have parent' do
         it { is_expected.to be_nil }
+      end
+    end
+
+    describe '#root?' do
+      subject { node.root? }
+
+      context 'when node has parent' do
+        include_context 'with parent node'
+        it { is_expected.to be false }
+      end
+
+      context 'when node does not have parent' do
+        it { is_expected.to be true }
       end
     end
 
@@ -296,11 +322,11 @@ RSpec.describe CallableTree::Node::External do
           node.send(:parent=, parent)
         end
 
-        it { expect(subject.parent).to be_nil }
+        it { expect(subject.root?).to be true }
       end
 
       context 'when node does not have parent' do
-        it { expect(subject.parent).to be_nil }
+        it { expect(subject.root?).to be true }
       end
     end
 
@@ -316,11 +342,11 @@ RSpec.describe CallableTree::Node::External do
           node.send(:parent=, parent)
         end
 
-        it { expect(subject.parent).not_to be_nil }
+        it { expect(subject.root?).to be false }
       end
 
       context 'when node does not have parent' do
-        it { expect(subject.parent).to be_nil }
+        it { expect(subject.root?).to be true }
       end
     end
 

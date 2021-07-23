@@ -140,6 +140,32 @@ RSpec.describe CallableTree::Node::Internal do
     end
   end
 
+  describe '#root?' do
+    subject { node.root? }
+
+    include_context 'for building tree'
+
+    context 'of root_node' do
+      let(:node) { root_node }
+      it { is_expected.to be true }
+    end
+
+    context 'of a_node' do
+      let(:node) { root_node.children[0] }
+      it { is_expected.to be false }
+    end
+
+    context 'of b_node' do
+      let(:node) { root_node.children[0].children[0] }
+      it { is_expected.to be false }
+    end
+
+    context 'of leaf_node' do
+      let(:node) { root_node.children[0].children[0].children[0] }
+      it { is_expected.to be false }
+    end
+  end
+
   describe '#ancestors' do
     subject { node.ancestors.to_a }
 
@@ -245,11 +271,11 @@ RSpec.describe CallableTree::Node::Internal do
 
       context 'when node has parent' do
         include_context 'with parent node'
-        it { expect(subject.parent).to be_nil }
+        it { expect(subject.root?).to be true }
       end
 
       context 'when node does not have parent' do
-        it { expect(subject.parent).to be_nil }
+        it { expect(subject.root?).to be true }
       end
     end
 
@@ -261,11 +287,11 @@ RSpec.describe CallableTree::Node::Internal do
 
       context 'when node has parent' do
         include_context 'with parent node'
-        it { expect(subject.parent).to be_nil }
+        it { expect(subject.root?).to be true }
       end
 
       context 'when node does not have parent' do
-        it { expect(subject.parent).to be_nil }
+        it { expect(subject.root?).to be true }
       end
     end
   end
@@ -306,11 +332,11 @@ RSpec.describe CallableTree::Node::Internal do
 
       context 'when node has parent' do
         include_context 'with parent node'
-        it { expect(subject.parent).to be_nil }
+        it { expect(subject.root?).to be true }
       end
 
       context 'when node does not have parent' do
-        it { expect(subject.parent).to be_nil }
+        it { expect(subject.root?).to be true }
       end
     end
 
@@ -329,11 +355,11 @@ RSpec.describe CallableTree::Node::Internal do
 
       context 'when node has parent' do
         include_context 'with parent node'
-        it { expect(subject.parent).to be_nil }
+        it { expect(subject.root?).to be true }
       end
 
       context 'when node does not have parent' do
-        it { expect(subject.parent).to be_nil }
+        it { expect(subject.root?).to be true }
       end
     end
   end
@@ -374,11 +400,11 @@ RSpec.describe CallableTree::Node::Internal do
 
       context 'when node has parent' do
         include_context 'with parent node'
-        it { expect(subject.parent).to be_nil }
+        it { expect(subject.root?).to be true }
       end
 
       context 'when node does not have parent' do
-        it { expect(subject.parent).to be_nil }
+        it { expect(subject.root?).to be true }
       end
     end
 
@@ -390,11 +416,11 @@ RSpec.describe CallableTree::Node::Internal do
 
       context 'when node has parent' do
         include_context 'with parent node'
-        it { expect(subject.parent).to be_nil }
+        it { expect(subject.root?).to be true }
       end
 
       context 'when node does not have parent' do
-        it { expect(subject.parent).to be_nil }
+        it { expect(subject.root?).to be true }
       end
     end
 

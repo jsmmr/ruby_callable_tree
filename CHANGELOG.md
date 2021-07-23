@@ -1,4 +1,5 @@
 ## [Unreleased]
+- Add `CallableTree::Node::root?`.
 - Add `CallableTree::Node::Internal#seek!` that make destructive change.
 - Add `CallableTree::Node::Internal#broadcast!` that make destructive change.
 - Add `CallableTree::Node::Internal#compose!` that make destructive change.

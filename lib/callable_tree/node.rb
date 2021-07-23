@@ -4,6 +4,10 @@ module CallableTree
   module Node
     attr_reader :parent
 
+    def root?
+      parent.nil?
+    end
+
     def ancestors
       ::Enumerator.new do |y|
         node = self
@@ -23,7 +27,7 @@ module CallableTree
     end
 
     def depth
-      parent.nil? ? 0 : parent.depth + 1
+      root? ? 0 : parent.depth + 1
     end
 
     def match?(_input = nil, **_options)
