@@ -41,7 +41,7 @@ module CallableTree
 
       def initialize_copy(_node)
         super
-        send(:parent=, nil)
+        self.parent = nil
       end
 
       class Proxy
