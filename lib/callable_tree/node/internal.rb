@@ -71,6 +71,11 @@ module CallableTree
         end
       end
 
+      def compose!
+        self.strategy = Strategy::Compose.new unless strategy.is_a?(Strategy::Compose)
+        self
+      end
+
       private
 
       attr_writer :children, :strategy
