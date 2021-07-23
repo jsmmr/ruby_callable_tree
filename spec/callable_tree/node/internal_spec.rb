@@ -235,16 +235,74 @@ RSpec.describe CallableTree::Node::Internal do
 
     context 'when current strategy is `seek`' do
       it { is_expected.to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Seek }
     end
 
     context 'when current strategy is `broadcast`' do
-      before { node.send(:strategy=, CallableTree::Node::Internal::Broadcast.new) }
+      before { node.send(:strategy=, CallableTree::Node::Internal::Strategy::Broadcast.new) }
+
       it { is_expected.not_to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Seek }
+
+      context 'when node has parent' do
+        before do
+          parent = CallableTree::Node::Root.new
+          parent.children << node
+          node.send(:parent=, parent)
+        end
+
+        it { expect(subject.parent).to be_nil }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.parent).to be_nil }
+      end
     end
 
     context 'when current strategy is `compose`' do
-      before { node.send(:strategy=, CallableTree::Node::Internal::Compose.new) }
+      before { node.send(:strategy=, CallableTree::Node::Internal::Strategy::Compose.new) }
+
       it { is_expected.not_to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Seek }
+
+      context 'when node has parent' do
+        before do
+          parent = CallableTree::Node::Root.new
+          parent.children << node
+          node.send(:parent=, parent)
+        end
+
+        it { expect(subject.parent).to be_nil }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.parent).to be_nil }
+      end
+    end
+  end
+
+  describe '#seek!' do
+    subject { node.seek! }
+
+    let(:node) { CallableTree::Node::Root.new }
+
+    context 'when current strategy is `seek`' do
+      it { is_expected.to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Seek }
+    end
+
+    context 'when current strategy is `broadcast`' do
+      before { node.send(:strategy=, CallableTree::Node::Internal::Strategy::Broadcast.new) }
+
+      it { is_expected.to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Seek }
+    end
+
+    context 'when current strategy is `compose`' do
+      before { node.send(:strategy=, CallableTree::Node::Internal::Strategy::Compose.new) }
+
+      it { is_expected.to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Seek }
     end
   end
 
@@ -255,16 +313,74 @@ RSpec.describe CallableTree::Node::Internal do
 
     context 'when current strategy is `seek`' do
       it { is_expected.not_to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Broadcast }
+
+      context 'when node has parent' do
+        before do
+          parent = CallableTree::Node::Root.new
+          parent.children << node
+          node.send(:parent=, parent)
+        end
+
+        it { expect(subject.parent).to be_nil }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.parent).to be_nil }
+      end
     end
 
     context 'when current strategy is `broadcast`' do
-      before { node.send(:strategy=, CallableTree::Node::Internal::Broadcast.new) }
+      before { node.send(:strategy=, CallableTree::Node::Internal::Strategy::Broadcast.new) }
+
       it { is_expected.to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Broadcast }
     end
 
     context 'when current strategy is `compose`' do
-      before { node.send(:strategy=, CallableTree::Node::Internal::Compose.new) }
+      before { node.send(:strategy=, CallableTree::Node::Internal::Strategy::Compose.new) }
+
       it { is_expected.not_to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Broadcast }
+
+      context 'when node has parent' do
+        before do
+          parent = CallableTree::Node::Root.new
+          parent.children << node
+          node.send(:parent=, parent)
+        end
+
+        it { expect(subject.parent).to be_nil }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.parent).to be_nil }
+      end
+    end
+  end
+
+  describe '#broadcast!' do
+    subject { node.broadcast! }
+
+    let(:node) { CallableTree::Node::Root.new }
+
+    context 'when current strategy is `seek`' do
+      it { is_expected.to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Broadcast }
+    end
+
+    context 'when current strategy is `broadcast`' do
+      before { node.send(:strategy=, CallableTree::Node::Internal::Strategy::Broadcast.new) }
+
+      it { is_expected.to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Broadcast }
+    end
+
+    context 'when current strategy is `compose`' do
+      before { node.send(:strategy=, CallableTree::Node::Internal::Strategy::Compose.new) }
+
+      it { is_expected.to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Broadcast }
     end
   end
 
@@ -275,16 +391,74 @@ RSpec.describe CallableTree::Node::Internal do
 
     context 'when current strategy is `seek`' do
       it { is_expected.not_to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Compose }
+
+      context 'when node has parent' do
+        before do
+          parent = CallableTree::Node::Root.new
+          parent.children << node
+          node.send(:parent=, parent)
+        end
+
+        it { expect(subject.parent).to be_nil }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.parent).to be_nil }
+      end
     end
 
     context 'when current strategy is `broadcast`' do
-      before { node.send(:strategy=, CallableTree::Node::Internal::Broadcast.new) }
+      before { node.send(:strategy=, CallableTree::Node::Internal::Strategy::Broadcast.new) }
+
       it { is_expected.not_to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Compose }
+
+      context 'when node has parent' do
+        before do
+          parent = CallableTree::Node::Root.new
+          parent.children << node
+          node.send(:parent=, parent)
+        end
+
+        it { expect(subject.parent).to be_nil }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.parent).to be_nil }
+      end
     end
 
     context 'when current strategy is `compose`' do
-      before { node.send(:strategy=, CallableTree::Node::Internal::Compose.new) }
+      before { node.send(:strategy=, CallableTree::Node::Internal::Strategy::Compose.new) }
+
       it { is_expected.to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Compose }
+    end
+  end
+
+  describe '#compose!' do
+    subject { node.compose! }
+
+    let(:node) { CallableTree::Node::Root.new }
+
+    context 'when current strategy is `seek`' do
+      it { is_expected.to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Compose }
+    end
+
+    context 'when current strategy is `broadcast`' do
+      before { node.send(:strategy=, CallableTree::Node::Internal::Strategy::Broadcast.new) }
+
+      it { is_expected.to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Compose }
+    end
+
+    context 'when current strategy is `compose`' do
+      before { node.send(:strategy=, CallableTree::Node::Internal::Strategy::Compose.new) }
+
+      it { is_expected.to be node }
+      it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Compose }
     end
   end
 end
