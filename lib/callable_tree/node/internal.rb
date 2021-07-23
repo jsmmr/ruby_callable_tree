@@ -41,6 +41,11 @@ module CallableTree
         end
       end
 
+      def seek!
+        self.strategy = Strategy::Seek.new unless strategy.is_a?(Strategy::Seek)
+        self
+      end
+
       def broadcast
         if strategy.is_a?(Strategy::Broadcast)
           self
