@@ -13,6 +13,11 @@ RSpec.describe CallableTree::Node::Root do
     it { is_expected.to be_nil }
   end
 
+  describe '#root?' do
+    subject { node.root? }
+    it { is_expected.to be true }
+  end
+
   describe '#ancestors' do
     subject { node.ancestors.to_a }
     it { is_expected.to eq [node] }
