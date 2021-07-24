@@ -1,37 +1,91 @@
 # frozen_string_literal: true
 
 RSpec.describe CallableTree::Node::External do
-  module ExternalSpec
-    class Stringifier
-      include CallableTree::Node::External
-
-      def call(input, **)
-        input.to_s
+  shared_context 'with parent node' do
+    let!(:parent_node) do
+      CallableTree::Node::Root.new.tap do |root_node|
+        root_node.children << node
+        node.send(:parent=, root_node)
       end
     end
   end
 
   context 'when node is not proxified' do
+    module ExternalSpec
+      class Stringifier
+        include CallableTree::Node::External
+
+        def call(input, **)
+          input.to_s
+        end
+      end
+    end
+
     let(:node) { ExternalSpec::Stringifier.new }
 
     describe '#parent' do
       subject { node.parent }
-      it { is_expected.to be_nil }
+
+      context 'when node has parent' do
+        include_context 'with parent node'
+        it { is_expected.not_to be_nil }
+      end
+
+      context 'when node does not have parent' do
+        it { is_expected.to be_nil }
+      end
+    end
+
+    describe '#root?' do
+      subject { node.root? }
+
+      context 'when node has parent' do
+        include_context 'with parent node'
+        it { is_expected.to be false }
+      end
+
+      context 'when node does not have parent' do
+        it { is_expected.to be true }
+      end
     end
 
     describe '#ancestors' do
       subject { node.ancestors.to_a }
-      it { is_expected.to eq [node] }
+
+      context 'when node has parent' do
+        include_context 'with parent node'
+        it { is_expected.to eq [node, parent_node] }
+      end
+
+      context 'when node does not have parent' do
+        it { is_expected.to eq [node] }
+      end
     end
 
     describe '#routes' do
       subject { node.routes }
-      it { is_expected.to eq [ExternalSpec::Stringifier] }
+
+      context 'when node has parent' do
+        include_context 'with parent node'
+        it { is_expected.to eq [ExternalSpec::Stringifier, CallableTree::Node::Root] }
+      end
+
+      context 'when node does not have parent' do
+        it { is_expected.to eq [ExternalSpec::Stringifier] }
+      end
     end
 
     describe '#depth' do
       subject { node.depth }
-      it { is_expected.to eq 0 }
+
+      context 'when node has parent' do
+        include_context 'with parent node'
+        it { is_expected.to eq 1 }
+      end
+
+      context 'when node does not have parent' do
+        it { is_expected.to eq 0 }
+      end
     end
 
     describe '#match?' do
@@ -97,12 +151,30 @@ RSpec.describe CallableTree::Node::External do
       it { expect { subject }.not_to change { node.verbosified? } }
       it { is_expected.not_to eq node }
       it { is_expected.to be_verbosified }
+
+      context 'when node has parent' do
+        include_context 'with parent node'
+        it { expect(subject.root?).to be true }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.root?).to be true }
+      end
     end
 
     describe '#verbosify!' do
       subject { node.verbosify! }
       it { expect { subject }.to change { node.verbosified? }.from(false).to(true) }
       it { is_expected.to eq node }
+
+      context 'when node has parent' do
+        include_context 'with parent node'
+        it { expect(subject.root?).to be false }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.root?).to be true }
+      end
     end
 
     describe '#identity' do
@@ -116,22 +188,67 @@ RSpec.describe CallableTree::Node::External do
 
     describe '#parent' do
       subject { node.parent }
-      it { is_expected.to be_nil }
+
+      context 'when node has parent' do
+        include_context 'with parent node'
+        it { is_expected.not_to be_nil }
+      end
+
+      context 'when node does not have parent' do
+        it { is_expected.to be_nil }
+      end
+    end
+
+    describe '#root?' do
+      subject { node.root? }
+
+      context 'when node has parent' do
+        include_context 'with parent node'
+        it { is_expected.to be false }
+      end
+
+      context 'when node does not have parent' do
+        it { is_expected.to be true }
+      end
     end
 
     describe '#ancestors' do
       subject { node.ancestors.to_a }
-      it { is_expected.to eq [node] }
+
+      context 'when node has parent' do
+        include_context 'with parent node'
+        it { is_expected.to eq [node, parent_node] }
+      end
+
+      context 'when node does not have parent' do
+        it { is_expected.to eq [node] }
+      end
     end
 
     describe '#routes' do
       subject { node.routes }
-      it { is_expected.to eq [Proc] }
+
+      context 'when node has parent' do
+        include_context 'with parent node'
+        it { is_expected.to eq [Proc, CallableTree::Node::Root] }
+      end
+
+      context 'when node does not have parent' do
+        it { is_expected.to eq [Proc] }
+      end
     end
 
     describe '#depth' do
       subject { node.depth }
-      it { is_expected.to eq 0 }
+
+      context 'when node has parent' do
+        include_context 'with parent node'
+        it { is_expected.to eq 1 }
+      end
+
+      context 'when node does not have parent' do
+        it { is_expected.to eq 0 }
+      end
     end
 
     describe '#match?' do
@@ -197,12 +314,40 @@ RSpec.describe CallableTree::Node::External do
       it { expect { subject }.not_to change { node.verbosified? } }
       it { is_expected.not_to eq node }
       it { is_expected.to be_verbosified }
+
+      context 'when node has parent' do
+        before do
+          parent = ::Class.new { include CallableTree::Node::Internal }.new
+          parent.children << node
+          node.send(:parent=, parent)
+        end
+
+        it { expect(subject.root?).to be true }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.root?).to be true }
+      end
     end
 
     describe '#verbosify!' do
       subject { node.verbosify! }
       it { expect { subject }.to change { node.verbosified? }.from(false).to(true) }
       it { is_expected.to eq node }
+
+      context 'when node has parent' do
+        before do
+          parent = ::Class.new { include CallableTree::Node::Internal }.new
+          parent.children << node
+          node.send(:parent=, parent)
+        end
+
+        it { expect(subject.root?).to be false }
+      end
+
+      context 'when node does not have parent' do
+        it { expect(subject.root?).to be true }
+      end
     end
 
     describe '#identity' do

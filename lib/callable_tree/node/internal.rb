@@ -32,33 +32,48 @@ module CallableTree
       end
 
       def seek
-        if strategy.is_a?(Seek)
+        if strategy.is_a?(Strategy::Seek)
           self
         else
           clone.tap do |node|
-            node.send(:strategy=, Seek.new)
+            node.send(:strategy=, Strategy::Seek.new)
           end
         end
+      end
+
+      def seek!
+        self.strategy = Strategy::Seek.new unless strategy.is_a?(Strategy::Seek)
+        self
       end
 
       def broadcast
-        if strategy.is_a?(Broadcast)
+        if strategy.is_a?(Strategy::Broadcast)
           self
         else
           clone.tap do |node|
-            node.send(:strategy=, Broadcast.new)
+            node.send(:strategy=, Strategy::Broadcast.new)
           end
         end
       end
 
+      def broadcast!
+        self.strategy = Strategy::Broadcast.new unless strategy.is_a?(Strategy::Broadcast)
+        self
+      end
+
       def compose
-        if strategy.is_a?(Compose)
+        if strategy.is_a?(Strategy::Compose)
           self
         else
           clone.tap do |node|
-            node.send(:strategy=, Compose.new)
+            node.send(:strategy=, Strategy::Compose.new)
           end
         end
+      end
+
+      def compose!
+        self.strategy = Strategy::Compose.new unless strategy.is_a?(Strategy::Compose)
+        self
       end
 
       private
@@ -75,12 +90,12 @@ module CallableTree
       end
 
       def strategy
-        @strategy ||= Seek.new
+        @strategy ||= Strategy::Seek.new
       end
 
       def initialize_copy(_node)
         super
-        send(:parent=, nil)
+        self.parent = nil
         self.children = children.map do |node|
           node.clone.tap { |new_node| new_node.send(:parent=, self) }
         end

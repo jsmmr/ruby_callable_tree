@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe CallableTree::Node::Internal::Compose do
+RSpec.describe CallableTree::Node::Internal::Strategy::Compose do
   module InternalComposeSpec
     class AMatcher
       include CallableTree::Node::Internal
