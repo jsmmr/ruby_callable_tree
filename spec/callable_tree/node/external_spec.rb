@@ -4,7 +4,7 @@ RSpec.describe CallableTree::Node::External do
   shared_context 'with parent node' do
     let!(:parent_node) do
       CallableTree::Node::Root.new.tap do |root_node|
-        root_node.children << node
+        root_node.append!(node)
         node.send(:parent=, root_node)
       end
     end
@@ -317,9 +317,9 @@ RSpec.describe CallableTree::Node::External do
 
       context 'when node has parent' do
         before do
-          parent = ::Class.new { include CallableTree::Node::Internal }.new
-          parent.children << node
-          node.send(:parent=, parent)
+          parent_node = ::Class.new { include CallableTree::Node::Internal }.new
+          parent_node.append!(node)
+          node.send(:parent=, parent_node)
         end
 
         it { expect(subject.root?).to be true }
@@ -337,9 +337,9 @@ RSpec.describe CallableTree::Node::External do
 
       context 'when node has parent' do
         before do
-          parent = ::Class.new { include CallableTree::Node::Internal }.new
-          parent.children << node
-          node.send(:parent=, parent)
+          parent_node = ::Class.new { include CallableTree::Node::Internal }.new
+          parent_node.append!(node)
+          node.send(:parent=, parent_node)
         end
 
         it { expect(subject.root?).to be false }
