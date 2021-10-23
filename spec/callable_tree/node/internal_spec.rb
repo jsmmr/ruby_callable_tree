@@ -82,6 +82,38 @@ RSpec.describe CallableTree::Node::Internal do
     end
   end
 
+  describe '#reject!' do
+    subject { node.reject!(&block) }
+
+    let(:node) { CallableTree::Node::Root.new.append(a_node, b_node) }
+    let(:a_node) { InternalSpec::AMatcher.new }
+    let(:b_node) { InternalSpec::BMatcher.new }
+
+    context 'when AMatcher is rejected' do
+      let(:block) do
+        proc { |node| node.is_a?(InternalSpec::AMatcher) }
+      end
+
+      it 'rejects child nodes from self and returns self' do
+        expect { subject }.to change { node.children.size }.by(-1)
+        expect(subject).to eq node
+        expect(subject.children.map(&:class)).to eq [InternalSpec::BMatcher]
+      end
+    end
+
+    context 'when BMatcher is rejected' do
+      let(:block) do
+        proc { |node| node.is_a?(InternalSpec::BMatcher) }
+      end
+
+      it 'rejects child nodes from self and returns self' do
+        expect { subject }.to change { node.children.size }.by(-1)
+        expect(subject).to eq node
+        expect(subject.children.map(&:class)).to eq [InternalSpec::AMatcher]
+      end
+    end
+  end
+
   describe '#match?' do
     subject { node.match? }
 

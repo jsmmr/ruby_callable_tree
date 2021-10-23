@@ -30,6 +30,11 @@ module CallableTree
         end
       end
 
+      def reject!(&block)
+        child_nodes.reject!(&block)
+        self
+      end
+
       def match?(_input = nil, **_options)
         !child_nodes.empty?
       end
