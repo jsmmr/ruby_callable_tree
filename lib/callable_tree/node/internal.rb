@@ -6,7 +6,8 @@ module CallableTree
       include Node
 
       def children
-        @children ||= []
+        # TODO: Change to return a new array instance.
+        child_nodes
       end
 
       def append(*callables)
@@ -18,17 +19,28 @@ module CallableTree
       def append!(*callables)
         callables
           .map { |callable| nodeify(callable) }
-          .tap { |nodes| children.push(*nodes) } # Use Array#push for Ruby 2.4
+          .tap { |nodes| child_nodes.push(*nodes) } # Use Array#push for Ruby 2.4
 
         self
       end
 
+      def reject(&block)
+        clone.tap do |node|
+          node.reject!(&block)
+        end
+      end
+
+      def reject!(&block)
+        child_nodes.reject!(&block)
+        self
+      end
+
       def match?(_input = nil, **_options)
-        !children.empty?
+        !child_nodes.empty?
       end
 
       def call(input = nil, **options)
-        strategy.call(children, input: input, options: options)
+        strategy.call(child_nodes, input: input, options: options)
       end
 
       def seek
@@ -78,7 +90,11 @@ module CallableTree
 
       private
 
-      attr_writer :children, :strategy
+      attr_writer :child_nodes, :strategy
+
+      def child_nodes
+        @child_nodes ||= []
+      end
 
       def nodeify(callable)
         if callable.is_a?(Node)
@@ -96,7 +112,7 @@ module CallableTree
       def initialize_copy(_node)
         super
         self.parent = nil
-        self.children = children.map do |node|
+        self.child_nodes = child_nodes.map do |node|
           node.clone.tap { |new_node| new_node.send(:parent=, self) }
         end
       end
