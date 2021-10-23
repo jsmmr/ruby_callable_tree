@@ -24,6 +24,12 @@ module CallableTree
         self
       end
 
+      def reject(&block)
+        clone.tap do |node|
+          node.reject!(&block)
+        end
+      end
+
       def match?(_input = nil, **_options)
         !child_nodes.empty?
       end

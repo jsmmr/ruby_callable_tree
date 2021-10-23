@@ -1,4 +1,5 @@
 ## [Unreleased]
+- Add `CallableTree::Node::Internal#reject` that returns a new node instance without rejected child nodes.
 
 ## [0.2.1] - 2021-07-24
 - Add `CallableTree::Node::root?`.
