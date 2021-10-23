@@ -1,7 +1,7 @@
 ## [Unreleased]
 
 ## [0.2.1] - 2021-07-24
-- Add `CallableTree::Node::root?`.
+- Add `CallableTree::Node#root?`.
 - Add `CallableTree::Node::Internal#seek!` that make destructive change.
 - Add `CallableTree::Node::Internal#broadcast!` that make destructive change.
 - Add `CallableTree::Node::Internal#compose!` that make destructive change.
