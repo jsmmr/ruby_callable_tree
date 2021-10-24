@@ -1,6 +1,6 @@
 # CallableTree
 
-![build](https://github.com/jsmmr/ruby_callable_tree/workflows/build/badge.svg)
+[![build](https://github.com/jsmmr/ruby_callable_tree/actions/workflows/build.yml/badge.svg)](https://github.com/jsmmr/ruby_callable_tree/actions/workflows/build.yml)
 
 ## Installation
 
