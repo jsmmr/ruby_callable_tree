@@ -1,5 +1,7 @@
 # CallableTree
 
+![build](https://github.com/jsmmr/ruby_callable_tree/workflows/build/badge.svg)
+
 ## Installation
 
 Add this line to your application's Gemfile:
