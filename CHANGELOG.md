@@ -1,7 +1,11 @@
 ## [Unreleased]
 
+## [0.2.2] - 2021-10-24
+- Add `CallableTree::Node::Internal#reject` to return a new node instance without rejected child nodes.
+- Add `CallableTree::Node::Internal#reject!` to destructively reject child nodes.
+
 ## [0.2.1] - 2021-07-24
-- Add `CallableTree::Node::root?`.
+- Add `CallableTree::Node#root?`.
 - Add `CallableTree::Node::Internal#seek!` that make destructive change.
 - Add `CallableTree::Node::Internal#broadcast!` that make destructive change.
 - Add `CallableTree::Node::Internal#compose!` that make destructive change.
