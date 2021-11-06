@@ -520,4 +520,46 @@ RSpec.describe CallableTree::Node::Internal do
       it { expect(subject.send(:strategy)).to be_a CallableTree::Node::Internal::Strategy::Compose }
     end
   end
+
+  describe '#outline' do
+    subject { node.outline }
+
+    let(:node) do
+      NamedInternalNode.new(8).append(
+        NamedInternalNode.new(3).append(
+          NamedExternalNode.new(1),
+          NamedInternalNode.new(6).append(
+            NamedInternalNode.new(4),
+            NamedExternalNode.new(7)
+          )
+        ),
+        NamedInternalNode.new(10).append(
+          NamedInternalNode.new(14).append(
+            NamedExternalNode.new(13)
+          )
+        )
+      )
+    end
+
+    let(:result) do
+      {
+        8 => {
+          3 => {
+            1 => nil,
+            6 => {
+              4 => {},
+              7 => nil
+            }
+          },
+          10 => {
+            14 => {
+              13 => nil
+            }
+          }
+        }
+      }
+    end
+
+    it { is_expected.to eq result }
+  end
 end
