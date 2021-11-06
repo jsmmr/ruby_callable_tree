@@ -88,6 +88,12 @@ module CallableTree
         self
       end
 
+      def outline(&block)
+        key = block ? block.call(self) : identity
+        value = child_nodes.reduce({}) { |memo, node| memo.merge!(node.outline(&block)) }
+        { key => value }
+      end
+
       private
 
       attr_writer :child_nodes, :strategy

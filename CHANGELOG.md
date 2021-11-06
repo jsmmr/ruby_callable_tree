@@ -1,4 +1,5 @@
 ## [Unreleased]
+- Add `CallableTree::Node#outline` that may be useful for writing the specs.
 
 ## [0.2.2] - 2021-10-24
 - Add `CallableTree::Node::Internal#reject` to return a new node instance without rejected child nodes.
