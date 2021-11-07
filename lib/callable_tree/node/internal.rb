@@ -35,6 +35,20 @@ module CallableTree
         self
       end
 
+      def shake(&block)
+        clone.tap do |node|
+          node.shake!(&block)
+        end
+      end
+
+      def shake!(&block)
+        reject!(&block) if block_given?
+
+        reject! do |node|
+          node.is_a?(Internal) && node.shake!(&block).child_nodes.empty?
+        end
+      end
+
       def match?(_input = nil, **_options)
         !child_nodes.empty?
       end
@@ -94,13 +108,15 @@ module CallableTree
         { key => value }
       end
 
-      private
-
-      attr_writer :child_nodes, :strategy
+      protected
 
       def child_nodes
         @child_nodes ||= []
       end
+
+      private
+
+      attr_writer :child_nodes, :strategy
 
       def nodeify(callable)
         if callable.is_a?(Node)

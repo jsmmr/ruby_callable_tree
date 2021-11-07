@@ -53,31 +53,42 @@ RSpec.describe CallableTree::Node::Internal do
   describe '#reject' do
     subject { node.reject(&block) }
 
-    let(:node) { CallableTree::Node::Root.new.append(a_node, b_node) }
-    let(:a_node) { InternalSpec::AMatcher.new }
-    let(:b_node) { InternalSpec::BMatcher.new }
+    let(:node) do
+      CallableTree::Node::Root.new.append(
+        NamedInternalNode.new(:a),
+        NamedInternalNode.new(:b)
+      )
+    end
 
-    context 'when AMatcher is rejected' do
+    context 'when :a node is rejected' do
       let(:block) do
-        proc { |node| node.is_a?(InternalSpec::AMatcher) }
+        proc { |node| node.identity == :a }
       end
 
-      it 'returns a new node instance without rejected child nodes' do
+      it { is_expected.not_to be node }
+
+      it 'does not reject children from the source node' do
         expect { subject }.not_to change { node.children.size }
-        expect(subject).not_to eq node
-        expect(subject.children.map(&:class)).to eq [InternalSpec::BMatcher]
+      end
+
+      it 'returns a node instance without rejected child nodes' do
+        expect(subject.outline).to eq({ CallableTree::Node::Root => { :b => {} } })
       end
     end
 
-    context 'when BMatcher is rejected' do
+    context 'when :b node is rejected' do
       let(:block) do
-        proc { |node| node.is_a?(InternalSpec::BMatcher) }
+        proc { |node| node.identity == :b }
       end
 
-      it 'returns new node instance without rejected child nodes' do
+      it { is_expected.not_to be node }
+
+      it 'does not reject children from the source node' do
         expect { subject }.not_to change { node.children.size }
-        expect(subject).not_to eq node
-        expect(subject.children.map(&:class)).to eq [InternalSpec::AMatcher]
+      end
+
+      it 'returns a node instance without rejected child nodes' do
+        expect(subject.outline).to eq({ CallableTree::Node::Root => { :a => {} } })
       end
     end
   end
@@ -85,31 +96,220 @@ RSpec.describe CallableTree::Node::Internal do
   describe '#reject!' do
     subject { node.reject!(&block) }
 
-    let(:node) { CallableTree::Node::Root.new.append(a_node, b_node) }
-    let(:a_node) { InternalSpec::AMatcher.new }
-    let(:b_node) { InternalSpec::BMatcher.new }
+    let(:node) do
+      CallableTree::Node::Root.new.append(
+        NamedInternalNode.new(:a),
+        NamedInternalNode.new(:b)
+      )
+    end
 
-    context 'when AMatcher is rejected' do
+    context 'when :a node is rejected' do
       let(:block) do
-        proc { |node| node.is_a?(InternalSpec::AMatcher) }
+        proc { |node| node.identity == :a }
       end
 
-      it 'rejects child nodes from self and returns self' do
+      it { is_expected.to be node }
+
+      it 'rejects children from the source node' do
         expect { subject }.to change { node.children.size }.by(-1)
-        expect(subject).to eq node
-        expect(subject.children.map(&:class)).to eq [InternalSpec::BMatcher]
+      end
+
+      it 'returns a node instance without rejected child nodes' do
+        expect(subject.outline).to eq({ CallableTree::Node::Root => { :b => {} } })
       end
     end
 
-    context 'when BMatcher is rejected' do
+    context 'when :b node is rejected' do
       let(:block) do
-        proc { |node| node.is_a?(InternalSpec::BMatcher) }
+        proc { |node| node.identity == :b }
       end
 
-      it 'rejects child nodes from self and returns self' do
+      it { is_expected.to be node }
+
+      it 'rejects children from the source node' do
         expect { subject }.to change { node.children.size }.by(-1)
-        expect(subject).to eq node
-        expect(subject.children.map(&:class)).to eq [InternalSpec::AMatcher]
+      end
+
+      it 'returns the node instance without rejected child nodes' do
+        expect(subject.outline).to eq({ CallableTree::Node::Root => { :a => {} } })
+      end
+    end
+  end
+
+  describe '#shake' do
+    subject { node.shake(&block) }
+
+    let(:node) do
+      NamedInternalNode.new(8).append(
+        NamedInternalNode.new(3).append(
+          NamedExternalNode.new(1),
+          NamedInternalNode.new(6).append(
+            NamedInternalNode.new(4),
+            NamedExternalNode.new(7)
+          )
+        ),
+        NamedInternalNode.new(10).append(
+          NamedInternalNode.new(14).append(
+            NamedExternalNode.new(13)
+          )
+        )
+      )
+    end
+
+    context 'when no block is given' do
+      let(:block) { nil }
+
+      it { is_expected.not_to be node }
+
+      let(:outline) do
+        {
+          8 => {
+            3 => {
+              1 => nil,
+              6 => {
+                7 => nil
+              }
+            },
+            10 => {
+              14 => {
+                13 => nil
+              }
+            }
+          }
+        }
+      end
+
+      it 'returns the node instance that is rejected internal nodes that have no child nodes' do
+        expect(subject.outline).to eq outline
+      end
+    end
+
+    context 'when nodes with depth of 3 are rejected' do
+      let(:block) do
+        proc { |node| node.depth == 3 }
+      end
+
+      it { is_expected.not_to be node }
+
+      let(:outline) do
+        {
+          8 => {
+            3 => {
+              1 => nil
+            }
+          }
+        }
+      end
+
+      it 'returns the node instance that is rejected internal nodes that have no child nodes' do
+        expect(subject.outline).to eq outline
+      end
+    end
+
+    context 'when nodes with odd identity are rejected' do
+      let(:block) do
+        proc { |node| node.identity.odd? }
+      end
+
+      it { is_expected.not_to be node }
+
+      let(:outline) do
+        {
+          8 => {}
+        }
+      end
+
+      it 'returns the node instance that is rejected internal nodes that have no child nodes' do
+        expect(subject.outline).to eq outline
+      end
+    end
+  end
+
+  describe '#shake!' do
+    subject { node.shake!(&block) }
+
+    let(:node) do
+      NamedInternalNode.new(8).append(
+        NamedInternalNode.new(3).append(
+          NamedExternalNode.new(1),
+          NamedInternalNode.new(6).append(
+            NamedInternalNode.new(4),
+            NamedExternalNode.new(7)
+          )
+        ),
+        NamedInternalNode.new(10).append(
+          NamedInternalNode.new(14).append(
+            NamedExternalNode.new(13)
+          )
+        )
+      )
+    end
+
+    context 'when no block is given' do
+      let(:block) { nil }
+
+      it { is_expected.to be node }
+
+      let(:outline) do
+        {
+          8 => {
+            3 => {
+              1 => nil,
+              6 => {
+                7 => nil
+              }
+            },
+            10 => {
+              14 => {
+                13 => nil
+              }
+            }
+          }
+        }
+      end
+
+      it 'returns the node instance that is rejected internal nodes that have no child nodes' do
+        expect(subject.outline).to eq outline
+      end
+    end
+
+    context 'when nodes with depth of 3 are rejected' do
+      let(:block) do
+        proc { |node| node.depth == 3 }
+      end
+
+      it { is_expected.to be node }
+
+      let(:outline) do
+        {
+          8 => {
+            3 => {
+              1 => nil
+            }
+          }
+        }
+      end
+
+      it 'returns the node instance that is rejected internal nodes that have no child nodes' do
+        expect(subject.outline).to eq outline
+      end
+    end
+
+    context 'when nodes with odd identity are rejected' do
+      let(:block) do
+        proc { |node| node.identity.odd? }
+      end
+
+      it { is_expected.to be node }
+
+      let(:outline) do
+        {
+          8 => {}
+        }
+      end
+
+      it 'returns the node instance that is rejected internal nodes that have no child nodes' do
+        expect(subject.outline).to eq outline
       end
     end
   end
