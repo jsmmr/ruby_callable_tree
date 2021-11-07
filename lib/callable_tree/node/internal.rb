@@ -35,6 +35,12 @@ module CallableTree
         self
       end
 
+      def shake(&block)
+        clone.tap do |node|
+          node.shake!(&block)
+        end
+      end
+
       def shake!(&block)
         reject!(&block) if block_given?
 

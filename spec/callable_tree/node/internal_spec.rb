@@ -136,6 +136,95 @@ RSpec.describe CallableTree::Node::Internal do
     end
   end
 
+  describe '#shake' do
+    subject { node.shake(&block) }
+
+    let(:node) do
+      NamedInternalNode.new(8).append(
+        NamedInternalNode.new(3).append(
+          NamedExternalNode.new(1),
+          NamedInternalNode.new(6).append(
+            NamedInternalNode.new(4),
+            NamedExternalNode.new(7)
+          )
+        ),
+        NamedInternalNode.new(10).append(
+          NamedInternalNode.new(14).append(
+            NamedExternalNode.new(13)
+          )
+        )
+      )
+    end
+
+    context 'when no block is given' do
+      let(:block) { nil }
+
+      it { is_expected.not_to be node }
+
+      let(:outline) do
+        {
+          8 => {
+            3 => {
+              1 => nil,
+              6 => {
+                7 => nil
+              }
+            },
+            10 => {
+              14 => {
+                13 => nil
+              }
+            }
+          }
+        }
+      end
+
+      it 'returns the node instance that is rejected internal nodes that have no child nodes' do
+        expect(subject.outline).to eq outline
+      end
+    end
+
+    context 'when nodes with depth of 3 are rejected' do
+      let(:block) do
+        proc { |node| node.depth == 3 }
+      end
+
+      it { is_expected.not_to be node }
+
+      let(:outline) do
+        {
+          8 => {
+            3 => {
+              1 => nil
+            }
+          }
+        }
+      end
+
+      it 'returns the node instance that is rejected internal nodes that have no child nodes' do
+        expect(subject.outline).to eq outline
+      end
+    end
+
+    context 'when nodes with odd identity are rejected' do
+      let(:block) do
+        proc { |node| node.identity.odd? }
+      end
+
+      it { is_expected.not_to be node }
+
+      let(:outline) do
+        {
+          8 => {}
+        }
+      end
+
+      it 'returns the node instance that is rejected internal nodes that have no child nodes' do
+        expect(subject.outline).to eq outline
+      end
+    end
+  end
+
   describe '#shake!' do
     subject { node.shake!(&block) }
 
