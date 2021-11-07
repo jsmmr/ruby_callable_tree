@@ -124,7 +124,7 @@ module CallableTree
         else
           External.proxify(callable)
         end
-        .tap { |node| node.send(:parent=, self) }
+          .tap { |node| node.send(:parent=, self) }
       end
 
       def strategy

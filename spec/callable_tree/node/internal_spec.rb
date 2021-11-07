@@ -72,7 +72,7 @@ RSpec.describe CallableTree::Node::Internal do
       end
 
       it 'returns a node instance without rejected child nodes' do
-        expect(subject.outline).to eq({ CallableTree::Node::Root => { :b => {} } })
+        expect(subject.outline).to eq({ CallableTree::Node::Root => { b: {} } })
       end
     end
 
@@ -88,7 +88,7 @@ RSpec.describe CallableTree::Node::Internal do
       end
 
       it 'returns a node instance without rejected child nodes' do
-        expect(subject.outline).to eq({ CallableTree::Node::Root => { :a => {} } })
+        expect(subject.outline).to eq({ CallableTree::Node::Root => { a: {} } })
       end
     end
   end
@@ -115,7 +115,7 @@ RSpec.describe CallableTree::Node::Internal do
       end
 
       it 'returns a node instance without rejected child nodes' do
-        expect(subject.outline).to eq({ CallableTree::Node::Root => { :b => {} } })
+        expect(subject.outline).to eq({ CallableTree::Node::Root => { b: {} } })
       end
     end
 
@@ -131,7 +131,7 @@ RSpec.describe CallableTree::Node::Internal do
       end
 
       it 'returns the node instance without rejected child nodes' do
-        expect(subject.outline).to eq({ CallableTree::Node::Root => { :a => {} } })
+        expect(subject.outline).to eq({ CallableTree::Node::Root => { a: {} } })
       end
     end
   end

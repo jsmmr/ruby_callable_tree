@@ -189,7 +189,7 @@ RSpec.describe CallableTree::Node::External do
   end
 
   context 'when node is proxified' do
-    let(:node) { described_class.proxify(->(input, **options) { input.to_s }) }
+    let(:node) { described_class.proxify(->(input, **_options) { input.to_s }) }
 
     describe '#parent' do
       subject { node.parent }
