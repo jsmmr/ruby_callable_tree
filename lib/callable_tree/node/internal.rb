@@ -35,6 +35,20 @@ module CallableTree
         self
       end
 
+      def shake(&block)
+        clone.tap do |node|
+          node.shake!(&block)
+        end
+      end
+
+      def shake!(&block)
+        reject!(&block) if block_given?
+
+        reject! do |node|
+          node.is_a?(Internal) && node.shake!(&block).child_nodes.empty?
+        end
+      end
+
       def match?(_input = nil, **_options)
         !child_nodes.empty?
       end
@@ -88,13 +102,21 @@ module CallableTree
         self
       end
 
-      private
+      def outline(&block)
+        key = block ? block.call(self) : identity
+        value = child_nodes.reduce({}) { |memo, node| memo.merge!(node.outline(&block)) }
+        { key => value }
+      end
 
-      attr_writer :child_nodes, :strategy
+      protected
 
       def child_nodes
         @child_nodes ||= []
       end
+
+      private
+
+      attr_writer :child_nodes, :strategy
 
       def nodeify(callable)
         if callable.is_a?(Node)
@@ -102,7 +124,7 @@ module CallableTree
         else
           External.proxify(callable)
         end
-        .tap { |node| node.send(:parent=, self) }
+          .tap { |node| node.send(:parent=, self) }
       end
 
       def strategy

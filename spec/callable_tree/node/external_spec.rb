@@ -181,10 +181,15 @@ RSpec.describe CallableTree::Node::External do
       subject { node.identity }
       it { is_expected.to eq ExternalSpec::Stringifier }
     end
+
+    describe '#outline' do
+      subject { node.outline }
+      it { is_expected.to eq({ ExternalSpec::Stringifier => nil }) }
+    end
   end
 
   context 'when node is proxified' do
-    let(:node) { described_class.proxify(->(input, **options) { input.to_s }) }
+    let(:node) { described_class.proxify(->(input, **_options) { input.to_s }) }
 
     describe '#parent' do
       subject { node.parent }
@@ -353,6 +358,11 @@ RSpec.describe CallableTree::Node::External do
     describe '#identity' do
       subject { node.identity }
       it { is_expected.to eq Proc }
+    end
+
+    describe '#outline' do
+      subject { node.outline }
+      it { is_expected.to eq({ Proc => nil }) }
     end
   end
 end

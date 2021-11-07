@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+## [0.2.3] - 2021-11-07
+- Add `CallableTree::Node::Internal#shake` to recursively execute `CallableTree::Node::Internal#reject`, including child nodes. The child nodes that are empty because their children have been rejected will also be rejected.
+- Add `CallableTree::Node::Internal#shake!` that make destructive change.
+- Add `CallableTree::Node#outline` that may be useful for writing the specs.
+
 ## [0.2.2] - 2021-10-24
 - Add `CallableTree::Node::Internal#reject` to return a new node instance without rejected child nodes.
 - Add `CallableTree::Node::Internal#reject!` to destructively reject child nodes.

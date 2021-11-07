@@ -30,6 +30,10 @@ module CallableTree
       root? ? 0 : parent.depth + 1
     end
 
+    def outline
+      raise ::CallableTree::Error, 'Not implemented'
+    end
+
     def match?(_input = nil, **_options)
       true
     end

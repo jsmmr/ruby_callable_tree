@@ -37,6 +37,10 @@ module CallableTree
           .class
       end
 
+      def outline
+        { identity => nil }
+      end
+
       private
 
       def initialize_copy(_node)
