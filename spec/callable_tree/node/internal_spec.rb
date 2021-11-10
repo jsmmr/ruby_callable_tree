@@ -19,6 +19,27 @@ RSpec.describe CallableTree::Node::Internal do
     end
   end
 
+  describe '#[]' do
+    subject { node[nth] }
+
+    let(:node) do
+      CallableTree::Node::Root.new.append!(
+        IdLeaf.new(:a),
+        IdLeaf.new(:b)
+      )
+    end
+
+    context 'when index: 0' do
+      let(:nth) { 0 }
+      it { is_expected.to eq node.children[nth] }
+    end
+
+    context 'when index: 1' do
+      let(:nth) { 1 }
+      it { is_expected.to eq node.children[nth] }
+    end
+  end
+
   describe '#append' do
     subject { node.append(*child_nodes) }
 
@@ -29,8 +50,8 @@ RSpec.describe CallableTree::Node::Internal do
     it { expect { subject }.not_to change { node.children.size } }
 
     it 'should generate new child nodes' do
-      expect(subject.children[0]).not_to be child_nodes[0]
-      expect(subject.children[0].children[0]).not_to be child_nodes[0].children[0]
+      expect(subject[0]).not_to be child_nodes[0]
+      expect(subject[0][0]).not_to be child_nodes[0][0]
     end
   end
 
@@ -45,8 +66,8 @@ RSpec.describe CallableTree::Node::Internal do
 
     it 'should generate new child nodes' do
       subject
-      expect(node.children[0]).not_to be child_nodes[0]
-      expect(node.children[0].children[0]).not_to be child_nodes[0].children[0]
+      expect(node[0]).not_to be child_nodes[0]
+      expect(node[0][0]).not_to be child_nodes[0][0]
     end
   end
 
@@ -389,18 +410,18 @@ RSpec.describe CallableTree::Node::Internal do
     end
 
     context 'of a_node' do
-      let(:node) { root_node.children[0] }
+      let(:node) { root_node[0] }
       it { is_expected.to eq root_node }
     end
 
     context 'of b_node' do
-      let(:node) { root_node.children[0].children[0] }
-      it { is_expected.to eq root_node.children[0] }
+      let(:node) { root_node[0][0] }
+      it { is_expected.to eq root_node[0] }
     end
 
     context 'of leaf_node' do
-      let(:node) { root_node.children[0].children[0].children[0] }
-      it { is_expected.to eq root_node.children[0].children[0] }
+      let(:node) { root_node[0][0][0] }
+      it { is_expected.to eq root_node[0][0] }
     end
   end
 
@@ -415,17 +436,17 @@ RSpec.describe CallableTree::Node::Internal do
     end
 
     context 'of a_node' do
-      let(:node) { root_node.children[0] }
+      let(:node) { root_node[0] }
       it { is_expected.to be false }
     end
 
     context 'of b_node' do
-      let(:node) { root_node.children[0].children[0] }
+      let(:node) { root_node[0][0] }
       it { is_expected.to be false }
     end
 
     context 'of leaf_node' do
-      let(:node) { root_node.children[0].children[0].children[0] }
+      let(:node) { root_node[0][0][0] }
       it { is_expected.to be false }
     end
   end
@@ -441,18 +462,18 @@ RSpec.describe CallableTree::Node::Internal do
     end
 
     context 'of a_node' do
-      let(:node) { root_node.children[0] }
+      let(:node) { root_node[0] }
       it { is_expected.to eq [node, root_node] }
     end
 
     context 'of b_node' do
-      let(:node) { root_node.children[0].children[0] }
-      it { is_expected.to eq [node, root_node.children[0], root_node] }
+      let(:node) { root_node[0][0] }
+      it { is_expected.to eq [node, root_node[0], root_node] }
     end
 
     context 'of leaf_node' do
-      let(:node) { root_node.children[0].children[0].children[0] }
-      it { is_expected.to eq [node, root_node.children[0].children[0], root_node.children[0], root_node] }
+      let(:node) { root_node[0][0][0] }
+      it { is_expected.to eq [node, root_node[0][0], root_node[0], root_node] }
     end
   end
 
@@ -467,17 +488,17 @@ RSpec.describe CallableTree::Node::Internal do
     end
 
     context 'of a_node' do
-      let(:node) { root_node.children[0] }
+      let(:node) { root_node[0] }
       it { is_expected.to eq [InternalSpec::AMatcher, CallableTree::Node::Root] }
     end
 
     context 'of b_node' do
-      let(:node) { root_node.children[0].children[0] }
+      let(:node) { root_node[0][0] }
       it { is_expected.to eq [InternalSpec::BMatcher, InternalSpec::AMatcher, CallableTree::Node::Root] }
     end
 
     context 'of leaf_node' do
-      let(:node) { root_node.children[0].children[0].children[0] }
+      let(:node) { root_node[0][0][0] }
       it { is_expected.to eq [Proc, InternalSpec::BMatcher, InternalSpec::AMatcher, CallableTree::Node::Root] }
     end
   end
@@ -493,17 +514,17 @@ RSpec.describe CallableTree::Node::Internal do
     end
 
     context 'of a_node' do
-      let(:node) { root_node.children[0] }
+      let(:node) { root_node[0] }
       it { is_expected.to eq 1 }
     end
 
     context 'of b_node' do
-      let(:node) { root_node.children[0].children[0] }
+      let(:node) { root_node[0][0] }
       it { is_expected.to eq 2 }
     end
 
     context 'of leaf_node' do
-      let(:node) { root_node.children[0].children[0].children[0] }
+      let(:node) { root_node[0][0][0] }
       it { is_expected.to eq 3 }
     end
   end
