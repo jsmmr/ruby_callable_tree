@@ -23,15 +23,17 @@ module CallableTree
           self
         end
 
-        def call(input = nil, **options)
-          input = before_callbacks.reduce(input) do |input, callable|
-            callable.call(input, self, **options)
+        def call(*inputs, **options)
+          input_head, *input_tail = inputs
+
+          input_head = before_callbacks.reduce(input_head) do |input_head, callable|
+            callable.call(input_head, *input_tail, self, **options)
           end
 
-          output = super(input, **options)
+          output = super(input_head, *input_tail, **options)
 
           output = around_callbacks.reduce(output) do |output, callable|
-            callable.call(input, self, **options) { output }
+            callable.call(input_head, *input_tail, self, **options) { output }
           end
 
           after_callbacks.reduce(output) do |output, callable|

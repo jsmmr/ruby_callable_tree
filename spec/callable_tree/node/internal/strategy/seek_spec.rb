@@ -1,56 +1,33 @@
 # frozen_string_literal: true
 
 RSpec.describe CallableTree::Node::Internal::Strategy::Seek do
-  module InternalSeekSpec
-    class AMatcher
-      include CallableTree::Node::Internal
-
-      def match?(input, **)
-        super && input < 10
-      end
-
-      def call(input, **options)
-        super(format('%03d', input), **options)
-      end
-    end
-
-    class BMatcher
-      include CallableTree::Node::Internal
-
-      def match?(input, **)
-        super && input < 20
-      end
-
-      def call(input, **options)
-        super(format('%04d', input), **options)
-      end
-    end
-  end
-
   describe '#call' do
-    subject { described_class.new.call(nodes, input: input, options: options) }
+    subject { described_class.new.call(nodes, *inputs, **options) }
 
     let(:nodes) do
       [
-        InternalSeekSpec::AMatcher.new.append(leaf),
-        InternalSeekSpec::BMatcher.new.append(leaf)
+        LessThan.new(10).compose.append(
+          proc { |input| format('%03d', input) },
+          ->(input, *, prefix:, suffix:) { "#{prefix}#{input}#{suffix}" }
+        ),
+        LessThan.new(20).compose.append(
+          ->(*inputs, **) { inputs.sum },
+          proc { |input| format('%04d', input) },
+          ->(input, *, prefix:, suffix:) { "#{prefix}#{input}#{suffix}" }
+        )
       ]
     end
 
-    let(:leaf) do
-      ->(input, prefix:, suffix:) { "#{prefix}#{input}#{suffix}" }
-    end
-
     context 'input: less than 10' do
-      let(:input) { 9 }
+      let(:inputs) { 9 }
       let(:options) { { prefix: '(', suffix: ')' } }
       it { is_expected.to eq '(009)' }
     end
 
-    context 'input: less than 20' do
-      let(:input) { 13 }
+    context 'inputs: less than 20' do
+      let(:inputs) { [13, 4, 1] }
       let(:options) { { prefix: '[', suffix: ']' } }
-      it { is_expected.to eq '[0013]' }
+      it { is_expected.to eq '[0018]' }
     end
   end
 end

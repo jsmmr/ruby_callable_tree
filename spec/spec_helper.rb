@@ -3,6 +3,7 @@
 require 'callable_tree'
 require 'support/id_leaf'
 require 'support/id_node'
+require 'support/less_than'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

@@ -34,15 +34,15 @@ module CallableTree
       raise ::CallableTree::Error, 'Not implemented'
     end
 
-    def match?(_input = nil, **_options)
+    def match?(*_inputs, **_options)
       true
     end
 
-    def call(_input = nil, **_options)
+    def call(*_inputs, **_options)
       raise ::CallableTree::Error, 'Not implemented'
     end
 
-    def terminate?(output = nil, **_options)
+    def terminate?(output, *_inputs, **_options)
       !output.nil?
     end
 

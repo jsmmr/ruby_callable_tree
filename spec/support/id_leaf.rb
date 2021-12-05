@@ -9,7 +9,7 @@ class IdLeaf
     @id
   end
 
-  def call(input = nil)
+  def call(input, *, **)
     input
   end
 end

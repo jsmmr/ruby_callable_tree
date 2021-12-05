@@ -5,9 +5,9 @@ module CallableTree
     module Internal
       module Strategy
         class Broadcast
-          def call(nodes, input:, options:)
+          def call(nodes, *inputs, **options)
             nodes.map do |node|
-              node.call(input, **options) if node.match?(input, **options)
+              node.call(*inputs, **options) if node.match?(*inputs, **options)
             end
           end
         end

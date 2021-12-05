@@ -15,7 +15,7 @@ RSpec.describe CallableTree::Node::External do
       class Stringifier
         include CallableTree::Node::External
 
-        def call(input, **)
+        def call(input, *, **)
           input.to_s
         end
       end
@@ -189,7 +189,7 @@ RSpec.describe CallableTree::Node::External do
   end
 
   context 'when node is proxified' do
-    let(:node) { described_class.proxify(->(input, **_options) { input.to_s }) }
+    let(:node) { described_class.proxify(->(input, **) { input.to_s }) }
 
     describe '#parent' do
       subject { node.parent }

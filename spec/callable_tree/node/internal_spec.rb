@@ -346,20 +346,20 @@ RSpec.describe CallableTree::Node::Internal do
   end
 
   describe '#call' do
-    subject { node.call(input, **options) }
+    subject { node.call(*inputs, **options) }
 
     let(:node) { ::Class.new { include CallableTree::Node::Internal }.new.append!(*child_nodes) }
     let(:child_nodes) { [->(input) { input }, ->(input) { input }] }
 
-    let(:input) { 'input' }
+    let(:inputs) { %i[input1 input2 input3] }
     let(:options) { { foo: :bar } }
 
     let(:strategy) { double(:strategy) }
 
     before { node.send(:strategy=, strategy) }
-    before { expect(strategy).to receive(:call).with(child_nodes, input: input, options: options).and_return('output') }
+    before { expect(strategy).to receive(:call).with(child_nodes, *inputs, **options).and_return(:output) }
 
-    it { is_expected.to eq 'output' }
+    it { is_expected.to eq :output }
   end
 
   describe '#identity' do
