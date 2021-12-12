@@ -1,12 +1,12 @@
-class NamedExternalNode
+class IdLeaf
   include CallableTree::Node::External
 
-  def initialize(name)
-    @name = name
+  def initialize(id)
+    @id = id
   end
 
   def identity
-    @name
+    @id
   end
 
   def call(input = nil)
