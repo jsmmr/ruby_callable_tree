@@ -5,13 +5,13 @@ module CallableTree
     module Internal
       module Strategy
         class Seek
-          def call(nodes, input:, options:)
+          def call(nodes, *inputs, **options)
             nodes
               .lazy
-              .select { |node| node.match?(input, **options) }
+              .select { |node| node.match?(*inputs, **options) }
               .map do |node|
-                output = node.call(input, **options)
-                terminated = node.terminate?(output, **options)
+                output = node.call(*inputs, **options)
+                terminated = node.terminate?(output, *inputs, **options)
                 [output, terminated]
               end
               .select { |_output, terminated| terminated }

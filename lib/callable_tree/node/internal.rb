@@ -49,12 +49,12 @@ module CallableTree
         end
       end
 
-      def match?(_input = nil, **_options)
+      def match?(*, **)
         !child_nodes.empty?
       end
 
-      def call(input = nil, **options)
-        strategy.call(child_nodes, input: input, options: options)
+      def call(*inputs, **options)
+        strategy.call(child_nodes, *inputs, **options)
       end
 
       def seek

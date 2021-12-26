@@ -5,10 +5,12 @@ module CallableTree
     module Internal
       module Strategy
         class Compose
-          def call(nodes, input:, options:)
-            nodes.reduce(input) do |input, node|
-              if node.match?(input, **options)
-                node.call(input, **options)
+          def call(nodes, *inputs, **options)
+            head, *tail = inputs
+            nodes.reduce(head) do |input, node|
+              inputs = [input, *tail]
+              if node.match?(*inputs, **options)
+                node.call(*inputs, **options)
               else
                 input
               end

@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 require 'callable_tree'
-require 'support/named_external_node'
-require 'support/named_internal_node'
+require 'support/id_leaf'
+require 'support/id_node'
+require 'support/less_than'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure

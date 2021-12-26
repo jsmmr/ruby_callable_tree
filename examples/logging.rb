@@ -10,7 +10,7 @@ module Node
     module Match
       LIST_STYLE = '*'.freeze
 
-      def match?(_input, **)
+      def match?(_input, **_options)
         super.tap do |matched|
           prefix = LIST_STYLE.rjust(self.depth * INDENT_SIZE - INDENT_SIZE + LIST_STYLE.length, BLANK)
           puts "#{prefix} #{self.identity}: [matched: #{matched}]"
@@ -22,7 +22,7 @@ module Node
       INPUT_LABEL  = 'Input :'.freeze
       OUTPUT_LABEL = 'Output:'.freeze
 
-      def call(input, **)
+      def call(input, **_options)
         super.tap do |output|
           input_prefix = INPUT_LABEL.rjust(self.depth * INDENT_SIZE + INPUT_LABEL.length, BLANK)
           puts "#{input_prefix} #{input}"
@@ -51,7 +51,7 @@ module Node
       include CallableTree::Node::Internal
       prepend Logging::Match
 
-      def match?(input, **options)
+      def match?(input, **_options)
         File.extname(input) == '.json'
       end
 
@@ -62,7 +62,7 @@ module Node
         end
       end
 
-      def terminate?(_output, **)
+      def terminate?(_output, *_inputs, **_options)
         true
       end
     end
@@ -80,11 +80,11 @@ module Node
         Identity.new(klass: super, type: @type)
       end
 
-      def match?(input, **options)
+      def match?(input, **_options)
         !!input[@type.to_s]
       end
 
-      def call(input, **options)
+      def call(input, **_options)
         input[@type.to_s]
           .map { |element| [element['name'], element['emoji']] }
           .to_h
@@ -97,7 +97,7 @@ module Node
       include CallableTree::Node::Internal
       prepend Logging::Match
 
-      def match?(input, **options)
+      def match?(input, **_options)
         File.extname(input) == '.xml'
       end
 
@@ -107,7 +107,7 @@ module Node
         end
       end
 
-      def terminate?(_output, **)
+      def terminate?(_output, *_inputs, **_options)
         true
       end
     end
@@ -125,11 +125,11 @@ module Node
         Identity.new(klass: super, type: @type)
       end
 
-      def match?(input, **options)
+      def match?(input, **_options)
         !input.get_elements("//#{@type}").empty?
       end
 
-      def call(input, **options)
+      def call(input, **_options)
         input
           .get_elements("//#{@type}")
           .first

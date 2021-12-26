@@ -3,6 +3,7 @@
 module CallableTree
   module Node
     module External
+      # TODO: Add :inputs
       Output = Struct.new(:value, :options, :routes)
 
       module Verbose
@@ -10,8 +11,8 @@ module CallableTree
           true
         end
 
-        def call(input = nil, **options)
-          output = super(input, **options)
+        def call(*inputs, **options)
+          output = super(*inputs, **options)
           routes = self.routes
 
           Output.new(output, options, routes)
