@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class IdLeaf
   include CallableTree::Node::External
 

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'callable_tree'
 require 'json'
 require 'rexml/document'
@@ -94,7 +96,7 @@ tree = CallableTree::Node::Root.new.append(
   )
 )
 
-Dir.glob(__dir__ + '/docs/*') do |file|
+Dir.glob("#{__dir__}/docs/*") do |file|
   options = { foo: :bar }
   pp tree.call(file, **options)
   puts '---'

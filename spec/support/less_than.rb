@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class LessThan
   include CallableTree::Node::Internal
 
