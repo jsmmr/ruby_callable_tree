@@ -12,6 +12,10 @@ module CallableTree
         [*child_nodes]
       end
 
+      def children!
+        child_nodes
+      end
+
       def append(*callables)
         clone.tap do |node|
           node.append!(*callables)
