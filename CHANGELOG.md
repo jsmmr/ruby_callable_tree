@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.3.0] - 2021-12-27
+
 - Change `CallableTree::Node#match?` to accept inputs to the node as variable length arguments.
 - Change `CallableTree::Node#call` to accept inputs to the node as variable length arguments.
 - Change `CallableTree::Node#terminate?` to accept inputs to the node as variable length arguments, after the `output` argument.
