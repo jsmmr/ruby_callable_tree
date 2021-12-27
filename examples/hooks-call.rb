@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'callable_tree'
 
 module Node
@@ -8,24 +10,24 @@ module Node
 end
 
 Node::HooksSample.new
-  .before_call do |input, **options|
+  .before_call do |input, **_options|
     puts "before_call input: #{input}";
     input + 1
   end
   .append(
     # anonymous external node
-    lambda do |input, **options|
+    lambda do |input, **_options|
       puts "external input: #{input}"
       input * 2
     end
   )
-  .around_call do |input, **options, &block|
+  .around_call do |input, **_options, &block|
     puts "around_call input: #{input}"
     output = block.call
     puts "around_call output: #{output}"
     output * input
   end
-  .after_call do |output, **options|
+  .after_call do |output, **_options|
     puts "after_call output: #{output}"
     output * 2
   end

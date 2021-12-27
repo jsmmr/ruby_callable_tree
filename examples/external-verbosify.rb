@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'callable_tree'
 require 'json'
 require 'rexml/document'
@@ -7,7 +9,7 @@ module Node
     class Parser
       include CallableTree::Node::Internal
 
-      def match?(input, **options)
+      def match?(input, **_options)
         File.extname(input) == '.json'
       end
 
@@ -18,7 +20,7 @@ module Node
         end
       end
 
-      def terminate?(_output, **)
+      def terminate?(_output, *_inputs, **_options)
         true
       end
     end
@@ -30,11 +32,11 @@ module Node
         @type = type
       end
 
-      def match?(input, **options)
+      def match?(input, **_options)
         !!input[@type.to_s]
       end
 
-      def call(input, **options)
+      def call(input, **_options)
         input[@type.to_s]
           .map { |element| [element['name'], element['emoji']] }
           .to_h
@@ -46,7 +48,7 @@ module Node
     class Parser
       include CallableTree::Node::Internal
 
-      def match?(input, **options)
+      def match?(input, **_options)
         File.extname(input) == '.xml'
       end
 
@@ -56,7 +58,7 @@ module Node
         end
       end
 
-      def terminate?(_output, **)
+      def terminate?(_output, *_inputs, **_options)
         true
       end
     end
@@ -68,11 +70,11 @@ module Node
         @type = type
       end
 
-      def match?(input, **options)
+      def match?(input, **_options)
         !input.get_elements("//#{@type}").empty?
       end
 
-      def call(input, **options)
+      def call(input, **_options)
         input
           .get_elements("//#{@type}")
           .first
@@ -94,7 +96,7 @@ tree = CallableTree::Node::Root.new.append(
   )
 )
 
-Dir.glob(__dir__ + '/docs/*') do |file|
+Dir.glob("#{__dir__}/docs/*") do |file|
   options = { foo: :bar }
   pp tree.call(file, **options)
   puts '---'

@@ -1,44 +1,29 @@
 # frozen_string_literal: true
 
 RSpec.describe CallableTree::Node::Internal::Strategy::Compose do
-  module InternalComposeSpec
-    class AMatcher
-      include CallableTree::Node::Internal
-
-      def match?(input, **)
-        super && input < 10
-      end
-    end
-
-    class BMatcher
-      include CallableTree::Node::Internal
-
-      def match?(input, **)
-        super && input < 20
-      end
-    end
-  end
-
   describe '#call' do
-    subject { described_class.new.call(nodes, input: input, options: options) }
+    subject { described_class.new.call(nodes, *inputs, **options) }
 
     let(:nodes) do
       [
-        InternalComposeSpec::AMatcher.new.append(->(input, **) { input * 2 }),
-        InternalComposeSpec::BMatcher.new.append(->(input, **) { input * 3 })
+        LessThan.new(10).append(proc { |input| input * 2 }),
+        LessThan.new(20).append(proc { |*inputs, **| inputs.sum * 3 }),
+        CallableTree::Node::External.proxify(
+          ->(input, *, prefix:, suffix:) { "#{prefix}#{input}#{suffix}" }
+        )
       ]
     end
 
     context 'input: less than 10' do
-      let(:input) { 9 }
-      let(:options) { {} }
-      it { is_expected.to eq 54 }
+      let(:inputs) { [9, 1] }
+      let(:options) { { prefix: '(', suffix: ')' } }
+      it { is_expected.to eq '(57)' }
     end
 
-    context 'input: less than 20' do
-      let(:input) { 13 }
-      let(:options) { {} }
-      it { is_expected.to eq 39 }
+    context 'input: greater than 10' do
+      let(:inputs) { [13, 4, 1] }
+      let(:options) { { prefix: '[', suffix: ']' } }
+      it { is_expected.to eq '[54]' }
     end
   end
 end

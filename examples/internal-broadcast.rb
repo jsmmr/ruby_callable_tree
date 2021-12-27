@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'callable_tree'
 
 module Node
@@ -16,12 +18,12 @@ end
 
 tree = CallableTree::Node::Root.new.append(
   Node::LessThan.new(5).append(
-    lambda { |input, **| input * 2 }, # anonymous external node
-    lambda { |input, **| input + 1 }  # anonymous external node
+    ->(input) { input * 2 }, # anonymous external node
+    ->(input) { input + 1 }  # anonymous external node
   ).broadcast,
   Node::LessThan.new(10).append(
-    lambda { |input, **| input * 3 }, # anonymous external node
-    lambda { |input, **| input - 1 }  # anonymous external node
+    ->(input) { input * 3 }, # anonymous external node
+    ->(input) { input - 1 }  # anonymous external node
   ).broadcast
 ).broadcast
 

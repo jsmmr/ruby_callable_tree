@@ -3,10 +3,16 @@
 module CallableTree
   module Node
     module Internal
+      extend ::Forwardable
       include Node
 
+      def_delegators :child_nodes, :[], :at
+
       def children
-        # TODO: Change to return a new array instance.
+        [*child_nodes]
+      end
+
+      def children!
         child_nodes
       end
 
@@ -49,12 +55,12 @@ module CallableTree
         end
       end
 
-      def match?(_input = nil, **_options)
+      def match?(*, **)
         !child_nodes.empty?
       end
 
-      def call(input = nil, **options)
-        strategy.call(child_nodes, input: input, options: options)
+      def call(*inputs, **options)
+        strategy.call(child_nodes, *inputs, **options)
       end
 
       def seek

@@ -42,11 +42,11 @@ module Node
     class Parser
       include CallableTree::Node::Internal
 
-      def match?(input, **options)
+      def match?(input, **_options)
         File.extname(input) == '.json'
       end
 
-      # If there is need to convert the input value for
+      # If there is need to convert the input values for
       # child nodes, override the `call` method.
       def call(input, **options)
         File.open(input) do |file|
@@ -58,7 +58,7 @@ module Node
       # If a returned value of the `call` method is `nil`,
       # but there is no need to call the sibling nodes,
       # override the `terminate?` method to return `true`.
-      def terminate?(output, **options)
+      def terminate?(_output, *_inputs, **_options)
         true
       end
     end
@@ -70,11 +70,11 @@ module Node
         @type = type
       end
 
-      def match?(input, **options)
+      def match?(input, **_options)
         !!input[@type.to_s]
       end
 
-      def call(input, **options)
+      def call(input, **_options)
         input[@type.to_s]
           .map { |element| [element['name'], element['emoji']] }
           .to_h
@@ -86,11 +86,11 @@ module Node
     class Parser
       include CallableTree::Node::Internal
 
-      def match?(input, **options)
+      def match?(input, **_options)
         File.extname(input) == '.xml'
       end
 
-      # If there is need to convert the input value for
+      # If there is need to convert the input values for
       # child nodes, override the `call` method.
       def call(input, **options)
         File.open(input) do |file|
@@ -101,7 +101,7 @@ module Node
       # If a returned value of the `call` method is `nil`,
       # but there is no need to call the sibling nodes,
       # override the `terminate?` method to return `true`.
-      def terminate?(output, **options)
+      def terminate?(_output, *_inputs, **_options)
         true
       end
     end
@@ -113,11 +113,11 @@ module Node
         @type = type
       end
 
-      def match?(input, **options)
+      def match?(input, **_options)
         !input.get_elements("//#{@type}").empty?
       end
 
-      def call(input, **options)
+      def call(input, **_options)
         input
           .get_elements("//#{@type}")
           .first
@@ -140,7 +140,7 @@ tree = CallableTree::Node::Root.new.append(
   )#.seek
 )#.seek
 
-Dir.glob(__dir__ + '/docs/*') do |file|
+Dir.glob("#{__dir__}/docs/*") do |file|
   options = { foo: :bar }
   pp tree.call(file, **options)
   puts '---'
@@ -182,12 +182,12 @@ end
 
 tree = CallableTree::Node::Root.new.append(
   Node::LessThan.new(5).append(
-    lambda { |input, **| input * 2 }, # anonymous external node
-    lambda { |input, **| input + 1 }  # anonymous external node
+    ->(input) { input * 2 }, # anonymous external node
+    ->(input) { input + 1 }  # anonymous external node
   ).broadcast,
   Node::LessThan.new(10).append(
-    lambda { |input, **| input * 3 }, # anonymous external node
-    lambda { |input, **| input - 1 }  # anonymous external node
+    ->(input) { input * 3 }, # anonymous external node
+    ->(input) { input - 1 }  # anonymous external node
   ).broadcast
 ).broadcast
 
@@ -434,28 +434,28 @@ This is an example of logging.
 module Node
   module Logging
     INDENT_SIZE = 2
-    BLANK = ' '.freeze
+    BLANK = ' '
 
     module Match
-      LIST_STYLE = '*'.freeze
+      LIST_STYLE = '*'
 
-      def match?(_input, **)
+      def match?(_input, **_options)
         super.tap do |matched|
-          prefix = LIST_STYLE.rjust(self.depth * INDENT_SIZE - INDENT_SIZE + LIST_STYLE.length, BLANK)
-          puts "#{prefix} #{self.identity}: [matched: #{matched}]"
+          prefix = LIST_STYLE.rjust(depth * INDENT_SIZE - INDENT_SIZE + LIST_STYLE.length, BLANK)
+          puts "#{prefix} #{identity}: [matched: #{matched}]"
         end
       end
     end
 
     module Call
-      INPUT_LABEL  = 'Input :'.freeze
-      OUTPUT_LABEL = 'Output:'.freeze
+      INPUT_LABEL  = 'Input :'
+      OUTPUT_LABEL = 'Output:'
 
-      def call(input, **)
+      def call(input, **_options)
         super.tap do |output|
-          input_prefix = INPUT_LABEL.rjust(self.depth * INDENT_SIZE + INPUT_LABEL.length, BLANK)
+          input_prefix = INPUT_LABEL.rjust(depth * INDENT_SIZE + INPUT_LABEL.length, BLANK)
           puts "#{input_prefix} #{input}"
-          output_prefix = OUTPUT_LABEL.rjust(self.depth * INDENT_SIZE + OUTPUT_LABEL.length, BLANK)
+          output_prefix = OUTPUT_LABEL.rjust(depth * INDENT_SIZE + OUTPUT_LABEL.length, BLANK)
           puts "#{output_prefix} #{output}"
         end
       end
@@ -579,24 +579,24 @@ module Node
 end
 
 Node::HooksSample.new
-  .before_call do |input, **options|
+  .before_call do |input, **_options|
     puts "before_call input: #{input}";
     input + 1
   end
   .append(
     # anonymous external node
-    lambda do |input, **options|
+    lambda do |input, **_options|
       puts "external input: #{input}"
       input * 2
     end
   )
-  .around_call do |input, **options, &block|
+  .around_call do |input, **_options, &block|
     puts "around_call input: #{input}"
     output = block.call
     puts "around_call output: #{output}"
     output * input
   end
-  .after_call do |output, **options|
+  .after_call do |output, **_options|
     puts "after_call output: #{output}"
     output * 2
   end

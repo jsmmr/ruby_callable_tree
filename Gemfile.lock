@@ -1,12 +1,12 @@
 PATH
   remote: .
   specs:
-    callable_tree (0.2.3)
+    callable_tree (0.3.0)
 
 GEM
   remote: https://rubygems.org/
   specs:
-    diff-lcs (1.4.4)
+    diff-lcs (1.5.0)
     rake (13.0.6)
     rspec (3.10.0)
       rspec-core (~> 3.10.0)
@@ -32,4 +32,4 @@ DEPENDENCIES
   rspec (~> 3.0)
 
 BUNDLED WITH
-   2.2.22
+   2.3.3
