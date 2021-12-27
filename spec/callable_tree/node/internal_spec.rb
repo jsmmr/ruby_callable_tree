@@ -1,52 +1,95 @@
 # frozen_string_literal: true
 
 RSpec.describe CallableTree::Node::Internal do
-  module InternalSpec
-    class AMatcher
-      include CallableTree::Node::Internal
+  describe '#children' do
+    subject { node.children }
 
-      def call(input, **options)
-        super(input.to_s, **options)
-      end
+    let(:node) do
+      CallableTree::Node::Root.new.append(
+        IdLeaf.new(:a),
+        IdLeaf.new(:b)
+      )
     end
 
-    class BMatcher
-      include CallableTree::Node::Internal
+    it { is_expected.not_to be node.children }
+  end
 
-      def call(input, **options)
-        super(input.to_s, **options)
-      end
+  describe '#children!' do
+    subject { node.children! }
+
+    let(:node) do
+      CallableTree::Node::Root.new.append(
+        IdLeaf.new(:a),
+        IdLeaf.new(:b)
+      )
+    end
+
+    it { is_expected.to be node.children! }
+  end
+
+  describe '#[]' do
+    subject { node[nth] }
+
+    let(:node) do
+      CallableTree::Node::Root.new.append!(
+        IdLeaf.new(:a),
+        IdLeaf.new(:b)
+      )
+    end
+
+    context 'when index: 0' do
+      let(:nth) { 0 }
+      it { is_expected.to eq node.children[nth] }
+    end
+
+    context 'when index: 1' do
+      let(:nth) { 1 }
+      it { is_expected.to eq node.children[nth] }
     end
   end
 
   describe '#append' do
     subject { node.append(*child_nodes) }
 
-    let(:node) { InternalSpec::AMatcher.new }
-    let(:child_nodes) { [InternalSpec::BMatcher.new.append!(->(input) { input })] }
+    let(:node) { CallableTree::Node::Root.new }
+    let(:child_nodes) do
+      [
+        IdNode.new(:a1).append!(IdLeaf.new(:a2)),
+        IdNode.new(:b1).append!(IdLeaf.new(:b2))
+      ]
+    end
 
-    it { is_expected.not_to eq node }
+    it { is_expected.not_to be node }
     it { expect { subject }.not_to change { node.children.size } }
 
     it 'should generate new child nodes' do
-      expect(subject.children[0]).not_to be child_nodes[0]
-      expect(subject.children[0].children[0]).not_to be child_nodes[0].children[0]
+      expect(subject[0]).not_to be child_nodes[0]
+      expect(subject[0][0]).not_to be child_nodes[0][0]
+      expect(subject[1]).not_to be child_nodes[1]
+      expect(subject[1][0]).not_to be child_nodes[1][0]
     end
   end
 
   describe '#append!' do
     subject { node.append!(*child_nodes) }
 
-    let(:node) { InternalSpec::AMatcher.new }
-    let(:child_nodes) { [InternalSpec::BMatcher.new.append!(->(input) { input })] }
+    let(:node) { CallableTree::Node::Root.new }
+    let(:child_nodes) do
+      [
+        IdNode.new(:a1).append!(IdLeaf.new(:a2)),
+        IdNode.new(:b1).append!(IdLeaf.new(:b2))
+      ]
+    end
 
     it { is_expected.to eq node }
-    it { expect { subject }.to change { node.children.size }.by(1) }
+    it { expect { subject }.to change { node.children.size }.by(2) }
 
     it 'should generate new child nodes' do
       subject
-      expect(node.children[0]).not_to be child_nodes[0]
-      expect(node.children[0].children[0]).not_to be child_nodes[0].children[0]
+      expect(node[0]).not_to be child_nodes[0]
+      expect(node[0][0]).not_to be child_nodes[0][0]
+      expect(subject[1]).not_to be child_nodes[1]
+      expect(subject[1][0]).not_to be child_nodes[1][0]
     end
   end
 
@@ -371,61 +414,70 @@ RSpec.describe CallableTree::Node::Internal do
     it { is_expected.to eq 'identity' }
   end
 
-  shared_context 'for building tree' do
-    let(:root_node) { CallableTree::Node::Root.new.append!(a_node) }
-    let(:a_node) { InternalSpec::AMatcher.new.append!(b_node) }
-    let(:b_node) { InternalSpec::BMatcher.new.append!(leaf_node) }
-    let(:leaf_node) { ->(input) { input } }
-  end
-
   describe '#parent' do
     subject { node.parent }
 
-    include_context 'for building tree'
+    let(:tree) do
+      CallableTree::Node::Root.new.append!(
+        IdNode.new(:a).append!(
+          IdNode.new(:b).append!(
+            IdLeaf.new(:c)
+          )
+        )
+      )
+    end
 
     context 'of root_node' do
-      let(:node) { root_node }
+      let(:node) { tree }
       it { is_expected.to eq nil }
     end
 
     context 'of a_node' do
-      let(:node) { root_node.children[0] }
-      it { is_expected.to eq root_node }
+      let(:node) { tree[0] }
+      it { is_expected.to eq tree }
     end
 
     context 'of b_node' do
-      let(:node) { root_node.children[0].children[0] }
-      it { is_expected.to eq root_node.children[0] }
+      let(:node) { tree[0][0] }
+      it { is_expected.to eq tree[0] }
     end
 
-    context 'of leaf_node' do
-      let(:node) { root_node.children[0].children[0].children[0] }
-      it { is_expected.to eq root_node.children[0].children[0] }
+    context 'of c_node' do
+      let(:node) { tree[0][0][0] }
+      it { is_expected.to eq tree[0][0] }
     end
   end
 
   describe '#root?' do
     subject { node.root? }
 
-    include_context 'for building tree'
+    let(:tree) do
+      CallableTree::Node::Root.new.append!(
+        IdNode.new(:a).append!(
+          IdNode.new(:b).append!(
+            IdLeaf.new(:c)
+          )
+        )
+      )
+    end
 
     context 'of root_node' do
-      let(:node) { root_node }
+      let(:node) { tree }
       it { is_expected.to be true }
     end
 
     context 'of a_node' do
-      let(:node) { root_node.children[0] }
+      let(:node) { tree[0] }
       it { is_expected.to be false }
     end
 
     context 'of b_node' do
-      let(:node) { root_node.children[0].children[0] }
+      let(:node) { tree[0][0] }
       it { is_expected.to be false }
     end
 
-    context 'of leaf_node' do
-      let(:node) { root_node.children[0].children[0].children[0] }
+    context 'of c_node' do
+      let(:node) { tree[0][0][0] }
       it { is_expected.to be false }
     end
   end
@@ -433,77 +485,101 @@ RSpec.describe CallableTree::Node::Internal do
   describe '#ancestors' do
     subject { node.ancestors.to_a }
 
-    include_context 'for building tree'
+    let(:tree) do
+      CallableTree::Node::Root.new.append!(
+        IdNode.new(:a).append!(
+          IdNode.new(:b).append!(
+            IdLeaf.new(:c)
+          )
+        )
+      )
+    end
 
     context 'of root_node' do
-      let(:node) { root_node }
-      it { is_expected.to eq [root_node] }
+      let(:node) { tree }
+      it { is_expected.to eq [tree] }
     end
 
     context 'of a_node' do
-      let(:node) { root_node.children[0] }
-      it { is_expected.to eq [node, root_node] }
+      let(:node) { tree[0] }
+      it { is_expected.to eq [node, tree] }
     end
 
     context 'of b_node' do
-      let(:node) { root_node.children[0].children[0] }
-      it { is_expected.to eq [node, root_node.children[0], root_node] }
+      let(:node) { tree[0][0] }
+      it { is_expected.to eq [node, tree[0], tree] }
     end
 
-    context 'of leaf_node' do
-      let(:node) { root_node.children[0].children[0].children[0] }
-      it { is_expected.to eq [node, root_node.children[0].children[0], root_node.children[0], root_node] }
+    context 'of c_node' do
+      let(:node) { tree[0][0][0] }
+      it { is_expected.to eq [node, tree[0][0], tree[0], tree] }
     end
   end
 
   describe '#routes' do
     subject { node.routes }
 
-    include_context 'for building tree'
+    let(:tree) do
+      CallableTree::Node::Root.new.append!(
+        IdNode.new(:a).append!(
+          IdNode.new(:b).append!(
+            IdLeaf.new(:c)
+          )
+        )
+      )
+    end
 
     context 'of root_node' do
-      let(:node) { root_node }
+      let(:node) { tree }
       it { is_expected.to eq [CallableTree::Node::Root] }
     end
 
     context 'of a_node' do
-      let(:node) { root_node.children[0] }
-      it { is_expected.to eq [InternalSpec::AMatcher, CallableTree::Node::Root] }
+      let(:node) { tree[0] }
+      it { is_expected.to eq [:a, CallableTree::Node::Root] }
     end
 
     context 'of b_node' do
-      let(:node) { root_node.children[0].children[0] }
-      it { is_expected.to eq [InternalSpec::BMatcher, InternalSpec::AMatcher, CallableTree::Node::Root] }
+      let(:node) { tree[0][0] }
+      it { is_expected.to eq [:b, :a, CallableTree::Node::Root] }
     end
 
-    context 'of leaf_node' do
-      let(:node) { root_node.children[0].children[0].children[0] }
-      it { is_expected.to eq [Proc, InternalSpec::BMatcher, InternalSpec::AMatcher, CallableTree::Node::Root] }
+    context 'of c_node' do
+      let(:node) { tree[0][0][0] }
+      it { is_expected.to eq [:c, :b, :a, CallableTree::Node::Root] }
     end
   end
 
   describe '#depth' do
     subject { node.depth }
 
-    include_context 'for building tree'
+    let(:tree) do
+      CallableTree::Node::Root.new.append!(
+        IdNode.new(:a).append!(
+          IdNode.new(:b).append!(
+            IdLeaf.new(:c)
+          )
+        )
+      )
+    end
 
     context 'of root_node' do
-      let(:node) { root_node }
+      let(:node) { tree }
       it { is_expected.to eq 0 }
     end
 
     context 'of a_node' do
-      let(:node) { root_node.children[0] }
+      let(:node) { tree[0] }
       it { is_expected.to eq 1 }
     end
 
     context 'of b_node' do
-      let(:node) { root_node.children[0].children[0] }
+      let(:node) { tree[0][0] }
       it { is_expected.to eq 2 }
     end
 
-    context 'of leaf_node' do
-      let(:node) { root_node.children[0].children[0].children[0] }
+    context 'of c_node' do
+      let(:node) { tree[0][0][0] }
       it { is_expected.to eq 3 }
     end
   end

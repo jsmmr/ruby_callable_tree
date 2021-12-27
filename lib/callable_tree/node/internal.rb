@@ -3,10 +3,16 @@
 module CallableTree
   module Node
     module Internal
+      extend ::Forwardable
       include Node
 
+      def_delegators :child_nodes, :[], :at
+
       def children
-        # TODO: Change to return a new array instance.
+        [*child_nodes]
+      end
+
+      def children!
         child_nodes
       end
 

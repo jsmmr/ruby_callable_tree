@@ -3,6 +3,9 @@
 - Change `CallableTree::Node#match?` to accept inputs to the node as variable length arguments.
 - Change `CallableTree::Node#call` to accept inputs to the node as variable length arguments.
 - Change `CallableTree::Node#terminate?` to accept inputs to the node as variable length arguments, after the `output` argument.
+- Add `CallableTree::Node::Internal#[]` to return the child node using `index`.
+- Change `CallableTree::Node::Internal#children` to return a new array including child nodes of the node.
+- Add `CallableTree::Node::Internal#children!` to return destructively changeable array including child nodes of the node.
 
 ## [0.2.3] - 2021-11-07
 
