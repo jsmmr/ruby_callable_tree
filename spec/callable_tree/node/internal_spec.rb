@@ -1,6 +1,19 @@
 # frozen_string_literal: true
 
 RSpec.describe CallableTree::Node::Internal do
+  describe '#children' do
+    subject { node.children }
+
+    let(:node) do
+      CallableTree::Node::Root.new.append(
+        IdLeaf.new(:a),
+        IdLeaf.new(:b)
+      )
+    end
+
+    it { is_expected.not_to be node.children }
+  end
+
   describe '#[]' do
     subject { node[nth] }
 

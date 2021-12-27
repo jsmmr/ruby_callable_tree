@@ -9,8 +9,7 @@ module CallableTree
       def_delegators :child_nodes, :[], :at
 
       def children
-        # TODO: Change to return a new array instance.
-        child_nodes
+        [*child_nodes]
       end
 
       def append(*callables)
