@@ -140,7 +140,7 @@ tree = CallableTree::Node::Root.new.append(
   )#.seek
 )#.seek
 
-Dir.glob(__dir__ + '/docs/*') do |file|
+Dir.glob("#{__dir__}/docs/*") do |file|
   options = { foo: :bar }
   pp tree.call(file, **options)
   puts '---'
@@ -434,28 +434,28 @@ This is an example of logging.
 module Node
   module Logging
     INDENT_SIZE = 2
-    BLANK = ' '.freeze
+    BLANK = ' '
 
     module Match
-      LIST_STYLE = '*'.freeze
+      LIST_STYLE = '*'
 
       def match?(_input, **_options)
         super.tap do |matched|
-          prefix = LIST_STYLE.rjust(self.depth * INDENT_SIZE - INDENT_SIZE + LIST_STYLE.length, BLANK)
-          puts "#{prefix} #{self.identity}: [matched: #{matched}]"
+          prefix = LIST_STYLE.rjust(depth * INDENT_SIZE - INDENT_SIZE + LIST_STYLE.length, BLANK)
+          puts "#{prefix} #{identity}: [matched: #{matched}]"
         end
       end
     end
 
     module Call
-      INPUT_LABEL  = 'Input :'.freeze
-      OUTPUT_LABEL = 'Output:'.freeze
+      INPUT_LABEL  = 'Input :'
+      OUTPUT_LABEL = 'Output:'
 
       def call(input, **_options)
         super.tap do |output|
-          input_prefix = INPUT_LABEL.rjust(self.depth * INDENT_SIZE + INPUT_LABEL.length, BLANK)
+          input_prefix = INPUT_LABEL.rjust(depth * INDENT_SIZE + INPUT_LABEL.length, BLANK)
           puts "#{input_prefix} #{input}"
-          output_prefix = OUTPUT_LABEL.rjust(self.depth * INDENT_SIZE + OUTPUT_LABEL.length, BLANK)
+          output_prefix = OUTPUT_LABEL.rjust(depth * INDENT_SIZE + OUTPUT_LABEL.length, BLANK)
           puts "#{output_prefix} #{output}"
         end
       end
