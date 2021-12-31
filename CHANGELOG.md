@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Add `CallableTree::Node::Internal#seek?` to check whether the node's strategy is `seek` or not.
+
 ## [0.3.0] - 2021-12-27
 
 - Change `CallableTree::Node#match?` to accept inputs to the node as variable length arguments.

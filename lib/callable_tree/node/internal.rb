@@ -63,8 +63,12 @@ module CallableTree
         strategy.call(child_nodes, *inputs, **options)
       end
 
+      def seek?
+        strategy.is_a?(Strategy::Seek)
+      end
+
       def seek
-        if strategy.is_a?(Strategy::Seek)
+        if seek?
           self
         else
           clone.tap do |node|
@@ -74,7 +78,7 @@ module CallableTree
       end
 
       def seek!
-        self.strategy = Strategy::Seek.new unless strategy.is_a?(Strategy::Seek)
+        self.strategy = Strategy::Seek.new unless seek?
         self
       end
 

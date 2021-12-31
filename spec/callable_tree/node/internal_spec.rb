@@ -593,6 +593,27 @@ RSpec.describe CallableTree::Node::Internal do
     end
   end
 
+  describe '#seek?' do
+    subject { node.seek? }
+
+    let(:node) { ::Class.new { include CallableTree::Node::Internal }.new }
+
+    context 'when strategy is `seek`' do
+      before { node.send(:strategy=, described_class::Strategy::Seek.new) }
+      it { is_expected.to be true }
+    end
+
+    context 'when strategy is not `seek`' do
+      before do
+        node.send(:strategy=, [
+          described_class::Strategy::Broadcast.new,
+          described_class::Strategy::Compose.new
+        ].sample)
+      end
+      it { is_expected.to be false }
+    end
+  end
+
   describe '#seek' do
     subject { node.seek }
 
