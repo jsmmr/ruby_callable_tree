@@ -101,8 +101,12 @@ module CallableTree
         self
       end
 
+      def compose?
+        strategy.is_a?(Strategy::Compose)
+      end
+
       def compose
-        if strategy.is_a?(Strategy::Compose)
+        if compose?
           self
         else
           clone.tap do |node|
@@ -112,7 +116,7 @@ module CallableTree
       end
 
       def compose!
-        self.strategy = Strategy::Compose.new unless strategy.is_a?(Strategy::Compose)
+        self.strategy = Strategy::Compose.new unless compose?
         self
       end
 

@@ -2,6 +2,7 @@
 
 - Add `CallableTree::Node::Internal#seek?` to check whether the node's strategy is `seek` or not.
 - Add `CallableTree::Node::Internal#broadcast?` to check whether the node's strategy is `broadcast` or not.
+- Add `CallableTree::Node::Internal#compose?` to check whether the node's strategy is `compose` or not.
 
 ## [0.3.0] - 2021-12-27
 
