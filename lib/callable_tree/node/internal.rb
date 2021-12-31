@@ -82,8 +82,12 @@ module CallableTree
         self
       end
 
+      def broadcast?
+        strategy.is_a?(Strategy::Broadcast)
+      end
+
       def broadcast
-        if strategy.is_a?(Strategy::Broadcast)
+        if broadcast?
           self
         else
           clone.tap do |node|
@@ -93,7 +97,7 @@ module CallableTree
       end
 
       def broadcast!
-        self.strategy = Strategy::Broadcast.new unless strategy.is_a?(Strategy::Broadcast)
+        self.strategy = Strategy::Broadcast.new unless broadcast?
         self
       end
 
