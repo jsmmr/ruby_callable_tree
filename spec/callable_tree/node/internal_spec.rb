@@ -584,15 +584,6 @@ RSpec.describe CallableTree::Node::Internal do
     end
   end
 
-  shared_context 'with parent node' do
-    let!(:parent_node) do
-      CallableTree::Node::Root.new.tap do |root_node|
-        root_node.children << node
-        node.send(:parent=, root_node)
-      end
-    end
-  end
-
   describe '#seek?' do
     subject { node.seek? }
 
@@ -629,15 +620,6 @@ RSpec.describe CallableTree::Node::Internal do
 
       it { is_expected.not_to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Seek }
-
-      context 'when node has parent' do
-        include_context 'with parent node'
-        it { expect(subject.root?).to be true }
-      end
-
-      context 'when node does not have parent' do
-        it { expect(subject.root?).to be true }
-      end
     end
 
     context 'when current strategy is `compose`' do
@@ -645,15 +627,6 @@ RSpec.describe CallableTree::Node::Internal do
 
       it { is_expected.not_to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Seek }
-
-      context 'when node has parent' do
-        include_context 'with parent node'
-        it { expect(subject.root?).to be true }
-      end
-
-      context 'when node does not have parent' do
-        it { expect(subject.root?).to be true }
-      end
     end
   end
 
@@ -711,15 +684,6 @@ RSpec.describe CallableTree::Node::Internal do
     context 'when current strategy is `seek`' do
       it { is_expected.not_to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Broadcast }
-
-      context 'when node has parent' do
-        include_context 'with parent node'
-        it { expect(subject.root?).to be true }
-      end
-
-      context 'when node does not have parent' do
-        it { expect(subject.root?).to be true }
-      end
     end
 
     context 'when current strategy is `broadcast`' do
@@ -734,15 +698,6 @@ RSpec.describe CallableTree::Node::Internal do
 
       it { is_expected.not_to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Broadcast }
-
-      context 'when node has parent' do
-        include_context 'with parent node'
-        it { expect(subject.root?).to be true }
-      end
-
-      context 'when node does not have parent' do
-        it { expect(subject.root?).to be true }
-      end
     end
   end
 
@@ -800,15 +755,6 @@ RSpec.describe CallableTree::Node::Internal do
     context 'when current strategy is `seek`' do
       it { is_expected.not_to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Compose }
-
-      context 'when node has parent' do
-        include_context 'with parent node'
-        it { expect(subject.root?).to be true }
-      end
-
-      context 'when node does not have parent' do
-        it { expect(subject.root?).to be true }
-      end
     end
 
     context 'when current strategy is `broadcast`' do
@@ -816,15 +762,6 @@ RSpec.describe CallableTree::Node::Internal do
 
       it { is_expected.not_to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Compose }
-
-      context 'when node has parent' do
-        include_context 'with parent node'
-        it { expect(subject.root?).to be true }
-      end
-
-      context 'when node does not have parent' do
-        it { expect(subject.root?).to be true }
-      end
     end
 
     context 'when current strategy is `compose`' do
@@ -900,5 +837,56 @@ RSpec.describe CallableTree::Node::Internal do
     end
 
     it { is_expected.to eq result }
+  end
+
+  describe '#clone' do
+    subject { node.clone }
+
+    let(:tree) do
+      CallableTree::Node::Root.new.append!(
+        IdNode.new(:a).append!(
+          IdLeaf.new(:b)
+        )
+      )
+    end
+
+    context 'of root_node' do
+      let(:node) { tree }
+      it { is_expected.not_to be tree }
+
+      it 'should have cloned child nodes' do
+        expect(subject[0]).not_to be node[0]
+      end
+
+      it 'should be linked from child node as parent node' do
+        expect(subject[0].parent).to be subject
+      end
+    end
+
+    context 'of a_node' do
+      let(:node) { tree[0] }
+      it { is_expected.not_to be tree[0] }
+
+      it 'should have not parent node' do
+        expect(subject.parent).to be nil
+      end
+
+      it 'should have cloned child nodes' do
+        expect(subject[0]).not_to be node[0]
+      end
+
+      it 'should be linked from child node as parent node' do
+        expect(subject[0].parent).to be subject
+      end
+    end
+
+    context 'of b_node' do
+      let(:node) { tree[0][0] }
+      it { is_expected.not_to be tree[0][0] }
+
+      it 'should have not parent node' do
+        expect(subject.parent).to be nil
+      end
+    end
   end
 end
