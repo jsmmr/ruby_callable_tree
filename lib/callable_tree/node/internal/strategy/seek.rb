@@ -5,6 +5,8 @@ module CallableTree
     module Internal
       module Strategy
         class Seek
+          include Strategy
+
           def call(nodes, *inputs, **options)
             nodes
               .lazy
