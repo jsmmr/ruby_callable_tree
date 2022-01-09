@@ -25,7 +25,7 @@ module CallableTree
       def append!(*callables)
         callables
           .map { |callable| nodeify(callable) }
-          .tap { |nodes| child_nodes.push(*nodes) } # Use Array#push for Ruby 2.4
+          .tap { |nodes| child_nodes.push(*nodes) }
 
         self
       end
@@ -72,14 +72,15 @@ module CallableTree
           self
         else
           clone.tap do |node|
-            node.send(:strategy=, Strategy::Seek.new)
+            node.strategy = Strategy::Seek.new
           end
         end
       end
 
       def seek!
-        self.strategy = Strategy::Seek.new unless seek?
-        self
+        tap do |node|
+          node.strategy = Strategy::Seek.new unless seek?
+        end
       end
 
       def broadcast?
@@ -91,14 +92,15 @@ module CallableTree
           self
         else
           clone.tap do |node|
-            node.send(:strategy=, Strategy::Broadcast.new)
+            node.strategy = Strategy::Broadcast.new
           end
         end
       end
 
       def broadcast!
-        self.strategy = Strategy::Broadcast.new unless broadcast?
-        self
+        tap do |node|
+          node.strategy = Strategy::Broadcast.new unless broadcast?
+        end
       end
 
       def compose?
@@ -110,14 +112,15 @@ module CallableTree
           self
         else
           clone.tap do |node|
-            node.send(:strategy=, Strategy::Compose.new)
+            node.strategy = Strategy::Compose.new
           end
         end
       end
 
       def compose!
-        self.strategy = Strategy::Compose.new unless compose?
-        self
+        tap do |node|
+          node.strategy = Strategy::Compose.new unless compose?
+        end
       end
 
       def outline(&block)
@@ -128,13 +131,15 @@ module CallableTree
 
       protected
 
+      attr_writer :strategy
+
       def child_nodes
         @child_nodes ||= []
       end
 
       private
 
-      attr_writer :child_nodes, :strategy
+      attr_writer :child_nodes
 
       def nodeify(callable)
         if callable.is_a?(Node)
