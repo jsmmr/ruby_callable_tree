@@ -147,7 +147,7 @@ module CallableTree
         else
           External.proxify(callable)
         end
-          .tap { |node| node.send(:parent=, self) }
+          .tap { |node| node.parent = self }
       end
 
       def strategy
@@ -158,7 +158,7 @@ module CallableTree
         super
         self.parent = nil
         self.child_nodes = child_nodes.map do |node|
-          node.clone.tap { |new_node| new_node.send(:parent=, self) }
+          node.clone.tap { |new_node| new_node.parent = self }
         end
       end
     end

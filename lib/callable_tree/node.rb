@@ -46,7 +46,7 @@ module CallableTree
       !output.nil?
     end
 
-    private
+    protected
 
     attr_writer :parent
   end
