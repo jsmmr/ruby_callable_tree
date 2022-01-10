@@ -5,6 +5,8 @@ module CallableTree
     module Internal
       module Strategy
         class Compose
+          include Strategy
+
           def call(nodes, *inputs, **options)
             head, *tail = inputs
             nodes.reduce(head) do |input, node|

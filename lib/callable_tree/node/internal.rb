@@ -25,7 +25,7 @@ module CallableTree
       def append!(*callables)
         callables
           .map { |callable| nodeify(callable) }
-          .tap { |nodes| child_nodes.push(*nodes) } # Use Array#push for Ruby 2.4
+          .tap { |nodes| child_nodes.push(*nodes) }
 
         self
       end
@@ -63,49 +63,64 @@ module CallableTree
         strategy.call(child_nodes, *inputs, **options)
       end
 
+      def seek?
+        strategy.is_a?(Strategy::Seek)
+      end
+
       def seek
-        if strategy.is_a?(Strategy::Seek)
+        if seek?
           self
         else
           clone.tap do |node|
-            node.send(:strategy=, Strategy::Seek.new)
+            node.strategy = Strategy::Seek.new
           end
         end
       end
 
       def seek!
-        self.strategy = Strategy::Seek.new unless strategy.is_a?(Strategy::Seek)
-        self
+        tap do |node|
+          node.strategy = Strategy::Seek.new unless seek?
+        end
+      end
+
+      def broadcast?
+        strategy.is_a?(Strategy::Broadcast)
       end
 
       def broadcast
-        if strategy.is_a?(Strategy::Broadcast)
+        if broadcast?
           self
         else
           clone.tap do |node|
-            node.send(:strategy=, Strategy::Broadcast.new)
+            node.strategy = Strategy::Broadcast.new
           end
         end
       end
 
       def broadcast!
-        self.strategy = Strategy::Broadcast.new unless strategy.is_a?(Strategy::Broadcast)
-        self
+        tap do |node|
+          node.strategy = Strategy::Broadcast.new unless broadcast?
+        end
+      end
+
+      def compose?
+        strategy.is_a?(Strategy::Compose)
       end
 
       def compose
-        if strategy.is_a?(Strategy::Compose)
+        if compose?
           self
         else
           clone.tap do |node|
-            node.send(:strategy=, Strategy::Compose.new)
+            node.strategy = Strategy::Compose.new
           end
         end
       end
 
       def compose!
-        self.strategy = Strategy::Compose.new unless strategy.is_a?(Strategy::Compose)
-        self
+        tap do |node|
+          node.strategy = Strategy::Compose.new unless compose?
+        end
       end
 
       def outline(&block)
@@ -116,13 +131,15 @@ module CallableTree
 
       protected
 
+      attr_writer :strategy
+
       def child_nodes
         @child_nodes ||= []
       end
 
       private
 
-      attr_writer :child_nodes, :strategy
+      attr_writer :child_nodes
 
       def nodeify(callable)
         if callable.is_a?(Node)
@@ -130,7 +147,7 @@ module CallableTree
         else
           External.proxify(callable)
         end
-          .tap { |node| node.send(:parent=, self) }
+          .tap { |node| node.parent = self }
       end
 
       def strategy
@@ -141,7 +158,7 @@ module CallableTree
         super
         self.parent = nil
         self.child_nodes = child_nodes.map do |node|
-          node.clone.tap { |new_node| new_node.send(:parent=, self) }
+          node.clone.tap { |new_node| new_node.parent = self }
         end
       end
     end
