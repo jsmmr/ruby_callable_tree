@@ -1,6 +1,65 @@
 # frozen_string_literal: true
 
 RSpec.describe CallableTree::Node::Internal::Strategy::Seek do
+  describe '#name' do
+    subject { described_class.new.name }
+    it { is_expected.to eq :seek }
+  end
+
+  describe '#==' do
+    subject { described_class.new }
+
+    context 'when strategies are the same' do
+      it { is_expected.to eq described_class.new }
+    end
+
+    context 'when strategies are not the same' do
+      let(:other) do
+        [
+          CallableTree::Node::Internal::Strategy::Broadcast,
+          CallableTree::Node::Internal::Strategy::Compose
+        ].sample
+      end
+      it { is_expected.not_to eq other.new }
+    end
+  end
+
+  describe '#eql?' do
+    subject { described_class.new }
+
+    context 'when strategies are the same' do
+      it { is_expected.to eql described_class.new }
+    end
+
+    context 'when strategies are not the same' do
+      let(:other) do
+        [
+          CallableTree::Node::Internal::Strategy::Broadcast,
+          CallableTree::Node::Internal::Strategy::Compose
+        ].sample
+      end
+      it { is_expected.not_to eql other.new }
+    end
+  end
+
+  describe '#hash' do
+    subject { described_class.new.hash }
+
+    context 'when strategies are the same' do
+      it { is_expected.to eq described_class.new.hash }
+    end
+
+    context 'when strategies are not the same' do
+      let(:other) do
+        [
+          CallableTree::Node::Internal::Strategy::Broadcast,
+          CallableTree::Node::Internal::Strategy::Compose
+        ].sample
+      end
+      it { is_expected.not_to eq other.new.hash }
+    end
+  end
+
   describe '#call' do
     subject { described_class.new.call(nodes, *inputs, **options) }
 
