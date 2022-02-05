@@ -740,7 +740,7 @@ RSpec.describe CallableTree::Node::Internal do
       before do
         node.send(:strategy=, [
           described_class::Strategy::Seek.new,
-          described_class::Strategy::Broadcast.new,
+          described_class::Strategy::Broadcast.new
         ].sample)
       end
       it { is_expected.to be false }

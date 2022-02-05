@@ -9,9 +9,10 @@ module Node
   end
 end
 
-Node::HooksSample.new
+Node::HooksSample
+  .new
   .before_call do |input, **_options|
-    puts "before_call input: #{input}";
+    puts "before_call input: #{input}"
     input + 1
   end
   .append(
