@@ -9,16 +9,28 @@ module CallableTree
         end
 
         def before_call(&block)
+          clone.before_call!(&block)
+        end
+
+        def before_call!(&block)
           before_callbacks << block
           self
         end
 
         def around_call(&block)
+          clone.around_call!(&block)
+        end
+
+        def around_call!(&block)
           around_callbacks << block
           self
         end
 
         def after_call(&block)
+          clone.after_call!(&block)
+        end
+
+        def after_call!(&block)
           after_callbacks << block
           self
         end
