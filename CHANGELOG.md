@@ -1,5 +1,12 @@
 ## [Unreleased]
 
+- Change `CallableTree::Node::Hooks::Call#before_call` to return a new instance.
+  To keep the same behavior as the older version, use `CallableTree::Node::Hooks::Call#before_call!` that make destructive change.
+- Change `CallableTree::Node::Hooks::Call#around_call` to return a new instance.
+  To keep the same behavior as the older version, use `CallableTree::Node::Hooks::Call#around_call!` that make destructive change.
+- Change `CallableTree::Node::Hooks::Call#after_call` to return a new instance.
+  To keep the same behavior as the older version, use `CallableTree::Node::Hooks::Call#after_call!` that make destructive change.
+
 ## [0.3.1] - 2022-01-10
 
 - Add `CallableTree::Node::Internal#seek?` to check whether the node's strategy is `seek` or not.
