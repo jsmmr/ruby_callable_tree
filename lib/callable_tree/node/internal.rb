@@ -17,9 +17,7 @@ module CallableTree
       end
 
       def append(*callables)
-        clone.tap do |node|
-          node.append!(*callables)
-        end
+        clone.append!(*callables)
       end
 
       def append!(*callables)
@@ -31,9 +29,7 @@ module CallableTree
       end
 
       def reject(&block)
-        clone.tap do |node|
-          node.reject!(&block)
-        end
+        clone.reject!(&block)
       end
 
       def reject!(&block)
@@ -42,9 +38,7 @@ module CallableTree
       end
 
       def shake(&block)
-        clone.tap do |node|
-          node.shake!(&block)
-        end
+        clone.shake!(&block)
       end
 
       def shake!(&block)
