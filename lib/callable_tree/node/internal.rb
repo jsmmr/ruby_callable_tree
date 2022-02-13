@@ -28,12 +28,19 @@ module CallableTree
         self
       end
 
-      def reject(&block)
-        clone.reject!(&block)
+      def reject(recursive: false, &block)
+        clone.reject!(recursive: recursive, &block)
       end
 
-      def reject!(&block)
+      def reject!(recursive: false, &block)
         child_nodes.reject!(&block)
+
+        if recursive
+          child_nodes.each do |node|
+            node.reject!(recursive: true, &block) if node.is_a?(Internal)
+          end
+        end
+
         self
       end
 
