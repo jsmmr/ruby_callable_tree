@@ -93,6 +93,94 @@ RSpec.describe CallableTree::Node::Internal do
     end
   end
 
+  describe '#find' do
+    subject { node.find(recursive: recursive, &block) }
+
+    let(:node) do
+      IdNode.new(8).append(
+        IdNode.new(3).append(
+          IdLeaf.new(1),
+          IdNode.new(6).append(
+            IdNode.new(4),
+            IdLeaf.new(7)
+          )
+        ),
+        IdNode.new(10).append(
+          IdNode.new(14).append(
+            IdLeaf.new(13)
+          )
+        )
+      )
+    end
+
+    context 'target identity: 10' do
+      let(:recursive) { [true, false].sample }
+      let(:block) do
+        proc { |node| node.identity == 10 }
+      end
+
+      it { is_expected.to be node[1] }
+    end
+
+    context 'target identity: 1' do
+      let(:block) do
+        proc { |node| node.identity == 1 }
+      end
+
+      context 'recursive: true' do
+        let(:recursive) { true }
+        it { is_expected.to be node[0][0] }
+      end
+
+      context 'recursive: false' do
+        let(:recursive) { false }
+        it { is_expected.to be nil }
+      end
+    end
+
+    context 'target identity: 7' do
+      let(:block) do
+        proc { |node| node.identity == 7 }
+      end
+
+      context 'recursive: true' do
+        let(:recursive) { true }
+        it { is_expected.to be node[0][1][1] }
+      end
+
+      context 'recursive: false' do
+        let(:recursive) { false }
+        it { is_expected.to be nil }
+      end
+    end
+
+    context 'target identity: 14' do
+      let(:block) do
+        proc { |node| node.identity == 14 }
+      end
+
+      context 'recursive: true' do
+        let(:recursive) { true }
+        # before { pp node[1][0].identity }
+        it { is_expected.to be node[1][0] }
+      end
+
+      context 'recursive: false' do
+        let(:recursive) { false }
+        it { is_expected.to be nil }
+      end
+    end
+
+    context 'target identity: 99' do
+      let(:recursive) { [true, false].sample }
+      let(:block) do
+        proc { |node| node.identity == 99 }
+      end
+
+      it { is_expected.to be nil }
+    end
+  end
+
   describe '#reject' do
     subject { node.reject(recursive: recursive, &block) }
 

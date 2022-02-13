@@ -28,6 +28,20 @@ module CallableTree
         self
       end
 
+      def find(recursive: false, &block)
+        node = child_nodes.find(&block)
+        return node if node
+
+        if recursive
+          child_nodes
+            .lazy
+            .select { |node| node.is_a?(Internal) }
+            .map { |node| node.find(recursive: true, &block) }
+            .reject(&:nil?)
+            .first
+        end
+      end
+
       def reject(recursive: false, &block)
         clone.reject!(recursive: recursive, &block)
       end
