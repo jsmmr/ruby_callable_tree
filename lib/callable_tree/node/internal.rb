@@ -17,9 +17,7 @@ module CallableTree
       end
 
       def append(*callables)
-        clone.tap do |node|
-          node.append!(*callables)
-        end
+        clone.append!(*callables)
       end
 
       def append!(*callables)
@@ -30,21 +28,38 @@ module CallableTree
         self
       end
 
-      def reject(&block)
-        clone.tap do |node|
-          node.reject!(&block)
+      def find(recursive: false, &block)
+        node = child_nodes.find(&block)
+        return node if node
+
+        if recursive
+          child_nodes
+            .lazy
+            .select { |node| node.is_a?(Internal) }
+            .map { |node| node.find(recursive: true, &block) }
+            .reject(&:nil?)
+            .first
         end
       end
 
-      def reject!(&block)
+      def reject(recursive: false, &block)
+        clone.reject!(recursive: recursive, &block)
+      end
+
+      def reject!(recursive: false, &block)
         child_nodes.reject!(&block)
+
+        if recursive
+          child_nodes.each do |node|
+            node.reject!(recursive: true, &block) if node.is_a?(Internal)
+          end
+        end
+
         self
       end
 
       def shake(&block)
-        clone.tap do |node|
-          node.shake!(&block)
-        end
+        clone.shake!(&block)
       end
 
       def shake!(&block)

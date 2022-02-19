@@ -1,5 +1,10 @@
 ## [Unreleased]
 
+## [0.3.3] - 2022-02-19
+
+- Add `recursive` option to `CallableTree::Node::Internal#reject` and `CallableTree::Node::Internal#reject!`.
+- Add `CallableTree::Node::Internal#find` to return the first node evaluated as `true` by block.
+
 ## [0.3.2] - 2022-02-05
 
 - Change `CallableTree::Node::Hooks::Call#before_call` to return a new instance.

@@ -93,35 +93,118 @@ RSpec.describe CallableTree::Node::Internal do
     end
   end
 
-  describe '#reject' do
-    subject { node.reject(&block) }
+  describe '#find' do
+    subject { node.find(recursive: recursive, &block) }
 
     let(:node) do
-      CallableTree::Node::Root.new.append(
-        IdNode.new(:a),
-        IdNode.new(:b)
+      IdNode.new(8).append(
+        IdNode.new(3).append(
+          IdLeaf.new(1),
+          IdNode.new(6).append(
+            IdNode.new(4),
+            IdLeaf.new(7)
+          )
+        ),
+        IdNode.new(10).append(
+          IdNode.new(14).append(
+            IdLeaf.new(13)
+          )
+        )
       )
     end
 
-    context 'when :a node is rejected' do
+    context 'target identity: 10' do
+      let(:recursive) { [true, false].sample }
       let(:block) do
-        proc { |node| node.identity == :a }
+        proc { |node| node.identity == 10 }
       end
 
-      it { is_expected.not_to be node }
+      it { is_expected.to be node[1] }
+    end
 
-      it 'does not reject children from the source node' do
-        expect { subject }.not_to change { node.children.size }
+    context 'target identity: 1' do
+      let(:block) do
+        proc { |node| node.identity == 1 }
       end
 
-      it 'returns a node instance without rejected child nodes' do
-        expect(subject.outline).to eq({ CallableTree::Node::Root => { b: {} } })
+      context 'recursive: true' do
+        let(:recursive) { true }
+        it { is_expected.to be node[0][0] }
+      end
+
+      context 'recursive: false' do
+        let(:recursive) { false }
+        it { is_expected.to be nil }
       end
     end
 
-    context 'when :b node is rejected' do
+    context 'target identity: 7' do
       let(:block) do
-        proc { |node| node.identity == :b }
+        proc { |node| node.identity == 7 }
+      end
+
+      context 'recursive: true' do
+        let(:recursive) { true }
+        it { is_expected.to be node[0][1][1] }
+      end
+
+      context 'recursive: false' do
+        let(:recursive) { false }
+        it { is_expected.to be nil }
+      end
+    end
+
+    context 'target identity: 14' do
+      let(:block) do
+        proc { |node| node.identity == 14 }
+      end
+
+      context 'recursive: true' do
+        let(:recursive) { true }
+        # before { pp node[1][0].identity }
+        it { is_expected.to be node[1][0] }
+      end
+
+      context 'recursive: false' do
+        let(:recursive) { false }
+        it { is_expected.to be nil }
+      end
+    end
+
+    context 'target identity: 99' do
+      let(:recursive) { [true, false].sample }
+      let(:block) do
+        proc { |node| node.identity == 99 }
+      end
+
+      it { is_expected.to be nil }
+    end
+  end
+
+  describe '#reject' do
+    subject { node.reject(recursive: recursive, &block) }
+
+    let(:node) do
+      IdNode.new(8).append(
+        IdNode.new(3).append(
+          IdLeaf.new(1),
+          IdNode.new(6).append(
+            IdNode.new(4),
+            IdLeaf.new(7)
+          )
+        ),
+        IdNode.new(10).append(
+          IdNode.new(14).append(
+            IdLeaf.new(13)
+          )
+        )
+      )
+    end
+
+    context 'when ID 3 node is rejected' do
+      let(:recursive) { [true, false].sample }
+      let(:block) do
+        proc { |node| node.identity == 3 }
       end
 
       it { is_expected.not_to be node }
@@ -131,24 +214,124 @@ RSpec.describe CallableTree::Node::Internal do
       end
 
       it 'returns a node instance without rejected child nodes' do
-        expect(subject.outline).to eq({ CallableTree::Node::Root => { a: {} } })
+        expect(subject.outline).to eq(
+          {
+            8 => {
+              10 => {
+                14 => {
+                  13 => nil
+                }
+              }
+            }
+          }
+        )
+      end
+    end
+
+    context 'when ID 10 node is rejected' do
+      let(:recursive) { [true, false].sample }
+      let(:block) do
+        proc { |node| node.identity == 10 }
+      end
+
+      it { is_expected.not_to be node }
+
+      it 'does not reject children from the source node' do
+        expect { subject }.not_to change { node.children.size }
+      end
+
+      it 'returns a node instance without rejected child nodes' do
+        expect(subject.outline).to eq(
+          {
+            8 => {
+              3 => {
+                1 => nil,
+                6 => {
+                  4 => {},
+                  7 => nil
+                }
+              }
+            }
+          }
+        )
+      end
+    end
+
+    context 'when nodes has odd ID are rejected' do
+      let(:recursive) { true }
+      let(:block) do
+        proc { |node| node.identity.odd? }
+      end
+
+      it { is_expected.not_to be node }
+
+      it 'does not reject children from the source node' do
+        expect { subject }.not_to change { node.children.size }
+      end
+
+      it 'returns the node instance without rejected child nodes' do
+        expect(subject.outline).to eq(
+          {
+            8 => {
+              10 => {
+                14 => {}
+              }
+            }
+          }
+        )
+      end
+    end
+
+    context 'when nodes has even ID are rejected' do
+      let(:recursive) { true }
+      let(:block) do
+        proc { |node| node.identity.even? }
+      end
+
+      it { is_expected.not_to be node }
+
+      it 'does not reject children from the source node' do
+        expect { subject }.not_to change { node.children.size }
+      end
+
+      it 'returns the node instance without rejected child nodes' do
+        expect(subject.outline).to eq(
+          {
+            8 => {
+              3 => {
+                1 => nil
+              }
+            }
+          }
+        )
       end
     end
   end
 
   describe '#reject!' do
-    subject { node.reject!(&block) }
+    subject { node.reject!(recursive: recursive, &block) }
 
     let(:node) do
-      CallableTree::Node::Root.new.append(
-        IdNode.new(:a),
-        IdNode.new(:b)
+      IdNode.new(8).append(
+        IdNode.new(3).append(
+          IdLeaf.new(1),
+          IdNode.new(6).append(
+            IdNode.new(4),
+            IdLeaf.new(7)
+          )
+        ),
+        IdNode.new(10).append(
+          IdNode.new(14).append(
+            IdLeaf.new(13)
+          )
+        )
       )
     end
 
-    context 'when :a node is rejected' do
+    context 'when ID 3 node is rejected' do
+      let(:recursive) { [true, false].sample }
       let(:block) do
-        proc { |node| node.identity == :a }
+        proc { |node| node.identity == 3 }
       end
 
       it { is_expected.to be node }
@@ -158,13 +341,24 @@ RSpec.describe CallableTree::Node::Internal do
       end
 
       it 'returns a node instance without rejected child nodes' do
-        expect(subject.outline).to eq({ CallableTree::Node::Root => { b: {} } })
+        expect(subject.outline).to eq(
+          {
+            8 => {
+              10 => {
+                14 => {
+                  13 => nil
+                }
+              }
+            }
+          }
+        )
       end
     end
 
-    context 'when :b node is rejected' do
+    context 'when ID 10 node is rejected' do
+      let(:recursive) { [true, false].sample }
       let(:block) do
-        proc { |node| node.identity == :b }
+        proc { |node| node.identity == 10 }
       end
 
       it { is_expected.to be node }
@@ -174,7 +368,69 @@ RSpec.describe CallableTree::Node::Internal do
       end
 
       it 'returns the node instance without rejected child nodes' do
-        expect(subject.outline).to eq({ CallableTree::Node::Root => { a: {} } })
+        expect(subject.outline).to eq(
+          {
+            8 => {
+              3 => {
+                1 => nil,
+                6 => {
+                  4 => {},
+                  7 => nil
+                }
+              }
+            }
+          }
+        )
+      end
+    end
+
+    context 'when nodes has odd ID are rejected' do
+      let(:recursive) { true }
+      let(:block) do
+        proc { |node| node.identity.odd? }
+      end
+
+      it { is_expected.to be node }
+
+      it 'rejects children from the source node' do
+        expect { subject }.to change { node.children.size }.by(-1)
+      end
+
+      it 'returns the node instance without rejected child nodes' do
+        expect(subject.outline).to eq(
+          {
+            8 => {
+              10 => {
+                14 => {}
+              }
+            }
+          }
+        )
+      end
+    end
+
+    context 'when nodes has even ID are rejected' do
+      let(:recursive) { true }
+      let(:block) do
+        proc { |node| node.identity.even? }
+      end
+
+      it { is_expected.to be node }
+
+      it 'rejects children from the source node' do
+        expect { subject }.to change { node.children.size }.by(-1)
+      end
+
+      it 'returns the node instance without rejected child nodes' do
+        expect(subject.outline).to eq(
+          {
+            8 => {
+              3 => {
+                1 => nil
+              }
+            }
+          }
+        )
       end
     end
   end
