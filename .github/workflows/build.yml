@@ -11,7 +11,7 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
-      - run: gem install bundler:2.3.3
+      - run: gem install bundler:2.3.7
       - uses: actions/cache@v2
         with:
           path: vendor/bundle

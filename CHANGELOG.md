@@ -1,5 +1,12 @@
 ## [Unreleased]
 
+## [0.3.4] - 2022-03-13
+
+- Add `CallableTree::Node::Internal::Builder`. (experimental)
+  See `examples/builder/*.rb` for details.
+- Add `CallableTree::Node::External::Builder`. (experimental)
+  See `examples/builder/*.rb` for details.
+
 ## [0.3.3] - 2022-02-19
 
 - Add `recursive` option to `CallableTree::Node::Internal#reject` and `CallableTree::Node::Internal#reject!`.

@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    callable_tree (0.3.3)
+    callable_tree (0.3.4)
 
 GEM
   remote: https://rubygems.org/
@@ -23,8 +23,7 @@ GEM
     rspec-support (3.11.0)
 
 PLATFORMS
-  x86_64-darwin-19
-  x86_64-darwin-20
+  x86_64-darwin-21
 
 DEPENDENCIES
   callable_tree!
@@ -32,4 +31,4 @@ DEPENDENCIES
   rspec (~> 3.0)
 
 BUNDLED WITH
-   2.3.3
+   2.3.7
