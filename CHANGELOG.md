@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.3.4] - 2022-03-13
+
 - Add `CallableTree::Node::Internal::Builder`. (experimental)
   See `examples/builder/*.rb` for details.
 - Add `CallableTree::Node::External::Builder`. (experimental)
