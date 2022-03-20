@@ -4,6 +4,9 @@
 - Add `CallableTree::Node::Internal#seekable?` as an alias for `CallableTree::Node::Internal#seek?`.
 - Add `CallableTree::Node::Internal#seekable` as an alias for `CallableTree::Node::Internal#seek`.
 - Add `CallableTree::Node::Internal#seekable!` as an alias for `CallableTree::Node::Internal#seek!`.
+- Add `CallableTree::Node::Internal#broadcastable?` as an alias for `CallableTree::Node::Internal#broadcast?`.
+- Add `CallableTree::Node::Internal#broadcastable` as an alias for `CallableTree::Node::Internal#broadcast`.
+- Add `CallableTree::Node::Internal#broadcastable!` as an alias for `CallableTree::Node::Internal#broadcast!`.
 
 ## [0.3.4] - 2022-03-13
 

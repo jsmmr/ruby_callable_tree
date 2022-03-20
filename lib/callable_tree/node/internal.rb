@@ -122,6 +122,10 @@ module CallableTree
         end
       end
 
+      alias_method :broadcastable?, :broadcast?
+      alias_method :broadcastable, :broadcast
+      alias_method :broadcastable!, :broadcast!
+
       def compose?
         strategy.is_a?(Strategy::Compose)
       end
