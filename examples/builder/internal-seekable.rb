@@ -79,12 +79,12 @@ module XMLScraper
   end
 end
 
-tree = CallableTree::Node::Root.new.append(
-  JSONParser.build.new.append(
+tree = CallableTree::Node::Root.new.seekable.append(
+  JSONParser.build.new.seekable.append(
     JSONScraper.build(:animals).new,
     JSONScraper.build(:fruits).new
   ),
-  XMLParser.build.new.append(
+  XMLParser.build.new.seekable.append(
     XMLScraper.build(:animals).new,
     XMLScraper.build(:fruits).new
   )

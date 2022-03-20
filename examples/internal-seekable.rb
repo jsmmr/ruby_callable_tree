@@ -85,12 +85,12 @@ module Node
   end
 end
 
-tree = CallableTree::Node::Root.new.append(
-  Node::JSON::Parser.new.append(
+tree = CallableTree::Node::Root.new.seekable.append(
+  Node::JSON::Parser.new.seekable.append(
     Node::JSON::Scraper.new(type: :animals),
     Node::JSON::Scraper.new(type: :fruits)
   ),
-  Node::XML::Parser.new.append(
+  Node::XML::Parser.new.seekable.append(
     Node::XML::Scraper.new(type: :animals),
     Node::XML::Scraper.new(type: :fruits)
   )

@@ -16,16 +16,16 @@ module Node
   end
 end
 
-tree = CallableTree::Node::Root.new.append(
-  Node::LessThan.new(5).append(
+tree = CallableTree::Node::Root.new.broadcastable.append(
+  Node::LessThan.new(5).broadcastable.append(
     ->(input) { input * 2 }, # anonymous external node
     ->(input) { input + 1 }  # anonymous external node
-  ).broadcast,
-  Node::LessThan.new(10).append(
+  ),
+  Node::LessThan.new(10).broadcastable.append(
     ->(input) { input * 3 }, # anonymous external node
     ->(input) { input - 1 }  # anonymous external node
-  ).broadcast
-).broadcast
+  )
+)
 
 (0..10).each do |input|
   output = tree.call(input)
