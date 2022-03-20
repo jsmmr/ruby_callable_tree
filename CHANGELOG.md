@@ -1,6 +1,9 @@
 ## [Unreleased]
 
 - Add `CallableTree::Node::Internal::Builder#terminator` to use instead of `CallableTree::Node::Internal::Builder#terminater`.
+- Add `CallableTree::Node::Internal#seekable?` as an alias for `CallableTree::Node::Internal#seek?`.
+- Add `CallableTree::Node::Internal#seekable` as an alias for `CallableTree::Node::Internal#seek`.
+- Add `CallableTree::Node::Internal#seekable!` as an alias for `CallableTree::Node::Internal#seek!`.
 
 ## [0.3.4] - 2022-03-13
 

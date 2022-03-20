@@ -98,6 +98,10 @@ module CallableTree
         end
       end
 
+      alias_method :seekable?, :seek?
+      alias_method :seekable, :seek
+      alias_method :seekable!, :seek!
+
       def broadcast?
         strategy.is_a?(Strategy::Broadcast)
       end
