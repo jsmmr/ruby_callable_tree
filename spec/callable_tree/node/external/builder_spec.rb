@@ -10,7 +10,7 @@ RSpec.describe CallableTree::Node::External::Builder do
       proc { |input, *, **| input * 2 }
     end
 
-    let(:terminater) do
+    let(:terminator) do
       proc { |output, *, **| output > 10 }
     end
 
@@ -19,7 +19,7 @@ RSpec.describe CallableTree::Node::External::Builder do
         .new
         .matcher(&matcher)
         .caller(&caller)
-        .terminater(&terminater)
+        .terminator(&terminator)
     end
 
     let(:node) { builder.build.new }

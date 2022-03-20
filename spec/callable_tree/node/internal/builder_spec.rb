@@ -10,7 +10,7 @@ RSpec.describe CallableTree::Node::Internal::Builder do
       proc { |*inputs, **options, &block| block.call(*inputs, **options) }
     end
 
-    let(:terminater) do
+    let(:terminator) do
       proc { |output, *inputs, **options, &block| block.call(output, *inputs, **options) && terminated }
     end
 
@@ -19,7 +19,13 @@ RSpec.describe CallableTree::Node::Internal::Builder do
         .new
         .matcher(&matcher)
         .caller(&caller)
-        .terminater(&terminater)
+        .tap do |node_class|
+          if [true, false].sample
+            node_class.terminator(&terminator)
+          else
+            node_class.terminater(&terminator)
+          end
+        end
     end
 
     let(:node) { builder.build.new }
@@ -87,7 +93,7 @@ RSpec.describe CallableTree::Node::Internal::Builder do
         end
 
         before do
-          expect(terminater).to receive(:call).once.with(output, *inputs, **options).and_call_original
+          expect(terminator).to receive(:call).once.with(output, *inputs, **options).and_call_original
         end
 
         let(:output) { :output }

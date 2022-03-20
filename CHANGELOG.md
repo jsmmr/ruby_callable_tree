@@ -1,10 +1,24 @@
 ## [Unreleased]
 
+## [0.3.5] - 2022-03-20
+
+- Add `CallableTree::Node::Internal#seekable?` as an alias for `CallableTree::Node::Internal#seek?`.
+- Add `CallableTree::Node::Internal#seekable` as an alias for `CallableTree::Node::Internal#seek`.
+- Add `CallableTree::Node::Internal#seekable!` as an alias for `CallableTree::Node::Internal#seek!`.
+- Add `CallableTree::Node::Internal#broadcastable?` as an alias for `CallableTree::Node::Internal#broadcast?`.
+- Add `CallableTree::Node::Internal#broadcastable` as an alias for `CallableTree::Node::Internal#broadcast`.
+- Add `CallableTree::Node::Internal#broadcastable!` as an alias for `CallableTree::Node::Internal#broadcast!`.
+- Add `CallableTree::Node::Internal#composable?` as an alias for `CallableTree::Node::Internal#compose?`.
+- Add `CallableTree::Node::Internal#composable` as an alias for `CallableTree::Node::Internal#compose`.
+- Add `CallableTree::Node::Internal#composable!` as an alias for `CallableTree::Node::Internal#compose!`.
+- (Experimental) Add `CallableTree::Node::Internal::Builder#terminator` to use instead of `CallableTree::Node::Internal::Builder#terminater`.
+  See `examples/builder/*.rb` for details.
+
 ## [0.3.4] - 2022-03-13
 
-- Add `CallableTree::Node::Internal::Builder`. (experimental)
+- (Experimental) Add `CallableTree::Node::Internal::Builder`.
   See `examples/builder/*.rb` for details.
-- Add `CallableTree::Node::External::Builder`. (experimental)
+- (Experimental) Add `CallableTree::Node::External::Builder`.
   See `examples/builder/*.rb` for details.
 
 ## [0.3.3] - 2022-02-19

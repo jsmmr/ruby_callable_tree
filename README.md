@@ -32,11 +32,11 @@ Builds a tree by linking instances of the nodes. The `call` method of the node w
 
 ### Basic
 
-#### `CallableTree::Node::Internal#seek` (default)
+#### `CallableTree::Node::Internal#seekable` (default)
 
 This strategy does not call the next sibling node if the `call` method of the current node returns a value other than `nil`. This behavior is changeable by overriding the `terminate?` method.
 
-`examples/internal-seek.rb`:
+`examples/internal-seekable.rb`:
 ```ruby
 module Node
   module JSON
@@ -129,17 +129,17 @@ module Node
   end
 end
 
-# The `seek` method call can be omitted since it is the default strategy.
-tree = CallableTree::Node::Root.new.append(
-  Node::JSON::Parser.new.append(
+# The `seekable` method call can be omitted since it is the default strategy.
+tree = CallableTree::Node::Root.new.seekable.append(
+  Node::JSON::Parser.new.seekable.append(
     Node::JSON::Scraper.new(type: :animals),
     Node::JSON::Scraper.new(type: :fruits)
-  ),#.seek,
-  Node::XML::Parser.new.append(
+  ),
+  Node::XML::Parser.new.seekable.append(
     Node::XML::Scraper.new(type: :animals),
     Node::XML::Scraper.new(type: :fruits)
-  )#.seek
-)#.seek
+  )
+)
 
 Dir.glob("#{__dir__}/docs/*") do |file|
   options = { foo: :bar }
@@ -148,9 +148,9 @@ Dir.glob("#{__dir__}/docs/*") do |file|
 end
 ```
 
-Run `examples/internal-seek.rb`:
+Run `examples/internal-seekable.rb`:
 ```sh
-% ruby examples/internal-seek.rb
+% ruby examples/internal-seekable.rb
 {"Dog"=>"🐶", "Cat"=>"🐱"}
 ---
 {"Dog"=>"🐶", "Cat"=>"🐱"}
@@ -161,11 +161,11 @@ Run `examples/internal-seek.rb`:
 ---
 ```
 
-#### `CallableTree::Node::Internal#broadcast`
+#### `CallableTree::Node::Internal#broadcastable`
 
 This strategy calls all child nodes of the internal node and ignores their `terminate?` methods, and then outputs their results as array.
 
-`examples/internal-broadcast.rb`:
+`examples/internal-broadcastable.rb`:
 ```ruby
 module Node
   class LessThan
@@ -181,16 +181,16 @@ module Node
   end
 end
 
-tree = CallableTree::Node::Root.new.append(
-  Node::LessThan.new(5).append(
+tree = CallableTree::Node::Root.new.broadcastable.append(
+  Node::LessThan.new(5).broadcastable.append(
     ->(input) { input * 2 }, # anonymous external node
     ->(input) { input + 1 }  # anonymous external node
-  ).broadcast,
-  Node::LessThan.new(10).append(
+  ),
+  Node::LessThan.new(10).broadcastable.append(
     ->(input) { input * 3 }, # anonymous external node
     ->(input) { input - 1 }  # anonymous external node
-  ).broadcast
-).broadcast
+  )
+)
 
 (0..10).each do |input|
   output = tree.call(input)
@@ -199,9 +199,9 @@ end
 
 ```
 
-Run `examples/internal-broadcast.rb`:
+Run `examples/internal-broadcastable.rb`:
 ```sh
-% ruby examples/internal-broadcast.rb
+% ruby examples/internal-broadcastable.rb
 0 -> [[0, 1], [0, -1]]
 1 -> [[2, 2], [3, 0]]
 2 -> [[4, 3], [6, 1]]
@@ -215,11 +215,11 @@ Run `examples/internal-broadcast.rb`:
 10 -> [nil, nil]
 ```
 
-#### `CallableTree::Node::Internal#compose`
+#### `CallableTree::Node::Internal#composable`
 
 This strategy calls all child nodes of the internal node in order to input the output of the previous node to the next node and ignores their `terminate?` methods, and then outputs a single result.
 
-`examples/internal-compose.rb`:
+`examples/internal-composable.rb`:
 ```ruby
 module Node
   class LessThan
@@ -235,16 +235,16 @@ module Node
   end
 end
 
-tree = CallableTree::Node::Root.new.append(
-  Node::LessThan.new(5).append(
+tree = CallableTree::Node::Root.new.composable.append(
+  Node::LessThan.new(5).composable.append(
     proc { |input| input * 2 }, # anonymous external node
     proc { |input| input + 1 }  # anonymous external node
-  ).compose,
-  Node::LessThan.new(10).append(
+  ),
+  Node::LessThan.new(10).composable.append(
     proc { |input| input * 3 }, # anonymous external node
     proc { |input| input - 1 }  # anonymous external node
-  ).compose
-).compose
+  )
+)
 
 (0..10).each do |input|
   output = tree.call(input)
@@ -253,9 +253,9 @@ end
 
 ```
 
-Run `examples/internal-compose.rb`:
+Run `examples/internal-composable.rb`:
 ```sh
-% ruby examples/internal-compose.rb
+% ruby examples/internal-composable.rb
 0 -> 2
 1 -> 8
 2 -> 14
@@ -621,7 +621,7 @@ result: 16
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/jsmmr/callable_tree.
+Bug reports and pull requests are welcome on GitHub at https://github.com/jsmmr/ruby_callable_tree.
 
 ## License
 

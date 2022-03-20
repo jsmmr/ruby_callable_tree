@@ -7,7 +7,7 @@ RSpec.describe CallableTree::Node::Builder do
         .new do
           include CallableTree::Node::Builder
 
-          def validate(matcher:, caller:, terminater:)
+          def validate(matcher:, caller:, terminator:)
             true
           end
         end
