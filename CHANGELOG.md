@@ -7,6 +7,9 @@
 - Add `CallableTree::Node::Internal#broadcastable?` as an alias for `CallableTree::Node::Internal#broadcast?`.
 - Add `CallableTree::Node::Internal#broadcastable` as an alias for `CallableTree::Node::Internal#broadcast`.
 - Add `CallableTree::Node::Internal#broadcastable!` as an alias for `CallableTree::Node::Internal#broadcast!`.
+- Add `CallableTree::Node::Internal#composable?` as an alias for `CallableTree::Node::Internal#compose?`.
+- Add `CallableTree::Node::Internal#composable` as an alias for `CallableTree::Node::Internal#compose`.
+- Add `CallableTree::Node::Internal#composable!` as an alias for `CallableTree::Node::Internal#compose!`.
 
 ## [0.3.4] - 2022-03-13
 

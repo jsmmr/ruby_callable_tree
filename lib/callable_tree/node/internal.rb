@@ -146,6 +146,10 @@ module CallableTree
         end
       end
 
+      alias_method :composable?, :compose?
+      alias_method :composable, :compose
+      alias_method :composable!, :compose!
+
       def outline(&block)
         key = block ? block.call(self) : identity
         value = child_nodes.reduce({}) { |memo, node| memo.merge!(node.outline(&block)) }
