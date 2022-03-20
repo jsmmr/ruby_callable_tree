@@ -18,7 +18,7 @@ module JSONParser
           block.call(json, **options)
         end
       end
-      .terminater do
+      .terminator do
         true
       end
       .build
@@ -38,7 +38,7 @@ module XMLParser
           block.call(REXML::Document.new(file), **options)
         end
       end
-      .terminater do
+      .terminator do
         true
       end
       .build

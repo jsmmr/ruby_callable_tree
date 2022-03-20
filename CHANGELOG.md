@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Add `CallableTree::Node::Internal::Builder#terminator` to use instead of `CallableTree::Node::Internal::Builder#terminater`.
+
 ## [0.3.4] - 2022-03-13
 
 - Add `CallableTree::Node::Internal::Builder`. (experimental)

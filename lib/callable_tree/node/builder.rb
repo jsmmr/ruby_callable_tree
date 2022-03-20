@@ -14,7 +14,13 @@ module CallableTree
       end
 
       def terminater(&block)
-        @terminater = block
+        warn('Use CallableTree::Node::Internal::Builder#terminator instead.', category: :deprecated)
+        @terminator = block
+        self
+      end
+
+      def terminator(&block)
+        @terminator = block
         self
       end
 
@@ -26,13 +32,13 @@ module CallableTree
       def build(node_type:)
         matcher = @matcher
         caller = @caller
-        terminater = @terminater
+        terminator = @terminator
         hookable = @hookable
 
         validate(
           matcher: matcher,
           caller: caller,
-          terminater: terminater
+          terminator: terminator
         )
 
         ::Class
@@ -56,9 +62,9 @@ module CallableTree
               end
             end
 
-            if terminater
+            if terminator
               define_method(:terminate?) do |output, *inputs, **options|
-                terminater.call(output, *inputs, **options) do |output, *inputs, **options|
+                terminator.call(output, *inputs, **options) do |output, *inputs, **options|
                   super(output, *inputs, **options)
                 end
               end
@@ -68,7 +74,7 @@ module CallableTree
 
       private
 
-      def validate(matcher:, caller:, terminater:)
+      def validate(matcher:, caller:, terminator:)
         raise ::CallableTree::Error, 'Not implemented'
       end
     end

@@ -12,7 +12,7 @@ module CallableTree
 
         private
 
-        def validate(matcher:, caller:, terminater:)
+        def validate(matcher:, caller:, terminator:)
           # noop
         end
       end

@@ -14,7 +14,7 @@ module CallableTree
 
         private
 
-        def validate(matcher:, caller:, terminater:)
+        def validate(matcher:, caller:, terminator:)
           raise Error 'caller is required' unless caller
         end
       end
