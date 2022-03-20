@@ -14,7 +14,7 @@ module CallableTree
       end
 
       def terminater(&block)
-        warn('Use CallableTree::Node::Internal::Builder#terminator instead.', category: :deprecated)
+        warn 'Use CallableTree::Node::Internal::Builder#terminator instead.'
         @terminator = block
         self
       end
