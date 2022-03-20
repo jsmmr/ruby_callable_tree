@@ -1,5 +1,16 @@
 ## [Unreleased]
 
+- Add `CallableTree::Node::Internal::Builder#terminator` to use instead of `CallableTree::Node::Internal::Builder#terminater`.
+- Add `CallableTree::Node::Internal#seekable?` as an alias for `CallableTree::Node::Internal#seek?`.
+- Add `CallableTree::Node::Internal#seekable` as an alias for `CallableTree::Node::Internal#seek`.
+- Add `CallableTree::Node::Internal#seekable!` as an alias for `CallableTree::Node::Internal#seek!`.
+- Add `CallableTree::Node::Internal#broadcastable?` as an alias for `CallableTree::Node::Internal#broadcast?`.
+- Add `CallableTree::Node::Internal#broadcastable` as an alias for `CallableTree::Node::Internal#broadcast`.
+- Add `CallableTree::Node::Internal#broadcastable!` as an alias for `CallableTree::Node::Internal#broadcast!`.
+- Add `CallableTree::Node::Internal#composable?` as an alias for `CallableTree::Node::Internal#compose?`.
+- Add `CallableTree::Node::Internal#composable` as an alias for `CallableTree::Node::Internal#compose`.
+- Add `CallableTree::Node::Internal#composable!` as an alias for `CallableTree::Node::Internal#compose!`.
+
 ## [0.3.4] - 2022-03-13
 
 - Add `CallableTree::Node::Internal::Builder`. (experimental)

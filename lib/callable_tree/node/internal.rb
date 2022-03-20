@@ -98,6 +98,10 @@ module CallableTree
         end
       end
 
+      alias_method :seekable?, :seek?
+      alias_method :seekable, :seek
+      alias_method :seekable!, :seek!
+
       def broadcast?
         strategy.is_a?(Strategy::Broadcast)
       end
@@ -118,6 +122,10 @@ module CallableTree
         end
       end
 
+      alias_method :broadcastable?, :broadcast?
+      alias_method :broadcastable, :broadcast
+      alias_method :broadcastable!, :broadcast!
+
       def compose?
         strategy.is_a?(Strategy::Compose)
       end
@@ -137,6 +145,10 @@ module CallableTree
           node.strategy = Strategy::Compose.new unless compose?
         end
       end
+
+      alias_method :composable?, :compose?
+      alias_method :composable, :compose
+      alias_method :composable!, :compose!
 
       def outline(&block)
         key = block ? block.call(self) : identity

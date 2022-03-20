@@ -55,12 +55,12 @@ Multiply3 =
   .caller(&multiply.call(3))
   .build
 
-tree = CallableTree::Node::Root.new.compose.append(
-  LessThan5.new.compose.append(
+tree = CallableTree::Node::Root.new.broadcastable.append(
+  LessThan5.new.broadcastable.append(
     Multiply2.new,
     Add1.new
   ),
-  LessThan10.new.compose.append(
+  LessThan10.new.broadcastable.append(
     Multiply3.new,
     Subtract1.new
   )
