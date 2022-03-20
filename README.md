@@ -621,7 +621,7 @@ result: 16
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/jsmmr/callable_tree.
+Bug reports and pull requests are welcome on GitHub at https://github.com/jsmmr/ruby_callable_tree.
 
 ## License
 
