@@ -4,7 +4,7 @@ module CallableTree
   module Node
     class Root
       include Internal
-      prepend Hooks::Call
+      prepend Hooks::Caller
 
       def self.inherited(subclass)
         raise ::CallableTree::Error, "#{subclass} cannot inherit #{self}"

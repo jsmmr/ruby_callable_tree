@@ -568,20 +568,20 @@ Run `examples/logging.rb`:
 ---
 ```
 
-#### `CallableTree::Node::Hooks::Call` (experimental)
+#### `CallableTree::Node::Hooks::Caller` (experimental)
 
 `examples/hooks-call.rb`:
 ```ruby
 module Node
   class HooksSample
     include CallableTree::Node::Internal
-    prepend CallableTree::Node::Hooks::Call
+    prepend CallableTree::Node::Hooks::Caller
   end
 end
 
 Node::HooksSample.new
-  .before_call do |input, **_options|
-    puts "before_call input: #{input}";
+  .before_caller do |input, **_options|
+    puts "before_caller input: #{input}";
     input + 1
   end
   .append(
@@ -591,14 +591,14 @@ Node::HooksSample.new
       input * 2
     end
   )
-  .around_call do |input, **_options, &block|
-    puts "around_call input: #{input}"
+  .around_caller do |input, **_options, &block|
+    puts "around_caller input: #{input}"
     output = block.call
-    puts "around_call output: #{output}"
+    puts "around_caller output: #{output}"
     output * input
   end
-  .after_call do |output, **_options|
-    puts "after_call output: #{output}"
+  .after_caller do |output, **_options|
+    puts "after_caller output: #{output}"
     output * 2
   end
   .tap do |tree|
@@ -608,14 +608,14 @@ Node::HooksSample.new
   end
 ```
 
-Run `examples/hooks-call.rb`:
+Run `examples/hooks-caller.rb`:
 ```sh
-% ruby examples/hooks-call.rb
-before_call input: 1
+% ruby examples/hooks-caller.rb
+before_caller input: 1
 external input: 2
-around_call input: 2
-around_call output: 4
-after_call output: 8
+around_caller input: 2
+around_caller output: 4
+after_caller output: 8
 result: 16
 ```
 

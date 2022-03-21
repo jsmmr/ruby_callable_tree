@@ -3,7 +3,7 @@
 module CallableTree
   module Node
     module Hooks
-      module Call
+      module Caller
         def self.included(_subclass)
           raise ::CallableTree::Error, "#{self} must be prepended"
         end
@@ -103,6 +103,8 @@ module CallableTree
           self.after_caller_callbacks = after_caller_callbacks.map(&:itself)
         end
       end
+
+      Call = Caller # backward compatibility
     end
   end
 end

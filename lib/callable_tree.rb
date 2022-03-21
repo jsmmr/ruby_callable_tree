@@ -7,7 +7,7 @@ end
 require 'forwardable'
 require_relative 'callable_tree/version'
 require_relative 'callable_tree/node'
-require_relative 'callable_tree/node/hooks/call'
+require_relative 'callable_tree/node/hooks/caller'
 require_relative 'callable_tree/node/internal/strategy'
 require_relative 'callable_tree/node/internal/strategy/broadcast'
 require_relative 'callable_tree/node/internal/strategy/seek'

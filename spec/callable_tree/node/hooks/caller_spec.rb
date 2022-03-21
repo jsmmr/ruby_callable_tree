@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe CallableTree::Node::Hooks::Call do
+RSpec.describe CallableTree::Node::Hooks::Caller do
   module HooksCallSpec
     class Reverser
       include CallableTree::Node::External

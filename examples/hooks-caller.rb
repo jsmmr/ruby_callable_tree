@@ -5,14 +5,14 @@ require 'callable_tree'
 module Node
   class HooksSample
     include CallableTree::Node::Internal
-    prepend CallableTree::Node::Hooks::Call
+    prepend CallableTree::Node::Hooks::Caller
   end
 end
 
 Node::HooksSample
   .new
-  .before_call do |input, **_options|
-    puts "before_call input: #{input}"
+  .before_caller do |input, **_options|
+    puts "before_caller input: #{input}"
     input + 1
   end
   .append(
@@ -22,14 +22,14 @@ Node::HooksSample
       input * 2
     end
   )
-  .around_call do |input, **_options, &block|
-    puts "around_call input: #{input}"
+  .around_caller do |input, **_options, &block|
+    puts "around_caller input: #{input}"
     output = block.call
-    puts "around_call output: #{output}"
+    puts "around_caller output: #{output}"
     output * input
   end
-  .after_call do |output, **_options|
-    puts "after_call output: #{output}"
+  .after_caller do |output, **_options|
+    puts "after_caller output: #{output}"
     output * 2
   end
   .tap do |tree|
