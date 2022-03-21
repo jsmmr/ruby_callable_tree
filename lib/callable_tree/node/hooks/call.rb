@@ -13,7 +13,7 @@ module CallableTree
         end
 
         def before_call!(&block)
-          before_callbacks << block
+          before_caller_callbacks << block
           self
         end
 
@@ -22,7 +22,7 @@ module CallableTree
         end
 
         def around_call!(&block)
-          around_callbacks << block
+          around_caller_callbacks << block
           self
         end
 
@@ -31,49 +31,69 @@ module CallableTree
         end
 
         def after_call!(&block)
-          after_callbacks << block
+          after_caller_callbacks << block
           self
         end
 
         def call(*inputs, **options)
           input_head, *input_tail = inputs
 
-          input_head = before_callbacks.reduce(input_head) do |input_head, callable|
-            callable.call(input_head, *input_tail, self, **options)
+          input_head = before_caller_callbacks.reduce(input_head) do |input_head, callable|
+            callable.call(input_head, *input_tail, **options, _node_: self)
           end
 
-          output = super(input_head, *input_tail, **options)
+          output =
+            if around_caller_callbacks.empty?
+              super(input_head, *input_tail, **options)
+            else
+              around_caller_callbacks_head, *around_caller_callbacks_tail = around_caller_callbacks
+              caller = proc { super(input_head, *input_tail, **options) }
 
-          output = around_callbacks.reduce(output) do |output, callable|
-            callable.call(input_head, *input_tail, self, **options) { output }
-          end
+              output =
+                around_caller_callbacks_head
+                .call(
+                  input_head,
+                  *input_tail,
+                  **options,
+                  _node_: self
+                ) { caller.call }
 
-          after_callbacks.reduce(output) do |output, callable|
-            callable.call(output, self, **options)
+              around_caller_callbacks_tail.reduce(output) do |output, callable|
+                callable.call(
+                  input_head,
+                  *input_tail,
+                  **options,
+                  _node_: self
+                ) { output }
+              end
+            end
+
+          after_caller_callbacks.reduce(output) do |output, callable|
+            callable.call(output, **options, _node_: self)
           end
         end
 
-        def before_callbacks
-          @before_callbacks ||= []
+        def before_caller_callbacks
+          @before_caller_callbacks ||= []
         end
 
-        def around_callbacks
-          @around_callbacks ||= []
+        def around_caller_callbacks
+          @around_caller_callbacks ||= []
         end
 
-        def after_callbacks
-          @after_callbacks ||= []
+        def after_caller_callbacks
+          @after_caller_callbacks ||= []
         end
 
         private
 
-        attr_writer :before_callbacks, :around_callbacks, :after_callbacks
+        attr_writer :before_caller_callbacks, :around_caller_callbacks, :after_caller_callbacks
 
         def initialize_copy(_node)
           super
-          self.before_callbacks = before_callbacks.map(&:itself)
-          self.around_callbacks = around_callbacks.map(&:itself)
-          self.after_callbacks = after_callbacks.map(&:itself)
+          self.before_caller_callbacks = before_caller_callbacks.map(&:itself)
+          self.around_caller_callbacks = around_caller_callbacks.map(&:itself)
+          self.after_caller_callbacks = after_caller_callbacks.map(&:itself)
         end
       end
     end

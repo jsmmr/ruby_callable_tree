@@ -49,23 +49,42 @@ RSpec.describe CallableTree::Node::Hooks::Call do
   describe '#around_call' do
     subject { node.call(*inputs, **options) }
 
-    let(:node) do
-      HooksCallSpec::Reverser
-        .new
-        .around_call do |*, x:, y:, &block|
-          output = block.call
-          "#{x}#{output}#{y}"
-        end
-        .around_call do |input, a, b, *, **, &block|
-          output = block.call
-          "#{a}#{input}#{b} -> #{a}#{output}#{b}"
-        end
-    end
-
     let(:inputs) { %w[foobar ( )] }
     let(:options) { { x: '[', y: ']' } }
 
-    it { is_expected.to eq '(foobar) -> ([)]raboof[(])' }
+    context 'when block is called' do
+      let(:node) do
+        HooksCallSpec::Reverser
+          .new
+          .around_call do |*, x:, y:, **, &block|
+            output = block.call
+            "#{x}#{output}#{y}"
+          end
+          .around_call do |input, a, b, *, **, &block|
+            output = block.call
+            "#{a}#{input}#{b} -> #{a}#{output}#{b}"
+          end
+      end
+
+      it { is_expected.to eq '(foobar) -> ([)]raboof[(])' }
+    end
+
+    context 'when block is not called' do
+      let(:node) do
+        HooksCallSpec::Reverser
+          .new
+          .around_call do |*, x:, y:, **, &block|
+            output = 'xxx'
+            "#{x}#{output}#{y}"
+          end
+          .around_call do |input, a, b, *, **, &block|
+            output = block.call
+            "#{a}#{input}#{b} -> #{a}#{output}#{b}"
+          end
+      end
+
+      it { is_expected.to eq '(foobar) -> ([xxx])' }
+    end
   end
 
   describe '#around_call!' do
@@ -73,23 +92,44 @@ RSpec.describe CallableTree::Node::Hooks::Call do
 
     let(:node) { HooksCallSpec::Reverser.new }
 
-    before do
-      node
-        .around_call! do |*, x:, y:, &block|
-          output = block.call
-          "#{x}#{output}#{y}"
-        end
-        .around_call! do |input, a, b, *, **, &block|
-          output = block.call
-          "#{a}#{input}#{b} -> #{a}#{output}#{b}"
-        end
-    end
-
     let(:inputs) { %w[foobar ( )] }
     let(:options) { { x: '[', y: ']' } }
 
-    it { is_expected.to eq '(foobar) -> ([)]raboof[(])' }
-    it { expect { subject }.not_to change { node.object_id } }
+    context 'when block is called' do
+      let(:node) do
+        HooksCallSpec::Reverser
+          .new
+          .around_call do |*, x:, y:, **, &block|
+            output = block.call
+            "#{x}#{output}#{y}"
+          end
+          .around_call do |input, a, b, *, **, &block|
+            output = block.call
+            "#{a}#{input}#{b} -> #{a}#{output}#{b}"
+          end
+      end
+
+      it { is_expected.to eq '(foobar) -> ([)]raboof[(])' }
+      it { expect { subject }.not_to change { node.object_id } }
+    end
+
+    context 'when block is not called' do
+      let(:node) do
+        HooksCallSpec::Reverser
+          .new
+          .around_call do |*, x:, y:, **, &block|
+            output = 'xxx'
+            "#{x}#{output}#{y}"
+          end
+          .around_call do |input, a, b, *, **, &block|
+            output = block.call
+            "#{a}#{input}#{b} -> #{a}#{output}#{b}"
+          end
+      end
+
+      it { is_expected.to eq '(foobar) -> ([xxx])' }
+      it { expect { subject }.not_to change { node.object_id } }
+    end
   end
 
   describe '#after_call' do
@@ -98,8 +138,8 @@ RSpec.describe CallableTree::Node::Hooks::Call do
     let(:node) do
       HooksCallSpec::Reverser
         .new
-        .after_call { |output, *, x:, y:| "#{x}#{output}#{y}" }
-        .after_call { |output, *, x:, y:| "#{x}#{output}#{y}" }
+        .after_call { |output, *, x:, y:, **| "#{x}#{output}#{y}" }
+        .after_call { |output, *, x:, y:, **| "#{x}#{output}#{y}" }
     end
 
     let(:inputs) { %w[foobar ( )] }
@@ -115,8 +155,8 @@ RSpec.describe CallableTree::Node::Hooks::Call do
 
     before do
       node
-        .after_call! { |output, *, x:, y:| "#{x}#{output}#{y}" }
-        .after_call! { |output, *, x:, y:| "#{x}#{output}#{y}" }
+        .after_call! { |output, *, x:, y:, **| "#{x}#{output}#{y}" }
+        .after_call! { |output, *, x:, y:, **| "#{x}#{output}#{y}" }
     end
 
     let(:inputs) { %w[foobar ( )] }
@@ -142,9 +182,9 @@ RSpec.describe CallableTree::Node::Hooks::Call do
     end
 
     it 'should generate new array' do
-      expect(subject.before_callbacks).not_to be node.before_callbacks
-      expect(subject.around_callbacks).not_to be node.around_callbacks
-      expect(subject.after_callbacks).not_to be node.after_callbacks
+      expect(subject.before_caller_callbacks).not_to be node.before_caller_callbacks
+      expect(subject.around_caller_callbacks).not_to be node.around_caller_callbacks
+      expect(subject.after_caller_callbacks).not_to be node.after_caller_callbacks
     end
   end
 end
