@@ -1,5 +1,8 @@
 ## [Unreleased]
 
+- (Experimental) Add `CallableTree::Node::Hooks::Matcher`.
+  This helps to output logs. See `examples/builder/logging.rb` for details.
+
 ## [0.3.5] - 2022-03-20
 
 - Add `CallableTree::Node::Internal#seekable?` as an alias for `CallableTree::Node::Internal#seek?`.

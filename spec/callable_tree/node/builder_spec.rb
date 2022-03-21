@@ -30,6 +30,9 @@ RSpec.describe CallableTree::Node::Builder do
         it { is_expected.to respond_to([:before_call, :before_caller].sample) }
         it { is_expected.to respond_to([:around_call, :around_caller].sample) }
         it { is_expected.to respond_to([:after_call, :after_caller].sample) }
+        it { is_expected.to respond_to(:before_matcher) }
+        it { is_expected.to respond_to(:around_matcher) }
+        it { is_expected.to respond_to(:after_matcher) }
       end
 
       context 'hookable: false' do
@@ -38,6 +41,9 @@ RSpec.describe CallableTree::Node::Builder do
         it { is_expected.not_to respond_to([:before_call, :before_caller].sample) }
         it { is_expected.not_to respond_to([:around_call, :around_caller].sample) }
         it { is_expected.not_to respond_to([:after_call, :after_caller].sample) }
+        it { is_expected.not_to respond_to(:before_matcher) }
+        it { is_expected.not_to respond_to(:around_matcher) }
+        it { is_expected.not_to respond_to(:after_matcher) }
       end
     end
   end

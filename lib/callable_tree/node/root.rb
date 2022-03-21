@@ -4,6 +4,7 @@ module CallableTree
   module Node
     class Root
       include Internal
+      prepend Hooks::Matcher
       prepend Hooks::Caller
 
       def self.inherited(subclass)
