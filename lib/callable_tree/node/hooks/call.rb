@@ -35,6 +35,13 @@ module CallableTree
           self
         end
 
+        alias before_caller before_call
+        alias before_caller! before_call!
+        alias around_caller around_call
+        alias around_caller! around_call!
+        alias after_caller after_call
+        alias after_caller! after_call!
+
         def call(*inputs, **options)
           input_head, *input_tail = inputs
 
