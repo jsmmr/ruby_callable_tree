@@ -34,7 +34,7 @@ RSpec.describe CallableTree::Node::Hooks::Caller do
         .before_call(&caller2)
     end
 
-    it { is_expected.to eq -1 }
+    it { is_expected.to eq(-1) }
 
     it 'should have different IDs for base_node and node' do
       subject
@@ -53,7 +53,7 @@ RSpec.describe CallableTree::Node::Hooks::Caller do
         .before_call!(&caller2)
     end
 
-    it { is_expected.to eq -1 }
+    it { is_expected.to eq(-1) }
 
     it 'should have the same IDs for base_node and node' do
       subject
