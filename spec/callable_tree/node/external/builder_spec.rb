@@ -14,21 +14,36 @@ RSpec.describe CallableTree::Node::External::Builder do
       proc { |output, *, **| output > 10 }
     end
 
-    let(:builder) do
-      described_class
-        .new
-        .matcher(&matcher)
-        .caller(&caller)
-        .terminator(&terminator)
+    let(:node_class) { builder.build }
+    let(:node) { node_class.new }
+
+    context 'when caller does not specified' do
+      subject { node_class }
+
+      let(:builder) do
+        described_class
+          .new
+          .matcher(&matcher)
+          .terminator(&terminator)
+      end
+
+      it { expect { subject }.to raise_error('caller is required') }
     end
 
-    let(:node) { builder.build.new }
-
-    context '#new' do
+    describe '#new' do
       subject { node }
+
+      let(:builder) do
+        described_class
+          .new
+          .matcher(&matcher)
+          .caller(&caller)
+          .terminator(&terminator)
+      end
+
       it { is_expected.to be_a ::CallableTree::Node::External }
 
-      context '#match?' do
+      describe '#match?' do
         subject { node.match?(*inputs) }
 
         context 'input: 9' do
@@ -42,7 +57,7 @@ RSpec.describe CallableTree::Node::External::Builder do
         end
       end
 
-      context '#call' do
+      describe '#call' do
         subject { node.call(*inputs) }
 
         context 'input: 9' do
@@ -56,7 +71,7 @@ RSpec.describe CallableTree::Node::External::Builder do
         end
       end
 
-      context '#terminate?' do
+      describe '#terminate?' do
         subject { node.terminate?(output) }
 
         context 'input: 10' do

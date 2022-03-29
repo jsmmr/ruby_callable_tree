@@ -3,7 +3,6 @@
 module CallableTree
   module Node
     module External
-      # TODO: Add :inputs
       Output = Struct.new(:value, :options, :routes)
 
       module Verbose

@@ -44,7 +44,10 @@ module CallableTree
         ::Class
           .new do
             include node_type
-            prepend Hooks::Call if hookable
+            if hookable
+              prepend Hooks::Matcher
+              prepend Hooks::Caller
+            end
 
             if matcher
               define_method(:match?) do |*inputs, **options|
