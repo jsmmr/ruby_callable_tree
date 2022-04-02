@@ -1,6 +1,24 @@
 # frozen_string_literal: true
 
 RSpec.describe CallableTree::Node::Internal do
+  describe '.included' do
+    subject do
+      ::Class
+        .new do
+          include CallableTree::Node::External
+          include CallableTree::Node::Internal
+        end
+        .new
+    end
+
+    it {
+      expect { subject }.to raise_error(
+        ::CallableTree::Error,
+        /.+ cannot include CallableTree::Node::Internal together with CallableTree::Node::External/
+      )
+    }
+  end
+
   describe '#children' do
     subject { node.children }
 

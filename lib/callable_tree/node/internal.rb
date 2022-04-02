@@ -6,6 +6,13 @@ module CallableTree
       extend ::Forwardable
       include Node
 
+      def self.included(mod)
+        if mod.include?(External)
+          raise ::CallableTree::Error,
+                "#{mod} cannot include #{self} together with #{External}"
+        end
+      end
+
       def_delegators :child_nodes, :[], :at
 
       def children

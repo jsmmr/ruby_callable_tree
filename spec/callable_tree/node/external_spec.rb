@@ -1,6 +1,24 @@
 # frozen_string_literal: true
 
 RSpec.describe CallableTree::Node::External do
+  describe '.included' do
+    subject do
+      ::Class
+        .new do
+          include CallableTree::Node::Internal
+          include CallableTree::Node::External
+        end
+        .new
+    end
+
+    it {
+      expect { subject }.to raise_error(
+        ::CallableTree::Error,
+        /.+ cannot include CallableTree::Node::External together with CallableTree::Node::Internal/
+      )
+    }
+  end
+
   shared_context 'with parent node' do
     let!(:parent_node) do
       CallableTree::Node::Root.new.tap do |root_node|
