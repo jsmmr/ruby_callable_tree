@@ -1113,6 +1113,12 @@ RSpec.describe CallableTree::Node::Internal do
     it { is_expected.to eq result }
   end
 
+  describe '#internal?' do
+    subject { node.internal? }
+    let(:node) { ::Class.new { include CallableTree::Node::Internal }.new }
+    it { is_expected.to be true }
+  end
+
   describe '#clone' do
     subject { node.clone }
 

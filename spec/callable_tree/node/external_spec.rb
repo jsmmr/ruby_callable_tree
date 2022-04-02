@@ -204,6 +204,11 @@ RSpec.describe CallableTree::Node::External do
       subject { node.outline }
       it { is_expected.to eq({ ExternalSpec::Stringifier => nil }) }
     end
+
+    describe '#internal?' do
+      subject { node.internal? }
+      it { is_expected.to be false }
+    end
   end
 
   context 'when node is proxified' do
@@ -381,6 +386,11 @@ RSpec.describe CallableTree::Node::External do
     describe '#outline' do
       subject { node.outline }
       it { is_expected.to eq({ Proc => nil }) }
+    end
+
+    describe '#internal?' do
+      subject { node.internal? }
+      it { is_expected.to be false }
     end
   end
 end

@@ -48,6 +48,10 @@ module CallableTree
         { identity => nil }
       end
 
+      def internal?
+        false
+      end
+
       private
 
       def initialize_copy(_node)

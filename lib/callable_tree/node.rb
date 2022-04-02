@@ -46,6 +46,10 @@ module CallableTree
       !output.nil?
     end
 
+    def internal?
+      raise ::CallableTree::Error, 'Not implemented'
+    end
+
     protected
 
     attr_writer :parent

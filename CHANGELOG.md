@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Add `CallableTree::Node#internal?`
+
 ## [0.3.6] - 2022-03-29
 
 - (Experimental) Add `CallableTree::Node::Hooks::Matcher`.
