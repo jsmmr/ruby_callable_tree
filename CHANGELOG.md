@@ -1,6 +1,7 @@
 ## [Unreleased]
 
 - Add `CallableTree::Node#internal?`
+- Add `CallableTree::Node#external?`
 
 ## [0.3.6] - 2022-03-29
 

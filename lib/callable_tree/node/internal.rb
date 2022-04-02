@@ -167,6 +167,10 @@ module CallableTree
         true
       end
 
+      def external?
+        false
+      end
+
       protected
 
       attr_writer :strategy

@@ -50,6 +50,10 @@ module CallableTree
       raise ::CallableTree::Error, 'Not implemented'
     end
 
+    def external?
+      raise ::CallableTree::Error, 'Not implemented'
+    end
+
     protected
 
     attr_writer :parent

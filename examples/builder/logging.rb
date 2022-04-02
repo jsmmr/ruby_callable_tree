@@ -90,7 +90,7 @@ loggable = proc do |node|
     matched
   end
 
-  if node.is_a?(CallableTree::Node::External)
+  if node.external?
     input_label  = 'Input :'
     output_label = 'Output:'
 

@@ -52,6 +52,10 @@ module CallableTree
         false
       end
 
+      def external?
+        true
+      end
+
       private
 
       def initialize_copy(_node)

@@ -209,6 +209,11 @@ RSpec.describe CallableTree::Node::External do
       subject { node.internal? }
       it { is_expected.to be false }
     end
+
+    describe '#external?' do
+      subject { node.external? }
+      it { is_expected.to be true }
+    end
   end
 
   context 'when node is proxified' do
@@ -391,6 +396,11 @@ RSpec.describe CallableTree::Node::External do
     describe '#internal?' do
       subject { node.internal? }
       it { is_expected.to be false }
+    end
+
+    describe '#external?' do
+      subject { node.external? }
+      it { is_expected.to be true }
     end
   end
 end

@@ -1119,6 +1119,12 @@ RSpec.describe CallableTree::Node::Internal do
     it { is_expected.to be true }
   end
 
+  describe '#external?' do
+    subject { node.external? }
+    let(:node) { ::Class.new { include CallableTree::Node::Internal }.new }
+    it { is_expected.to be false }
+  end
+
   describe '#clone' do
     subject { node.clone }
 
