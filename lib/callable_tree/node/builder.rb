@@ -51,7 +51,7 @@ module CallableTree
 
             if matcher
               define_method(:match?) do |*inputs, **options|
-                matcher.call(*inputs, **options) do |*inputs, **options|
+                matcher.call(*inputs, **options, _node_: self) do |*inputs, **options|
                   super(*inputs, **options)
                 end
               end
@@ -59,7 +59,7 @@ module CallableTree
 
             if caller
               define_method(:call) do |*inputs, **options|
-                caller.call(*inputs, **options) do |*inputs, **options|
+                caller.call(*inputs, **options, _node_: self) do |*inputs, **options|
                   super(*inputs, **options)
                 end
               end
@@ -67,7 +67,7 @@ module CallableTree
 
             if terminator
               define_method(:terminate?) do |output, *inputs, **options|
-                terminator.call(output, *inputs, **options) do |output, *inputs, **options|
+                terminator.call(output, *inputs, **options, _node_: self) do |output, *inputs, **options|
                   super(output, *inputs, **options)
                 end
               end
