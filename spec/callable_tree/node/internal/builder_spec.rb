@@ -38,7 +38,7 @@ RSpec.describe CallableTree::Node::Internal::Builder do
         subject { node.match?(*inputs, **options) }
 
         before do
-          expect(matcher).to receive(:call).once.with(*inputs, **options).and_call_original
+          expect(matcher).to receive(:call).once.with(*inputs, **options, _node_: node).and_call_original
         end
 
         let(:inputs) { [1, 2] }
@@ -76,7 +76,7 @@ RSpec.describe CallableTree::Node::Internal::Builder do
         end
 
         before do
-          expect(caller).to receive(:call).once.with(*inputs, **options).and_call_original
+          expect(caller).to receive(:call).once.with(*inputs, **options, _node_: node).and_call_original
         end
 
         let(:inputs) { [1, 2] }
@@ -93,7 +93,7 @@ RSpec.describe CallableTree::Node::Internal::Builder do
         end
 
         before do
-          expect(terminator).to receive(:call).once.with(output, *inputs, **options).and_call_original
+          expect(terminator).to receive(:call).once.with(output, *inputs, **options, _node_: node).and_call_original
         end
 
         let(:output) { :output }
