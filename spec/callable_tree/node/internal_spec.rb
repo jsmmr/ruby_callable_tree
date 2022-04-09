@@ -1,6 +1,24 @@
 # frozen_string_literal: true
 
 RSpec.describe CallableTree::Node::Internal do
+  describe '.included' do
+    subject do
+      ::Class
+        .new do
+          include CallableTree::Node::External
+          include CallableTree::Node::Internal
+        end
+        .new
+    end
+
+    it {
+      expect { subject }.to raise_error(
+        ::CallableTree::Error,
+        /.+ cannot include CallableTree::Node::Internal together with CallableTree::Node::External/
+      )
+    }
+  end
+
   describe '#children' do
     subject { node.children }
 
@@ -1093,6 +1111,18 @@ RSpec.describe CallableTree::Node::Internal do
     end
 
     it { is_expected.to eq result }
+  end
+
+  describe '#internal?' do
+    subject { node.internal? }
+    let(:node) { ::Class.new { include CallableTree::Node::Internal }.new }
+    it { is_expected.to be true }
+  end
+
+  describe '#external?' do
+    subject { node.external? }
+    let(:node) { ::Class.new { include CallableTree::Node::Internal }.new }
+    it { is_expected.to be false }
   end
 
   describe '#clone' do

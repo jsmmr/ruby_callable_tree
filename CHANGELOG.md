@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+## [0.3.7] - 2022-04-09
+
+- Add `CallableTree::Node#internal?`
+- Add `CallableTree::Node#external?`
+- (Experimental) Change the callables (matcher, caller, terminator) specified in the builder style to receive the current node instance as the `_node_` keyword argument.
+
 ## [0.3.6] - 2022-03-29
 
 - (Experimental) Add `CallableTree::Node::Hooks::Matcher`.

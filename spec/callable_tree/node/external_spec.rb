@@ -1,6 +1,24 @@
 # frozen_string_literal: true
 
 RSpec.describe CallableTree::Node::External do
+  describe '.included' do
+    subject do
+      ::Class
+        .new do
+          include CallableTree::Node::Internal
+          include CallableTree::Node::External
+        end
+        .new
+    end
+
+    it {
+      expect { subject }.to raise_error(
+        ::CallableTree::Error,
+        /.+ cannot include CallableTree::Node::External together with CallableTree::Node::Internal/
+      )
+    }
+  end
+
   shared_context 'with parent node' do
     let!(:parent_node) do
       CallableTree::Node::Root.new.tap do |root_node|
@@ -186,6 +204,16 @@ RSpec.describe CallableTree::Node::External do
       subject { node.outline }
       it { is_expected.to eq({ ExternalSpec::Stringifier => nil }) }
     end
+
+    describe '#internal?' do
+      subject { node.internal? }
+      it { is_expected.to be false }
+    end
+
+    describe '#external?' do
+      subject { node.external? }
+      it { is_expected.to be true }
+    end
   end
 
   context 'when node is proxified' do
@@ -363,6 +391,16 @@ RSpec.describe CallableTree::Node::External do
     describe '#outline' do
       subject { node.outline }
       it { is_expected.to eq({ Proc => nil }) }
+    end
+
+    describe '#internal?' do
+      subject { node.internal? }
+      it { is_expected.to be false }
+    end
+
+    describe '#external?' do
+      subject { node.external? }
+      it { is_expected.to be true }
     end
   end
 end
