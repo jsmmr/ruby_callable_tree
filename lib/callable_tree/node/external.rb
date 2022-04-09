@@ -5,6 +5,13 @@ module CallableTree
     module External
       include Node
 
+      def self.included(mod)
+        if mod.include?(Internal)
+          raise ::CallableTree::Error,
+                "#{mod} cannot include #{self} together with #{Internal}"
+        end
+      end
+
       def self.proxify(callable)
         Proxy.new(callable)
       end
@@ -39,6 +46,14 @@ module CallableTree
 
       def outline
         { identity => nil }
+      end
+
+      def internal?
+        false
+      end
+
+      def external?
+        true
       end
 
       private

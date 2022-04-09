@@ -6,6 +6,13 @@ module CallableTree
       extend ::Forwardable
       include Node
 
+      def self.included(mod)
+        if mod.include?(External)
+          raise ::CallableTree::Error,
+                "#{mod} cannot include #{self} together with #{External}"
+        end
+      end
+
       def_delegators :child_nodes, :[], :at
 
       def children
@@ -35,7 +42,7 @@ module CallableTree
         if recursive
           child_nodes
             .lazy
-            .select { |node| node.is_a?(Internal) }
+            .select { |node| node.internal? }
             .map { |node| node.find(recursive: true, &block) }
             .reject(&:nil?)
             .first
@@ -51,7 +58,7 @@ module CallableTree
 
         if recursive
           child_nodes.each do |node|
-            node.reject!(recursive: true, &block) if node.is_a?(Internal)
+            node.reject!(recursive: true, &block) if node.internal?
           end
         end
 
@@ -66,7 +73,7 @@ module CallableTree
         reject!(&block) if block_given?
 
         reject! do |node|
-          node.is_a?(Internal) && node.shake!(&block).child_nodes.empty?
+          node.internal? && node.shake!(&block).child_nodes.empty?
         end
       end
 
@@ -154,6 +161,14 @@ module CallableTree
         key = block ? block.call(self) : identity
         value = child_nodes.reduce({}) { |memo, node| memo.merge!(node.outline(&block)) }
         { key => value }
+      end
+
+      def internal?
+        true
+      end
+
+      def external?
+        false
       end
 
       protected
