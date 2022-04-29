@@ -5,6 +5,19 @@ require 'json'
 require 'rexml/document'
 
 module Node
+  class Identity
+    attr_reader :klass, :type
+
+    def initialize(klass:, type:)
+      @klass = klass
+      @type = type
+    end
+
+    def to_s
+      "#{klass}(#{type})"
+    end
+  end
+
   module JSON
     class Parser
       include CallableTree::Node::Internal
@@ -30,6 +43,10 @@ module Node
 
       def initialize(type:)
         @type = type
+      end
+
+      def identity
+        Identity.new(klass: super, type: @type)
       end
 
       def match?(input, **_options)
@@ -70,6 +87,10 @@ module Node
         @type = type
       end
 
+      def identity
+        Identity.new(klass: super, type: @type)
+      end
+
       def match?(input, **_options)
         !input.get_elements("//#{@type}").empty?
       end
@@ -96,7 +117,7 @@ tree = CallableTree::Node::Root.new.append(
   )
 )
 
-Dir.glob("#{__dir__}/docs/*") do |file|
+Dir.glob("#{__dir__}/../docs/*") do |file|
   options = { foo: :bar }
   pp tree.call(file, **options)
   puts '---'
