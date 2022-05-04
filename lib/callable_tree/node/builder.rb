@@ -24,6 +24,11 @@ module CallableTree
         self
       end
 
+      def identifier(&block)
+        @identifier = block
+        self
+      end
+
       def hookable(hookable = true)
         @hookable = hookable
         self
@@ -33,6 +38,7 @@ module CallableTree
         matcher = @matcher
         caller = @caller
         terminator = @terminator
+        identifier = @identifier
         hookable = @hookable
 
         validate(
@@ -70,6 +76,12 @@ module CallableTree
                 terminator.call(output, *inputs, **options, _node_: self) do |output, *inputs, **options|
                   super(output, *inputs, **options)
                 end
+              end
+            end
+
+            if identifier
+              define_method(:identity) do
+                identifier.call(_node_: self) { super() }
               end
             end
           end

@@ -14,6 +14,10 @@ RSpec.describe CallableTree::Node::Internal::Builder do
       proc { |output, *inputs, **options, &block| block.call(output, *inputs, **options) && terminated }
     end
 
+    let(:identifier) do
+      proc { |_node_:, &block| block.call && identity }
+    end
+
     let(:builder) do
       described_class
         .new
@@ -26,6 +30,7 @@ RSpec.describe CallableTree::Node::Internal::Builder do
             node_class.terminater(&terminator)
           end
         end
+        .identifier(&identifier)
     end
 
     let(:node) { builder.build.new }
@@ -109,6 +114,22 @@ RSpec.describe CallableTree::Node::Internal::Builder do
           let(:terminated) { false }
           it { is_expected.to be false }
         end
+      end
+
+      context '#identity' do
+        subject { node.identity }
+
+        let(:identity) { :identity }
+
+        before do
+          node.append!(proc { 'child' })
+        end
+
+        before do
+          expect(identifier).to receive(:call).once.with(_node_: node).and_call_original
+        end
+
+        it { is_expected.to be identity }
       end
     end
   end
