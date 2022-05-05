@@ -7,6 +7,7 @@ module Node
     include CallableTree::Node::Internal
     prepend CallableTree::Node::Hooks::Matcher
     prepend CallableTree::Node::Hooks::Caller
+    prepend CallableTree::Node::Hooks::Terminator
   end
 end
 
@@ -47,6 +48,20 @@ CallableTree::Node::Root.new.append(
     .after_caller do |output, **_options|
       puts "after_caller output: #{output}"
       output * 2
+    end
+    .before_terminator do |input, **_options|
+      puts "before_terminator input: #{input}"
+      input + 1
+    end
+    .around_terminator do |input, **_options, &block|
+      puts "around_terminator input: #{input}"
+      terminated = block.call
+      puts "around_terminator terminated: #{terminated}"
+      !terminated
+    end
+    .after_terminator do |terminated, **_options|
+      puts "after_terminator terminated: #{terminated}"
+      !terminated
     end
 ).tap do |tree|
   options = { foo: :bar }

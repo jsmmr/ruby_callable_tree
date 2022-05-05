@@ -6,6 +6,7 @@ module CallableTree
       include Internal
       prepend Hooks::Matcher
       prepend Hooks::Caller
+      prepend Hooks::Terminator
 
       def self.inherited(subclass)
         raise ::CallableTree::Error, "#{subclass} cannot inherit #{self}"

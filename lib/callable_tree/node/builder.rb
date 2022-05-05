@@ -53,6 +53,7 @@ module CallableTree
             if hookable
               prepend Hooks::Matcher
               prepend Hooks::Caller
+              prepend Hooks::Terminator
             end
 
             if matcher

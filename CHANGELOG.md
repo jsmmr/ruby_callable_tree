@@ -2,6 +2,7 @@
 
 - (Experimental) Add `CallableTree::Node::Internal::Builder#identifier`.
 - (Experimental) Add `CallableTree::Node::External::Builder#identifier`.
+- (Experimental) Add `CallableTree::Node::Hooks::Terminator`.
 
 ## [0.3.7] - 2022-04-09
 
