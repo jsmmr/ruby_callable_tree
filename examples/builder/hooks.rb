@@ -46,6 +46,20 @@ CallableTree::Node::Root.new.append(
     puts "after_caller output: #{output}"
     output * 2
   end
+  .before_terminator do |output, *_inputs, **_options|
+    puts "before_terminator output: #{output}"
+    output + 1
+  end
+  .around_terminator do |output, *_inputs, **_options, &block|
+    puts "around_terminator output: #{output}"
+    terminated = block.call
+    puts "around_terminator terminated: #{terminated}"
+    !terminated
+  end
+  .after_terminator do |terminated, **_options|
+    puts "after_terminator terminated: #{terminated}"
+    !terminated
+  end
 ).tap do |tree|
   options = { foo: :bar }
   output = tree.call(1, **options)
