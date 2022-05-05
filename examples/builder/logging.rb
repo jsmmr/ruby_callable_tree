@@ -17,9 +17,8 @@ JSONParser =
       block.call(json, **options)
     end
   end
-  .terminator do
-    true
-  end
+  .terminator { true }
+  # .identifier { |_node_:| :as_you_like } # optional
   .hookable
   .build
 
@@ -35,9 +34,8 @@ XMLParser =
       block.call(REXML::Document.new(file), **options)
     end
   end
-  .terminator do
-    true
-  end
+  .terminator { true }
+  # .identifier { |_node_:| :as_you_like } # optional
   .hookable
   .build
 
@@ -52,6 +50,7 @@ def build_json_scraper(type)
         .map { |element| [element['name'], element['emoji']] }
         .to_h
     end
+    # .identifier { |_node_:| :as_you_like } # optional
     .hookable
     .build
 end
@@ -72,6 +71,7 @@ def build_xml_scraper(type)
         .map { |element| [element['name'], element['emoji']] }
         .to_h
     end
+    # .identifier { |_node_:| :as_you_like } # optional
     .hookable
     .build
 end
