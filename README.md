@@ -21,10 +21,10 @@ Or install it yourself as:
 
 ## Usage
 
-Builds a tree by linking instances of the nodes. The `call` method of the node where the `match?` method returns a truthy value is called in a chain from the root node to the leaf node.
+Builds a tree by linking `CallableTree` node instances. The `call` methods of the nodes where the `match?` method returns a truthy value are called in a chain from the root node to the leaf node.
 
 - `CallableTree::Node::Internal`
-  - This `module` is used to define a node that can have child nodes. An instance of this node has several strategies. The strategy can be changed by calling the method of the instance.
+  - This `module` is used to define a node that can have child nodes. An instance of this node has several strategies (`seekable`, `broadcastable`, `composable`). The strategy can be changed by calling the method of the instance.
 - `CallableTree::Node::External`
   - This `module` is used to define a leaf node that cannot have child nodes.
 - `CallableTree::Node::Root`
@@ -32,11 +32,15 @@ Builds a tree by linking instances of the nodes. The `call` method of the node w
 
 ### Basic
 
-#### `CallableTree::Node::Internal#seekable` (default)
+There are two ways to define the nodes: class style and builder style (experimental).
+
+#### `CallableTree::Node::Internal#seekable` (default strategy)
 
 This strategy does not call the next sibling node if the `call` method of the current node returns a value other than `nil`. This behavior is changeable by overriding the `terminate?` method.
 
-`examples/internal-seekable.rb`:
+##### Class style
+
+`examples/class/internal-seekable.rb`:
 ```ruby
 module Node
   module JSON
@@ -148,9 +152,115 @@ Dir.glob("#{__dir__}/docs/*") do |file|
 end
 ```
 
-Run `examples/internal-seekable.rb`:
+Run `examples/class/internal-seekable.rb`:
 ```sh
-% ruby examples/internal-seekable.rb
+% ruby examples/class/internal-seekable.rb
+{"Dog"=>"🐶", "Cat"=>"🐱"}
+---
+{"Dog"=>"🐶", "Cat"=>"🐱"}
+---
+{"Red Apple"=>"🍎", "Green Apple"=>"🍏"}
+---
+{"Red Apple"=>"🍎", "Green Apple"=>"🍏"}
+---
+```
+
+##### Builder style (experimental)
+
+`examples/builder/internal-seekable.rb`:
+```ruby
+JSONParser =
+  CallableTree::Node::Internal::Builder
+  .new
+  .matcher do |input, **_options|
+    File.extname(input) == '.json'
+  end
+  .caller do |input, **options, &block|
+    File.open(input) do |file|
+      json = ::JSON.load(file)
+      # The following block call is equivalent to calling `super` in the class style.
+      block.call(json, **options)
+    end
+  end
+  .terminator do
+    true
+  end
+  .build
+
+XMLParser =
+  CallableTree::Node::Internal::Builder
+  .new
+  .matcher do |input, **_options|
+    File.extname(input) == '.xml'
+  end
+  .caller do |input, **options, &block|
+    File.open(input) do |file|
+      # The following block call is equivalent to calling `super` in the class style.
+      block.call(REXML::Document.new(file), **options)
+    end
+  end
+  .terminator do
+    true
+  end
+  .build
+
+def build_json_scraper(type)
+  CallableTree::Node::External::Builder
+    .new
+    .matcher do |input, **_options|
+      !!input[type.to_s]
+    end
+    .caller do |input, **_options|
+      input[type.to_s]
+        .map { |element| [element['name'], element['emoji']] }
+        .to_h
+    end
+    .build
+end
+
+AnimalsJSONScraper = build_json_scraper(:animals)
+FruitsJSONScraper = build_json_scraper(:fruits)
+
+def build_xml_scraper(type)
+  CallableTree::Node::External::Builder
+    .new
+    .matcher do |input, **_options|
+      !input.get_elements("//#{type}").empty?
+    end
+    .caller do |input, **_options|
+      input
+        .get_elements("//#{type}")
+        .first
+        .map { |element| [element['name'], element['emoji']] }
+        .to_h
+    end
+    .build
+end
+
+AnimalsXMLScraper = build_xml_scraper(:animals)
+FruitsXMLScraper = build_xml_scraper(:fruits)
+
+tree = CallableTree::Node::Root.new.seekable.append(
+  JSONParser.new.seekable.append(
+    AnimalsJSONScraper.new,
+    FruitsJSONScraper.new
+  ),
+  XMLParser.new.seekable.append(
+    AnimalsXMLScraper.new,
+    FruitsXMLScraper.new
+  )
+)
+
+Dir.glob("#{__dir__}/../docs/*") do |file|
+  options = { foo: :bar }
+  pp tree.call(file, **options)
+  puts '---'
+end
+```
+
+Run `examples/builder/internal-seekable.rb`:
+```sh
+% ruby examples/builder/internal-seekable.rb
 {"Dog"=>"🐶", "Cat"=>"🐱"}
 ---
 {"Dog"=>"🐶", "Cat"=>"🐱"}
@@ -165,7 +275,9 @@ Run `examples/internal-seekable.rb`:
 
 This strategy calls all child nodes of the internal node and ignores their `terminate?` methods, and then outputs their results as array.
 
-`examples/internal-broadcastable.rb`:
+##### Class style
+
+`examples/class/internal-broadcastable.rb`:
 ```ruby
 module Node
   class LessThan
@@ -199,9 +311,99 @@ end
 
 ```
 
-Run `examples/internal-broadcastable.rb`:
+Run `examples/class/internal-broadcastable.rb`:
 ```sh
-% ruby examples/internal-broadcastable.rb
+% ruby examples/class/internal-broadcastable.rb
+0 -> [[0, 1], [0, -1]]
+1 -> [[2, 2], [3, 0]]
+2 -> [[4, 3], [6, 1]]
+3 -> [[6, 4], [9, 2]]
+4 -> [[8, 5], [12, 3]]
+5 -> [nil, [15, 4]]
+6 -> [nil, [18, 5]]
+7 -> [nil, [21, 6]]
+8 -> [nil, [24, 7]]
+9 -> [nil, [27, 8]]
+10 -> [nil, nil]
+```
+
+##### Builder style (experimental)
+
+`examples/builder/internal-broadcastable.rb`:
+```ruby
+less_than = proc do |num|
+  # The following block call is equivalent to calling `super` in the class style.
+  proc { |input, &block| block.call(input) && input < num }
+end
+
+LessThan5 =
+  CallableTree::Node::Internal::Builder
+  .new
+  .matcher(&less_than.call(5))
+  .build
+
+LessThan10 =
+  CallableTree::Node::Internal::Builder
+  .new
+  .matcher(&less_than.call(10))
+  .build
+
+add = proc do |num|
+  proc { |input| input + num }
+end
+
+Add1 =
+  CallableTree::Node::External::Builder
+  .new
+  .caller(&add.call(1))
+  .build
+
+subtract = proc do |num|
+  proc { |input| input - num }
+end
+
+Subtract1 =
+  CallableTree::Node::External::Builder
+  .new
+  .caller(&subtract.call(1))
+  .build
+
+multiply = proc do |num|
+  proc { |input| input * num }
+end
+
+Multiply2 =
+  CallableTree::Node::External::Builder
+  .new
+  .caller(&multiply.call(2))
+  .build
+
+Multiply3 =
+  CallableTree::Node::External::Builder
+  .new
+  .caller(&multiply.call(3))
+  .build
+
+tree = CallableTree::Node::Root.new.broadcastable.append(
+  LessThan5.new.broadcastable.append(
+    Multiply2.new,
+    Add1.new
+  ),
+  LessThan10.new.broadcastable.append(
+    Multiply3.new,
+    Subtract1.new
+  )
+)
+
+(0..10).each do |input|
+  output = tree.call(input)
+  puts "#{input} -> #{output}"
+end
+```
+
+Run `examples/builder/internal-broadcastable.rb`:
+```sh
+% ruby examples/builder/internal-broadcastable.rb
 0 -> [[0, 1], [0, -1]]
 1 -> [[2, 2], [3, 0]]
 2 -> [[4, 3], [6, 1]]
@@ -219,7 +421,9 @@ Run `examples/internal-broadcastable.rb`:
 
 This strategy calls all child nodes of the internal node in order to input the output of the previous node to the next node and ignores their `terminate?` methods, and then outputs a single result.
 
-`examples/internal-composable.rb`:
+##### Class style
+
+`examples/class/internal-composable.rb`:
 ```ruby
 module Node
   class LessThan
@@ -253,9 +457,99 @@ end
 
 ```
 
-Run `examples/internal-composable.rb`:
+Run `examples/class/internal-composable.rb`:
 ```sh
-% ruby examples/internal-composable.rb
+% ruby examples/class/internal-composable.rb
+0 -> 2
+1 -> 8
+2 -> 14
+3 -> 20
+4 -> 26
+5 -> 14
+6 -> 17
+7 -> 20
+8 -> 23
+9 -> 26
+10 -> 10
+```
+
+##### Builder style (experimental)
+
+`examples/builder/internal-composable.rb`:
+```ruby
+less_than = proc do |num|
+  # The following block call is equivalent to calling `super` in the class style.
+  proc { |input, &block| block.call(input) && input < num }
+end
+
+LessThan5 =
+  CallableTree::Node::Internal::Builder
+  .new
+  .matcher(&less_than.call(5))
+  .build
+
+LessThan10 =
+  CallableTree::Node::Internal::Builder
+  .new
+  .matcher(&less_than.call(10))
+  .build
+
+add = proc do |num|
+  proc { |input| input + num }
+end
+
+Add1 =
+  CallableTree::Node::External::Builder
+  .new
+  .caller(&add.call(1))
+  .build
+
+subtract = proc do |num|
+  proc { |input| input - num }
+end
+
+Subtract1 =
+  CallableTree::Node::External::Builder
+  .new
+  .caller(&subtract.call(1))
+  .build
+
+multiply = proc do |num|
+  proc { |input| input * num }
+end
+
+Multiply2 =
+  CallableTree::Node::External::Builder
+  .new
+  .caller(&multiply.call(2))
+  .build
+
+Multiply3 =
+  CallableTree::Node::External::Builder
+  .new
+  .caller(&multiply.call(3))
+  .build
+
+tree = CallableTree::Node::Root.new.composable.append(
+  LessThan5.new.composable.append(
+    Multiply2.new,
+    Add1.new
+  ),
+  LessThan10.new.composable.append(
+    Multiply3.new,
+    Subtract1.new
+  )
+)
+
+(0..10).each do |input|
+  output = tree.call(input)
+  puts "#{input} -> #{output}"
+end
+```
+
+Run `examples/builder/internal-composable.rb`:
+```sh
+% ruby examples/builder/internal-composable.rb
 0 -> 2
 1 -> 8
 2 -> 14
@@ -275,7 +569,7 @@ Run `examples/internal-composable.rb`:
 
 If you want verbose output results, call this method.
 
-`examples/external-verbosify.rb`:
+`examples/class/external-verbosify.rb`:
 ```ruby
 ...
 
@@ -293,9 +587,9 @@ tree = CallableTree::Node::Root.new.append(
 ...
 ```
 
-Run `examples/external-verbosify.rb`:
+Run `examples/class/external-verbosify.rb`:
 ```sh
-% ruby examples/external-verbosify.rb
+% ruby examples/class/external-verbosify.rb
 #<struct CallableTree::Node::External::Output
  value={"Dog"=>"🐶", "Cat"=>"🐱"},
  options={:foo=>:bar},
@@ -325,7 +619,7 @@ You can work around it by overriding the `identity` method of the node.
 
 If you want to customize the node identity, override this method.
 
-`examples/identity.rb`:
+`examples/class/identity.rb`:
 ```ruby
 module Node
   class Identity
@@ -381,9 +675,9 @@ end
 ...
 ```
 
-Run `examples/identity.rb`:
+Run `examples/class/identity.rb`:
 ```sh
-% ruby examples/identity.rb
+% ruby examples/class/identity.rb
 #<struct CallableTree::Node::External::Output
  value={"Dog"=>"🐶", "Cat"=>"🐱"},
  options={:foo=>:bar},
@@ -430,53 +724,23 @@ Run `examples/identity.rb`:
 
 This is an example of logging.
 
-`examples/logging.rb`:
+`examples/class/logging.rb`:
 ```ruby
 module Node
-  module Logging
-    INDENT_SIZE = 2
-    BLANK = ' '
-
-    module Match
-      LIST_STYLE = '*'
-
-      def match?(_input, **_options)
-        super.tap do |matched|
-          prefix = LIST_STYLE.rjust(depth * INDENT_SIZE - INDENT_SIZE + LIST_STYLE.length, BLANK)
-          puts "#{prefix} #{identity}: [matched: #{matched}]"
-        end
-      end
-    end
-
-    module Call
-      INPUT_LABEL  = 'Input :'
-      OUTPUT_LABEL = 'Output:'
-
-      def call(input, **_options)
-        super.tap do |output|
-          input_prefix = INPUT_LABEL.rjust(depth * INDENT_SIZE + INPUT_LABEL.length, BLANK)
-          puts "#{input_prefix} #{input}"
-          output_prefix = OUTPUT_LABEL.rjust(depth * INDENT_SIZE + OUTPUT_LABEL.length, BLANK)
-          puts "#{output_prefix} #{output}"
-        end
-      end
-    end
-  end
-
   ...
 
   module JSON
     class Parser
       include CallableTree::Node::Internal
-      prepend Logging::Match
+      prepend CallableTree::Node::Hooks::Matcher
 
       ...
     end
 
     class Scraper
       include CallableTree::Node::External
-      prepend Logging::Match
-      prepend Logging::Call
+      prepend CallableTree::Node::Hooks::Matcher
+      prepend CallableTree::Node::Hooks::Caller
 
       ...
     end
@@ -485,27 +749,72 @@ module Node
   module XML
     class Parser
       include CallableTree::Node::Internal
-      prepend Logging::Match
+      prepend CallableTree::Node::Hooks::Matcher
 
       ...
     end
 
     class Scraper
       include CallableTree::Node::External
-      prepend Logging::Match
-      prepend Logging::Call
+      prepend CallableTree::Node::Hooks::Matcher
+      prepend CallableTree::Node::Hooks::Caller
 
       ...
     end
   end
 end
 
+module Logging
+  INDENT_SIZE = 2
+  BLANK = ' '
+  LIST_STYLE = '*'
+  INPUT_LABEL  = 'Input :'
+  OUTPUT_LABEL = 'Output:'
+
+  def self.loggable(node)
+    node.after_matcher! do |matched, _node_:, **|
+      prefix = LIST_STYLE.rjust(_node_.depth * INDENT_SIZE - INDENT_SIZE + LIST_STYLE.length, BLANK)
+      puts "#{prefix} #{_node_.identity}: [matched: #{matched}]"
+      matched
+    end
+
+    if node.external?
+      node
+        .before_caller! do |input, *, _node_:, **|
+          input_prefix = INPUT_LABEL.rjust(_node_.depth * INDENT_SIZE + INPUT_LABEL.length, BLANK)
+          puts "#{input_prefix} #{input}"
+          input
+        end
+        .after_caller! do |output, _node_:, **|
+          output_prefix = OUTPUT_LABEL.rjust(_node_.depth * INDENT_SIZE + OUTPUT_LABEL.length, BLANK)
+          puts "#{output_prefix} #{output}"
+          output
+        end
+    end
+  end
+end
+
+loggable = Logging.method(:loggable)
+
+tree = CallableTree::Node::Root.new.append(
+  Node::JSON::Parser.new.tap(&loggable).append(
+    Node::JSON::Scraper.new(type: :animals).tap(&loggable).verbosify,
+    Node::JSON::Scraper.new(type: :fruits).tap(&loggable).verbosify
+  ),
+  Node::XML::Parser.new.tap(&loggable).append(
+    Node::XML::Scraper.new(type: :animals).tap(&loggable).verbosify,
+    Node::XML::Scraper.new(type: :fruits).tap(&loggable).verbosify
+  )
+)
+
 ...
 ```
 
-Run `examples/logging.rb`:
+Also, see `examples/class/hooks.rb` for detail about `CallableTree::Node::Hooks::*`.
+
+Run `examples/class/logging.rb`:
 ```sh
-% ruby examples/logging.rb
+% ruby examples/class/logging.rb
 * Node::JSON::Parser: [matched: true]
   * Node::JSON::Scraper(animals): [matched: true]
     Input : {"animals"=>[{"name"=>"Dog", "emoji"=>"🐶"}, {"name"=>"Cat", "emoji"=>"🐱"}]}
@@ -566,57 +875,6 @@ Run `examples/logging.rb`:
    Node::XML::Parser,
    CallableTree::Node::Root]>
 ---
-```
-
-#### `CallableTree::Node::Hooks::Caller` (experimental)
-
-`examples/hooks-call.rb`:
-```ruby
-module Node
-  class HooksSample
-    include CallableTree::Node::Internal
-    prepend CallableTree::Node::Hooks::Caller
-  end
-end
-
-Node::HooksSample.new
-  .before_caller do |input, **_options|
-    puts "before_caller input: #{input}";
-    input + 1
-  end
-  .append(
-    # anonymous external node
-    lambda do |input, **_options|
-      puts "external input: #{input}"
-      input * 2
-    end
-  )
-  .around_caller do |input, **_options, &block|
-    puts "around_caller input: #{input}"
-    output = block.call
-    puts "around_caller output: #{output}"
-    output * input
-  end
-  .after_caller do |output, **_options|
-    puts "after_caller output: #{output}"
-    output * 2
-  end
-  .tap do |tree|
-    options = { foo: :bar }
-    output = tree.call(1, **options)
-    puts "result: #{output}"
-  end
-```
-
-Run `examples/hooks-caller.rb`:
-```sh
-% ruby examples/hooks-caller.rb
-before_caller input: 1
-external input: 2
-around_caller input: 2
-around_caller output: 4
-after_caller output: 8
-result: 16
 ```
 
 ## Contributing

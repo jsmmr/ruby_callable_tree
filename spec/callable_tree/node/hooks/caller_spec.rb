@@ -14,12 +14,12 @@ RSpec.describe CallableTree::Node::Hooks::Caller do
     let(:inputs) { [1, 2, 3] }
     let(:options) { { x: 1, y: 2 } }
 
-    let(:caller1) { proc { |input, *, **| input + 1 } }
-    let(:caller2) { proc { |input, *, **| input * 2 } }
+    let(:callback1) { proc { |input, *, **| input + 1 } }
+    let(:callback2) { proc { |input, *, **| input * 2 } }
 
     before do
-      expect(caller1).to receive(:call).with(*inputs, _node_: node, **options).and_call_original
-      expect(caller2).to receive(:call).with(2, *inputs.slice(1, 2), _node_: node, **options).and_call_original
+      expect(callback1).to receive(:call).with(*inputs, **options, _node_: node).and_call_original
+      expect(callback2).to receive(:call).with(2, *inputs.slice(1, 2), **options, _node_: node).and_call_original
     end
   end
 
@@ -30,8 +30,8 @@ RSpec.describe CallableTree::Node::Hooks::Caller do
 
     let(:node) do
       base_node
-        .before_call(&caller1)
-        .before_call(&caller2)
+        .before_call(&callback1)
+        .before_call(&callback2)
     end
 
     it { is_expected.to eq(-1) }
@@ -49,8 +49,8 @@ RSpec.describe CallableTree::Node::Hooks::Caller do
 
     let(:node) do
       base_node
-        .before_call!(&caller1)
-        .before_call!(&caller2)
+        .before_call!(&callback1)
+        .before_call!(&callback2)
     end
 
     it { is_expected.to eq(-1) }
@@ -75,8 +75,8 @@ RSpec.describe CallableTree::Node::Hooks::Caller do
     let(:options) { { x: 1, y: 2 } }
 
     before do
-      expect(caller1).to receive(:call).with(*inputs, _node_: node, **options).and_call_original
-      expect(caller2).to receive(:call).with(*inputs, _node_: node, **options).and_call_original
+      expect(callback1).to receive(:call).with(*inputs, **options, _node_: node).and_call_original
+      expect(callback2).to receive(:call).with(*inputs, **options, _node_: node).and_call_original
     end
   end
 
@@ -87,13 +87,13 @@ RSpec.describe CallableTree::Node::Hooks::Caller do
 
     let(:node) do
       base_node
-        .around_call(&caller1)
-        .around_call(&caller2)
+        .around_call(&callback1)
+        .around_call(&callback2)
     end
 
     context 'when block is called' do
-      let(:caller1) { proc { |*, **, &block| block.call / 2 } }
-      let(:caller2) { proc { |*, **, &block| block.call - 3 } }
+      let(:callback1) { proc { |*, **, &block| block.call / 2 } }
+      let(:callback2) { proc { |*, **, &block| block.call - 3 } }
 
       it { is_expected.to eq 0 }
 
@@ -104,8 +104,8 @@ RSpec.describe CallableTree::Node::Hooks::Caller do
     end
 
     context 'when block is not called' do
-      let(:caller1) { proc { |*, **| 1 } }
-      let(:caller2) { proc { |*, **, &block| block.call - 1 } }
+      let(:callback1) { proc { |*, **| 1 } }
+      let(:callback2) { proc { |*, **, &block| block.call - 1 } }
 
       it { is_expected.to eq 0 }
 
@@ -123,13 +123,13 @@ RSpec.describe CallableTree::Node::Hooks::Caller do
 
     let(:node) do
       base_node
-        .around_call!(&caller1)
-        .around_call!(&caller2)
+        .around_call!(&callback1)
+        .around_call!(&callback2)
     end
 
     context 'when block is called' do
-      let(:caller1) { proc { |*, **, &block| block.call / 2 } }
-      let(:caller2) { proc { |*, **, &block| block.call - 3 } }
+      let(:callback1) { proc { |*, **, &block| block.call / 2 } }
+      let(:callback2) { proc { |*, **, &block| block.call - 3 } }
 
       it { is_expected.to eq 0 }
 
@@ -140,8 +140,8 @@ RSpec.describe CallableTree::Node::Hooks::Caller do
     end
 
     context 'when block is not called' do
-      let(:caller1) { proc { |*, **| 1 } }
-      let(:caller2) { proc { |*, **, &block| block.call - 1 } }
+      let(:callback1) { proc { |*, **| 1 } }
+      let(:callback2) { proc { |*, **, &block| block.call - 1 } }
 
       it { is_expected.to eq 0 }
 
@@ -165,12 +165,12 @@ RSpec.describe CallableTree::Node::Hooks::Caller do
     let(:inputs) { [1, 2, 3] }
     let(:options) { { x: 1, y: 2 } }
 
-    let(:caller1) { proc { |output, *, **| output * 2 } }
-    let(:caller2) { proc { |output, *, **| output % 5 } }
+    let(:callback1) { proc { |output, *, **| output * 2 } }
+    let(:callback2) { proc { |output, *, **| output % 5 } }
 
     before do
-      expect(caller1).to receive(:call).with(6, _node_: node, **options).and_call_original
-      expect(caller2).to receive(:call).with(12, _node_: node, **options).and_call_original
+      expect(callback1).to receive(:call).with(6, **options, _node_: node).and_call_original
+      expect(callback2).to receive(:call).with(12, **options, _node_: node).and_call_original
     end
   end
 
@@ -181,8 +181,8 @@ RSpec.describe CallableTree::Node::Hooks::Caller do
 
     let(:node) do
       base_node
-        .after_call(&caller1)
-        .after_call(&caller2)
+        .after_call(&callback1)
+        .after_call(&callback2)
     end
 
     it { is_expected.to eq 2 }
@@ -200,8 +200,8 @@ RSpec.describe CallableTree::Node::Hooks::Caller do
 
     let(:node) do
       base_node
-        .after_call!(&caller1)
-        .after_call!(&caller2)
+        .after_call!(&callback1)
+        .after_call!(&callback2)
     end
 
     it { is_expected.to eq 2 }

@@ -17,9 +17,8 @@ JSONParser =
       block.call(json, **options)
     end
   end
-  .terminator do
-    true
-  end
+  .terminator { true }
+  # .identifier { |_node_:| :as_you_like } # optional
   .hookable
   .build
 
@@ -35,9 +34,8 @@ XMLParser =
       block.call(REXML::Document.new(file), **options)
     end
   end
-  .terminator do
-    true
-  end
+  .terminator { true }
+  # .identifier { |_node_:| :as_you_like } # optional
   .hookable
   .build
 
@@ -52,6 +50,7 @@ def build_json_scraper(type)
         .map { |element| [element['name'], element['emoji']] }
         .to_h
     end
+    # .identifier { |_node_:| :as_you_like } # optional
     .hookable
     .build
 end
@@ -72,6 +71,7 @@ def build_xml_scraper(type)
         .map { |element| [element['name'], element['emoji']] }
         .to_h
     end
+    # .identifier { |_node_:| :as_you_like } # optional
     .hookable
     .build
 end
@@ -79,34 +79,37 @@ end
 AnimalsXMLScraper = build_xml_scraper(:animals)
 FruitsXMLScraper = build_xml_scraper(:fruits)
 
-loggable = proc do |node|
-  indent_size = 2
-  blank = ' '
-  list_style = '*'
+module Logging
+  INDENT_SIZE = 2
+  BLANK = ' '
+  LIST_STYLE = '*'
+  INPUT_LABEL  = 'Input :'
+  OUTPUT_LABEL = 'Output:'
 
-  node.after_matcher! do |matched, _node_:, **|
-    prefix = list_style.rjust(_node_.depth * indent_size - indent_size + list_style.length, blank)
-    puts "#{prefix} #{_node_.identity}: [matched: #{matched}]"
-    matched
-  end
+  def self.loggable(node)
+    node.after_matcher! do |matched, _node_:, **|
+      prefix = LIST_STYLE.rjust((_node_.depth * INDENT_SIZE) - INDENT_SIZE + LIST_STYLE.length, BLANK)
+      puts "#{prefix} #{_node_.identity}: [matched: #{matched}]"
+      matched
+    end
 
-  if node.external?
-    input_label  = 'Input :'
-    output_label = 'Output:'
-
-    node
-      .before_caller! do |input, *, _node_:, **|
-        input_prefix = input_label.rjust(_node_.depth * indent_size + input_label.length, blank)
-        puts "#{input_prefix} #{input}"
-        input
-      end
-      .after_caller! do |output, _node_:, **|
-        output_prefix = output_label.rjust(_node_.depth * indent_size + output_label.length, blank)
-        puts "#{output_prefix} #{output}"
-        output
-      end
+    if node.external?
+      node
+        .before_caller! do |input, *, _node_:, **|
+          input_prefix = INPUT_LABEL.rjust((_node_.depth * INDENT_SIZE) + INPUT_LABEL.length, BLANK)
+          puts "#{input_prefix} #{input}"
+          input
+        end
+        .after_caller! do |output, _node_:, **|
+          output_prefix = OUTPUT_LABEL.rjust((_node_.depth * INDENT_SIZE) + OUTPUT_LABEL.length, BLANK)
+          puts "#{output_prefix} #{output}"
+          output
+        end
+    end
   end
 end
+
+loggable = Logging.method(:loggable)
 
 tree = CallableTree::Node::Root.new.seekable.append(
   JSONParser.new.tap(&loggable).seekable.append(
