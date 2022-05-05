@@ -15,12 +15,12 @@ RSpec.describe CallableTree::Node::Hooks::Matcher do
     let(:inputs) { [1, 2, 3] }
     let(:options) { { x: 1, y: 2 } }
 
-    let(:matcher1) { proc { |input, *, **| input + 1 } }
-    let(:matcher2) { proc { |input, *, **| input * 2 } }
+    let(:callback1) { proc { |input, *, **| input + 1 } }
+    let(:callback2) { proc { |input, *, **| input * 2 } }
 
     before do
-      expect(matcher1).to receive(:call).with(*inputs, _node_: node, **options).and_call_original
-      expect(matcher2).to receive(:call).with(2, *inputs.slice(1, 2), _node_: node, **options).and_call_original
+      expect(callback1).to receive(:call).with(*inputs, **options, _node_: node).and_call_original
+      expect(callback2).to receive(:call).with(2, *inputs.slice(1, 2), **options, _node_: node).and_call_original
     end
   end
 
@@ -31,8 +31,8 @@ RSpec.describe CallableTree::Node::Hooks::Matcher do
 
     let(:node) do
       base_node
-        .before_matcher(&matcher1)
-        .before_matcher(&matcher2)
+        .before_matcher(&callback1)
+        .before_matcher(&callback2)
     end
 
     it { is_expected.to eq true }
@@ -50,8 +50,8 @@ RSpec.describe CallableTree::Node::Hooks::Matcher do
 
     let(:node) do
       base_node
-        .before_matcher!(&matcher1)
-        .before_matcher!(&matcher2)
+        .before_matcher!(&callback1)
+        .before_matcher!(&callback2)
     end
 
     it { is_expected.to eq true }
@@ -77,8 +77,8 @@ RSpec.describe CallableTree::Node::Hooks::Matcher do
     let(:options) { { x: 1, y: 2 } }
 
     before do
-      expect(matcher1).to receive(:call).with(*inputs, _node_: node, **options).and_call_original
-      expect(matcher2).to receive(:call).with(*inputs, _node_: node, **options).and_call_original
+      expect(callback1).to receive(:call).with(*inputs, **options, _node_: node).and_call_original
+      expect(callback2).to receive(:call).with(*inputs, **options, _node_: node).and_call_original
     end
   end
 
@@ -89,13 +89,13 @@ RSpec.describe CallableTree::Node::Hooks::Matcher do
 
     let(:node) do
       base_node
-        .around_matcher(&matcher1)
-        .around_matcher(&matcher2)
+        .around_matcher(&callback1)
+        .around_matcher(&callback2)
     end
 
     context 'when block is called' do
-      let(:matcher1) { proc { |*, **, &block| !block.call } }
-      let(:matcher2) { proc { |*, **, &block| block.call == false } }
+      let(:callback1) { proc { |*, **, &block| !block.call } }
+      let(:callback2) { proc { |*, **, &block| block.call == false } }
 
       it { is_expected.to eq true }
 
@@ -106,8 +106,8 @@ RSpec.describe CallableTree::Node::Hooks::Matcher do
     end
 
     context 'when block is not called' do
-      let(:matcher1) { proc { |*, **| 1 } }
-      let(:matcher2) { proc { |*, **, &block| block.call == 1 } }
+      let(:callback1) { proc { |*, **| 1 } }
+      let(:callback2) { proc { |*, **, &block| block.call == 1 } }
 
       it { is_expected.to eq true }
 
@@ -125,13 +125,13 @@ RSpec.describe CallableTree::Node::Hooks::Matcher do
 
     let(:node) do
       base_node
-        .around_matcher!(&matcher1)
-        .around_matcher!(&matcher2)
+        .around_matcher!(&callback1)
+        .around_matcher!(&callback2)
     end
 
     context 'when block is called' do
-      let(:matcher1) { proc { |*, **, &block| !block.call } }
-      let(:matcher2) { proc { |*, **, &block| block.call == false } }
+      let(:callback1) { proc { |*, **, &block| !block.call } }
+      let(:callback2) { proc { |*, **, &block| block.call == false } }
 
       it { is_expected.to eq true }
 
@@ -142,8 +142,8 @@ RSpec.describe CallableTree::Node::Hooks::Matcher do
     end
 
     context 'when block is not called' do
-      let(:matcher1) { proc { |*, **| 1 } }
-      let(:matcher2) { proc { |*, **, &block| block.call == 1 } }
+      let(:callback1) { proc { |*, **| 1 } }
+      let(:callback2) { proc { |*, **, &block| block.call == 1 } }
 
       it { is_expected.to eq true }
 
@@ -168,12 +168,12 @@ RSpec.describe CallableTree::Node::Hooks::Matcher do
     let(:inputs) { [1, 2, 3] }
     let(:options) { { x: 1, y: 2 } }
 
-    let(:matcher1) { proc { |matched, *, **| !matched } }
-    let(:matcher2) { proc { |matched, *, **| !matched } }
+    let(:callback1) { proc { |matched, **| !matched } }
+    let(:callback2) { proc { |matched, **| !matched } }
 
     before do
-      expect(matcher1).to receive(:call).with(true, _node_: node, **options).and_call_original
-      expect(matcher2).to receive(:call).with(false, _node_: node, **options).and_call_original
+      expect(callback1).to receive(:call).with(true, **options, _node_: node).and_call_original
+      expect(callback2).to receive(:call).with(false, **options, _node_: node).and_call_original
     end
   end
 
@@ -184,8 +184,8 @@ RSpec.describe CallableTree::Node::Hooks::Matcher do
 
     let(:node) do
       base_node
-        .after_matcher(&matcher1)
-        .after_matcher(&matcher2)
+        .after_matcher(&callback1)
+        .after_matcher(&callback2)
     end
 
     it { is_expected.to eq true }
@@ -203,8 +203,8 @@ RSpec.describe CallableTree::Node::Hooks::Matcher do
 
     let(:node) do
       base_node
-        .after_matcher!(&matcher1)
-        .after_matcher!(&matcher2)
+        .after_matcher!(&callback1)
+        .after_matcher!(&callback2)
     end
 
     it { is_expected.to eq true }
