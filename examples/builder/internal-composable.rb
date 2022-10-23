@@ -2,57 +2,57 @@
 
 require 'callable_tree'
 
-less_than = proc do |num|
+def less_than(num)
   # The following block call is equivalent to calling `super` in the class style.
-  proc { |input, &block| block.call(input) && input < num }
+  proc { |input, &original| original.call(input) && input < num }
 end
 
 LessThan5 =
   CallableTree::Node::Internal::Builder
   .new
-  .matcher(&less_than.call(5))
+  .matcher(&method(:less_than).call(5))
   .build
 
 LessThan10 =
   CallableTree::Node::Internal::Builder
   .new
-  .matcher(&less_than.call(10))
+  .matcher(&method(:less_than).call(10))
   .build
 
-add = proc do |num|
+def add(num)
   proc { |input| input + num }
 end
 
 Add1 =
   CallableTree::Node::External::Builder
   .new
-  .caller(&add.call(1))
+  .caller(&method(:add).call(1))
   .build
 
-subtract = proc do |num|
+def subtract(num)
   proc { |input| input - num }
 end
 
 Subtract1 =
   CallableTree::Node::External::Builder
   .new
-  .caller(&subtract.call(1))
+  .caller(&method(:subtract).call(1))
   .build
 
-multiply = proc do |num|
+def multiply(num)
   proc { |input| input * num }
 end
 
 Multiply2 =
   CallableTree::Node::External::Builder
   .new
-  .caller(&multiply.call(2))
+  .caller(&method(:multiply).call(2))
   .build
 
 Multiply3 =
   CallableTree::Node::External::Builder
   .new
-  .caller(&multiply.call(3))
+  .caller(&method(:multiply).call(3))
   .build
 
 tree = CallableTree::Node::Root.new.composable.append(

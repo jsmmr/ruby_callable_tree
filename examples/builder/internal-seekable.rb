@@ -10,16 +10,14 @@ JSONParser =
   .matcher do |input, **_options|
     File.extname(input) == '.json'
   end
-  .caller do |input, **options, &block|
+  .caller do |input, **options, &original|
     File.open(input) do |file|
       json = ::JSON.load(file)
       # The following block call is equivalent to calling `super` in the class style.
-      block.call(json, **options)
+      original.call(json, **options)
     end
   end
-  .terminator do
-    true
-  end
+  .terminator { true }
   .build
 
 XMLParser =
@@ -28,15 +26,13 @@ XMLParser =
   .matcher do |input, **_options|
     File.extname(input) == '.xml'
   end
-  .caller do |input, **options, &block|
+  .caller do |input, **options, &original|
     File.open(input) do |file|
       # The following block call is equivalent to calling `super` in the class style.
-      block.call(REXML::Document.new(file), **options)
+      original.call(REXML::Document.new(file), **options)
     end
   end
-  .terminator do
-    true
-  end
+  .terminator { true }
   .build
 
 def build_json_scraper(type)
