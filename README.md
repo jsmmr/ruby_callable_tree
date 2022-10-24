@@ -628,6 +628,7 @@ def build_json_scraper(type)
   CallableTree::Node::External::Builder
     .new
     ...
+    .hookable
     .build
 end
 
