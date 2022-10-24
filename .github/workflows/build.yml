@@ -7,17 +7,15 @@ jobs:
       matrix:
         ruby: ['2.4', '2.5', '2.6', '2.7', '3.0', '3.1']
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
       - run: gem install bundler:2.3.7
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         with:
           path: vendor/bundle
           key: ${{ runner.os }}-ruby-${{ matrix.ruby }}-gems-${{ hashFiles('**/Gemfile.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-gems-
       - name: Run bundle install
         run: |
           bundle config path vendor/bundle
