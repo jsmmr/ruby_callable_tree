@@ -42,7 +42,7 @@ module CallableTree
         if recursive
           child_nodes
             .lazy
-            .select { |node| node.internal? }
+            .select(&:internal?)
             .map { |node| node.find(recursive: true, &block) }
             .reject(&:nil?)
             .first

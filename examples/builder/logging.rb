@@ -41,12 +41,11 @@ def build_json_scraper(type)
   CallableTree::Node::External::Builder
     .new
     .matcher do |input, **_options|
-      !!input[type.to_s]
+      !input[type.to_s].nil?
     end
     .caller do |input, **_options|
       input[type.to_s]
-        .map { |element| [element['name'], element['emoji']] }
-        .to_h
+        .to_h { |element| [element['name'], element['emoji']] }
     end
     .hookable
     .build
@@ -65,8 +64,7 @@ def build_xml_scraper(type)
       input
         .get_elements("//#{type}")
         .first
-        .map { |element| [element['name'], element['emoji']] }
-        .to_h
+        .to_h { |element| [element['name'], element['emoji']] }
     end
     .hookable
     .build

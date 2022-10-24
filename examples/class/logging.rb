@@ -58,8 +58,7 @@ module Node
 
       def call(input, **_options)
         input[@type.to_s]
-          .map { |element| [element['name'], element['emoji']] }
-          .to_h
+          .to_h { |element| [element['name'], element['emoji']] }
       end
     end
   end
@@ -105,8 +104,7 @@ module Node
         input
           .get_elements("//#{@type}")
           .first
-          .map { |element| [element['name'], element['emoji']] }
-          .to_h
+          .to_h { |element| [element['name'], element['emoji']] }
       end
     end
   end
