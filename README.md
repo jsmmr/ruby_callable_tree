@@ -265,7 +265,7 @@ Run `examples/builder/internal-seekable.rb`:
 
 #### `CallableTree::Node::Internal#broadcastable`
 
-This strategy calls all child nodes of the internal node and ignores their `terminate?` methods, and then outputs their results as array.
+This strategy broadcasts to output a result of the child nodes as array. It also ignores their `terminate?` methods by default.
 
 ##### Class style
 
@@ -411,7 +411,8 @@ Run `examples/builder/internal-broadcastable.rb`:
 
 #### `CallableTree::Node::Internal#composable`
 
-This strategy calls all child nodes of the internal node in order to input the output of the previous node to the next node and ignores their `terminate?` methods, and then outputs a single result.
+This strategy composes the child nodes to input the output of the previous node into the next node and to output a result.
+It also ignores their `terminate?` methods by default.
 
 ##### Class style
 
