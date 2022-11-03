@@ -61,16 +61,14 @@ RSpec.describe CallableTree::Node::Internal::Strategy::Compose do
   end
 
   describe '#call' do
-    subject { described_class.new.call(nodes, *inputs, **options) }
+    subject { described_class.new.call(tree.children, *inputs, **options) }
 
-    let(:nodes) do
-      [
-        LessThan.new(10).append(proc { |input| input * 2 }),
-        LessThan.new(20).append(proc { |*inputs, **| inputs.sum * 3 }),
-        CallableTree::Node::External.proxify(
-          ->(input, *, prefix:, suffix:) { "#{prefix}#{input}#{suffix}" }
-        )
-      ]
+    let(:tree) do
+      CallableTree::Node::Root.new.composable.append(
+        build_less_than(10).new.append(proc { |input| input * 2 }),
+        build_less_than(20).new.append(proc { |*inputs, **| inputs.sum * 3 }),
+        ->(input, *, prefix:, suffix:, **) { "#{prefix}#{input}#{suffix}" }
+      )
     end
 
     context 'input: less than 10' do

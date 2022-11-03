@@ -61,20 +61,22 @@ RSpec.describe CallableTree::Node::Internal::Strategy::Seek do
   end
 
   describe '#call' do
-    subject { described_class.new.call(nodes, *inputs, **options) }
+    subject { described_class.new.call(tree.children, *inputs, **options) }
 
-    let(:nodes) do
-      [
-        LessThan.new(10).compose.append(
-          proc { |input| format('%03d', input) },
-          ->(input, *, prefix:, suffix:) { "#{prefix}#{input}#{suffix}" }
+    let(:tree) do
+      decorator = ->(input, *, prefix:, suffix:) { "#{prefix}#{input}#{suffix}" }
+
+      CallableTree::Node::Root.new.seekable.append(
+        build_less_than(10).new.compose.append(
+          build_formatter('%03d').new,
+          decorator
         ),
-        LessThan.new(20).compose.append(
+        build_less_than(20).new.compose.append(
           ->(*inputs, **) { inputs.sum },
-          proc { |input| format('%04d', input) },
-          ->(input, *, prefix:, suffix:) { "#{prefix}#{input}#{suffix}" }
+          build_formatter('%04d').new,
+          decorator
         )
-      ]
+      )
     end
 
     context 'input: less than 10' do
