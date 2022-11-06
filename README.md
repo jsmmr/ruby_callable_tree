@@ -24,7 +24,7 @@ Or install it yourself as:
 Builds a tree by linking `CallableTree` node instances. The `call` methods of the nodes where the `match?` method returns a truthy value are called in a chain from the root node to the leaf node.
 
 - `CallableTree::Node::Internal`
-  - This `module` is used to define a node that can have child nodes. An instance of this node has several strategies (`seekable`, `broadcastable`, `composable`). The strategy can be changed by calling the method of the instance.
+  - This `module` is used to define a node that can have child nodes. This node has several strategies (`seekable`, `broadcastable`, `composable`).
 - `CallableTree::Node::External`
   - This `module` is used to define a leaf node that cannot have child nodes.
 - `CallableTree::Node::Root`
