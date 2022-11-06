@@ -24,7 +24,7 @@ Or install it yourself as:
 Builds a tree by linking `CallableTree` node instances. The `call` methods of the nodes where the `match?` method returns a truthy value are called in a chain from the root node to the leaf node.
 
 - `CallableTree::Node::Internal`
-  - This `module` is used to define a node that can have child nodes. An instance of this node has several strategies (`seekable`, `broadcastable`, `composable`). The strategy can be changed by calling the method of the instance.
+  - This `module` is used to define a node that can have child nodes. This node has several strategies (`seekable`, `broadcastable`, `composable`).
 - `CallableTree::Node::External`
   - This `module` is used to define a leaf node that cannot have child nodes.
 - `CallableTree::Node::Root`
@@ -32,7 +32,7 @@ Builds a tree by linking `CallableTree` node instances. The `call` methods of th
 
 ### Basic
 
-There are two ways to define the nodes: class style and builder style (experimental).
+There are two ways to define the nodes: class style and builder style.
 
 #### `CallableTree::Node::Internal#seekable` (default strategy)
 
@@ -81,8 +81,7 @@ module Node
 
       def call(input, **_options)
         input[@type.to_s]
-          .map { |element| [element['name'], element['emoji']] }
-          .to_h
+          .to_h { |element| [element['name'], element['emoji']] }
       end
     end
   end
@@ -126,8 +125,7 @@ module Node
         input
           .get_elements("//#{@type}")
           .first
-          .map { |element| [element['name'], element['emoji']] }
-          .to_h
+          .to_h { |element| [element['name'], element['emoji']] }
       end
     end
   end
@@ -165,7 +163,7 @@ Run `examples/class/internal-seekable.rb`:
 ---
 ```
 
-##### Builder style (experimental)
+##### Builder style
 
 `examples/builder/internal-seekable.rb`:
 ```ruby
@@ -175,16 +173,14 @@ JSONParser =
   .matcher do |input, **_options|
     File.extname(input) == '.json'
   end
-  .caller do |input, **options, &block|
+  .caller do |input, **options, &original|
     File.open(input) do |file|
       json = ::JSON.load(file)
       # The following block call is equivalent to calling `super` in the class style.
-      block.call(json, **options)
+      original.call(json, **options)
     end
   end
-  .terminator do
-    true
-  end
+  .terminator { true }
   .build
 
 XMLParser =
@@ -193,15 +189,13 @@ XMLParser =
   .matcher do |input, **_options|
     File.extname(input) == '.xml'
   end
-  .caller do |input, **options, &block|
+  .caller do |input, **options, &original|
     File.open(input) do |file|
       # The following block call is equivalent to calling `super` in the class style.
-      block.call(REXML::Document.new(file), **options)
+      original.call(REXML::Document.new(file), **options)
     end
   end
-  .terminator do
-    true
-  end
+  .terminator { true }
   .build
 
 def build_json_scraper(type)
@@ -212,8 +206,7 @@ def build_json_scraper(type)
     end
     .caller do |input, **_options|
       input[type.to_s]
-        .map { |element| [element['name'], element['emoji']] }
-        .to_h
+        .to_h { |element| [element['name'], element['emoji']] }
     end
     .build
 end
@@ -231,8 +224,7 @@ def build_xml_scraper(type)
       input
         .get_elements("//#{type}")
         .first
-        .map { |element| [element['name'], element['emoji']] }
-        .to_h
+        .to_h { |element| [element['name'], element['emoji']] }
     end
     .build
 end
@@ -273,7 +265,7 @@ Run `examples/builder/internal-seekable.rb`:
 
 #### `CallableTree::Node::Internal#broadcastable`
 
-This strategy calls all child nodes of the internal node and ignores their `terminate?` methods, and then outputs their results as array.
+This strategy broadcasts to output a result of the child nodes as array. It also ignores their `terminate?` methods by default.
 
 ##### Class style
 
@@ -327,61 +319,61 @@ Run `examples/class/internal-broadcastable.rb`:
 10 -> [nil, nil]
 ```
 
-##### Builder style (experimental)
+##### Builder style
 
 `examples/builder/internal-broadcastable.rb`:
 ```ruby
-less_than = proc do |num|
+def less_than(num)
   # The following block call is equivalent to calling `super` in the class style.
-  proc { |input, &block| block.call(input) && input < num }
+  proc { |input, &original| original.call(input) && input < num }
 end
 
 LessThan5 =
   CallableTree::Node::Internal::Builder
   .new
-  .matcher(&less_than.call(5))
+  .matcher(&method(:less_than).call(5))
   .build
 
 LessThan10 =
   CallableTree::Node::Internal::Builder
   .new
-  .matcher(&less_than.call(10))
+  .matcher(&method(:less_than).call(10))
   .build
 
-add = proc do |num|
+def add(num)
   proc { |input| input + num }
 end
 
 Add1 =
   CallableTree::Node::External::Builder
   .new
-  .caller(&add.call(1))
+  .caller(&method(:add).call(1))
   .build
 
-subtract = proc do |num|
+def subtract(num)
   proc { |input| input - num }
 end
 
 Subtract1 =
   CallableTree::Node::External::Builder
   .new
-  .caller(&subtract.call(1))
+  .caller(&method(:subtract).call(1))
   .build
 
-multiply = proc do |num|
+def multiply(num)
   proc { |input| input * num }
 end
 
 Multiply2 =
   CallableTree::Node::External::Builder
   .new
-  .caller(&multiply.call(2))
+  .caller(&method(:multiply).call(2))
   .build
 
 Multiply3 =
   CallableTree::Node::External::Builder
   .new
-  .caller(&multiply.call(3))
+  .caller(&method(:multiply).call(3))
   .build
 
 tree = CallableTree::Node::Root.new.broadcastable.append(
@@ -419,7 +411,8 @@ Run `examples/builder/internal-broadcastable.rb`:
 
 #### `CallableTree::Node::Internal#composable`
 
-This strategy calls all child nodes of the internal node in order to input the output of the previous node to the next node and ignores their `terminate?` methods, and then outputs a single result.
+This strategy composes the child nodes to input the output of the previous node into the next node and to output a result.
+It also ignores their `terminate?` methods by default.
 
 ##### Class style
 
@@ -473,61 +466,61 @@ Run `examples/class/internal-composable.rb`:
 10 -> 10
 ```
 
-##### Builder style (experimental)
+##### Builder style
 
 `examples/builder/internal-composable.rb`:
 ```ruby
-less_than = proc do |num|
+def less_than(num)
   # The following block call is equivalent to calling `super` in the class style.
-  proc { |input, &block| block.call(input) && input < num }
+  proc { |input, &original| original.call(input) && input < num }
 end
 
 LessThan5 =
   CallableTree::Node::Internal::Builder
   .new
-  .matcher(&less_than.call(5))
+  .matcher(&method(:less_than).call(5))
   .build
 
 LessThan10 =
   CallableTree::Node::Internal::Builder
   .new
-  .matcher(&less_than.call(10))
+  .matcher(&method(:less_than).call(10))
   .build
 
-add = proc do |num|
+def add(num)
   proc { |input| input + num }
 end
 
 Add1 =
   CallableTree::Node::External::Builder
   .new
-  .caller(&add.call(1))
+  .caller(&method(:add).call(1))
   .build
 
-subtract = proc do |num|
+def subtract(num)
   proc { |input| input - num }
 end
 
 Subtract1 =
   CallableTree::Node::External::Builder
   .new
-  .caller(&subtract.call(1))
+  .caller(&method(:subtract).call(1))
   .build
 
-multiply = proc do |num|
+def multiply(num)
   proc { |input| input * num }
 end
 
 Multiply2 =
   CallableTree::Node::External::Builder
   .new
-  .caller(&multiply.call(2))
+  .caller(&method(:multiply).call(2))
   .build
 
 Multiply3 =
   CallableTree::Node::External::Builder
   .new
-  .caller(&multiply.call(3))
+  .caller(&method(:multiply).call(3))
   .build
 
 tree = CallableTree::Node::Root.new.composable.append(
@@ -569,154 +562,46 @@ Run `examples/builder/internal-composable.rb`:
 
 If you want verbose output results, call this method.
 
-`examples/class/external-verbosify.rb`:
+`examples/builder/external-verbosify.rb`:
 ```ruby
 ...
 
-tree = CallableTree::Node::Root.new.append(
-  Node::JSON::Parser.new.append(
-    Node::JSON::Scraper.new(type: :animals).verbosify,
-    Node::JSON::Scraper.new(type: :fruits).verbosify
+tree = CallableTree::Node::Root.new.seekable.append(
+  JSONParser.new.seekable.append(
+    AnimalsJSONScraper.new.verbosify,
+    FruitsJSONScraper.new.verbosify
   ),
-  Node::XML::Parser.new.append(
-    Node::XML::Scraper.new(type: :animals).verbosify,
-    Node::XML::Scraper.new(type: :fruits).verbosify
+  XMLParser.new.seekable.append(
+    AnimalsXMLScraper.new.verbosify,
+    FruitsXMLScraper.new.verbosify
   )
 )
 
 ...
 ```
 
-Run `examples/class/external-verbosify.rb`:
+Run `examples/builder/external-verbosify.rb`:
 ```sh
 % ruby examples/class/external-verbosify.rb
 #<struct CallableTree::Node::External::Output
- value={"Dog"=>"🐶", "Cat"=>"🐱"},
- options={:foo=>:bar},
- routes=[Node::JSON::Scraper, Node::JSON::Parser, CallableTree::Node::Root]>
+  value={"Dog"=>"🐶", "Cat"=>"🐱"},
+  options={:foo=>:bar},
+  routes=[AnimalsJSONScraper, JSONParser, CallableTree::Node::Root]>
 ---
 #<struct CallableTree::Node::External::Output
- value={"Dog"=>"🐶", "Cat"=>"🐱"},
- options={:foo=>:bar},
- routes=[Node::XML::Scraper, Node::XML::Parser, CallableTree::Node::Root]>
+  value={"Dog"=>"🐶", "Cat"=>"🐱"},
+  options={:foo=>:bar},
+  routes=[AnimalsXMLScraper, XMLParser, CallableTree::Node::Root]>
 ---
 #<struct CallableTree::Node::External::Output
- value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"},
- options={:foo=>:bar},
- routes=[Node::JSON::Scraper, Node::JSON::Parser, CallableTree::Node::Root]>
+  value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"},
+  options={:foo=>:bar},
+  routes=[FruitsJSONScraper, JSONParser, CallableTree::Node::Root]>
 ---
 #<struct CallableTree::Node::External::Output
- value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"},
- options={:foo=>:bar},
- routes=[Node::XML::Scraper, Node::XML::Parser, CallableTree::Node::Root]>
----
-```
-
-At first glance, this looks good, but the `routes` are ambiguous when there are multiple nodes of the same class.
-You can work around it by overriding the `identity` method of the node.
-
-#### `CallableTree::Node#identity`
-
-If you want to customize the node identity, override this method.
-
-`examples/class/identity.rb`:
-```ruby
-module Node
-  class Identity
-    attr_reader :klass, :type
-
-    def initialize(klass:, type:)
-      @klass = klass
-      @type = type
-    end
-
-    def to_s
-      "#{klass}(#{type})"
-    end
-  end
-
-  module JSON
-    ...
-
-    class Scraper
-      include CallableTree::Node::External
-
-      def initialize(type:)
-        @type = type
-      end
-
-      def identity
-        Identity.new(klass: super, type: @type)
-      end
-
-      ...
-    end
-  end
-
-  module XML
-     ...
-
-    class Scraper
-      include CallableTree::Node::External
-
-      def initialize(type:)
-        @type = type
-      end
-
-      def identity
-        Identity.new(klass: super, type: @type)
-      end
-
-      ...
-    end
-  end
-end
-
-...
-```
-
-Run `examples/class/identity.rb`:
-```sh
-% ruby examples/class/identity.rb
-#<struct CallableTree::Node::External::Output
- value={"Dog"=>"🐶", "Cat"=>"🐱"},
- options={:foo=>:bar},
- routes=
-  [#<Node::Identity:0x00007fb4378a9718
-    @klass=Node::JSON::Scraper,
-    @type=:animals>,
-   Node::JSON::Parser,
-   CallableTree::Node::Root]>
----
-#<struct CallableTree::Node::External::Output
- value={"Dog"=>"🐶", "Cat"=>"🐱"},
- options={:foo=>:bar},
- routes=
-  [#<Node::Identity:0x00007fb41002b6d0
-    @klass=Node::XML::Scraper,
-    @type=:animals>,
-   Node::XML::Parser,
-   CallableTree::Node::Root]>
----
-#<struct CallableTree::Node::External::Output
- value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"},
- options={:foo=>:bar},
- routes=
-  [#<Node::Identity:0x00007fb41001b3e8
-    @klass=Node::JSON::Scraper,
-    @type=:fruits>,
-   Node::JSON::Parser,
-   CallableTree::Node::Root]>
----
-#<struct CallableTree::Node::External::Output
- value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"},
- options={:foo=>:bar},
- routes=
-  [#<Node::Identity:0x00007fb410049d38
-    @klass=Node::XML::Scraper,
-    @type=:fruits>,
-   Node::XML::Parser,
-   CallableTree::Node::Root]>
+  value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"},
+  options={:foo=>:bar},
+  routes=[FruitsXMLScraper, XMLParser, CallableTree::Node::Root]>
 ---
 ```
 
@@ -724,45 +609,41 @@ Run `examples/class/identity.rb`:
 
 This is an example of logging.
 
-`examples/class/logging.rb`:
+`examples/builder/logging.rb`:
 ```ruby
-module Node
+JSONParser =
+  CallableTree::Node::Internal::Builder
+  .new
   ...
+  .hookable
+  .build
 
-  module JSON
-    class Parser
-      include CallableTree::Node::Internal
-      prepend CallableTree::Node::Hooks::Matcher
+XMLParser =
+  CallableTree::Node::Internal::Builder
+  .new
+  ...
+  .hookable
+  .build
 
-      ...
-    end
-
-    class Scraper
-      include CallableTree::Node::External
-      prepend CallableTree::Node::Hooks::Matcher
-      prepend CallableTree::Node::Hooks::Caller
-
-      ...
-    end
-  end
-
-  module XML
-    class Parser
-      include CallableTree::Node::Internal
-      prepend CallableTree::Node::Hooks::Matcher
-
-      ...
-    end
-
-    class Scraper
-      include CallableTree::Node::External
-      prepend CallableTree::Node::Hooks::Matcher
-      prepend CallableTree::Node::Hooks::Caller
-
-      ...
-    end
-  end
+def build_json_scraper(type)
+  CallableTree::Node::External::Builder
+    .new
+    ...
+    .hookable
+    .build
 end
+
+...
+
+def build_xml_scraper(type)
+  CallableTree::Node::External::Builder
+    .new
+    ...
+    .hookable
+    .build
+end
+
+...
 
 module Logging
   INDENT_SIZE = 2
@@ -773,7 +654,7 @@ module Logging
 
   def self.loggable(node)
     node.after_matcher! do |matched, _node_:, **|
-      prefix = LIST_STYLE.rjust(_node_.depth * INDENT_SIZE - INDENT_SIZE + LIST_STYLE.length, BLANK)
+      prefix = LIST_STYLE.rjust((_node_.depth * INDENT_SIZE) - INDENT_SIZE + LIST_STYLE.length, BLANK)
       puts "#{prefix} #{_node_.identity}: [matched: #{matched}]"
       matched
     end
@@ -781,12 +662,12 @@ module Logging
     if node.external?
       node
         .before_caller! do |input, *, _node_:, **|
-          input_prefix = INPUT_LABEL.rjust(_node_.depth * INDENT_SIZE + INPUT_LABEL.length, BLANK)
+          input_prefix = INPUT_LABEL.rjust((_node_.depth * INDENT_SIZE) + INPUT_LABEL.length, BLANK)
           puts "#{input_prefix} #{input}"
           input
         end
         .after_caller! do |output, _node_:, **|
-          output_prefix = OUTPUT_LABEL.rjust(_node_.depth * INDENT_SIZE + OUTPUT_LABEL.length, BLANK)
+          output_prefix = OUTPUT_LABEL.rjust((_node_.depth * INDENT_SIZE) + OUTPUT_LABEL.length, BLANK)
           puts "#{output_prefix} #{output}"
           output
         end
@@ -796,84 +677,129 @@ end
 
 loggable = Logging.method(:loggable)
 
-tree = CallableTree::Node::Root.new.append(
-  Node::JSON::Parser.new.tap(&loggable).append(
-    Node::JSON::Scraper.new(type: :animals).tap(&loggable).verbosify,
-    Node::JSON::Scraper.new(type: :fruits).tap(&loggable).verbosify
+tree = CallableTree::Node::Root.new.seekable.append(
+  JSONParser.new.tap(&loggable).seekable.append(
+    AnimalsJSONScraper.new.tap(&loggable).verbosify,
+    FruitsJSONScraper.new.tap(&loggable).verbosify
   ),
-  Node::XML::Parser.new.tap(&loggable).append(
-    Node::XML::Scraper.new(type: :animals).tap(&loggable).verbosify,
-    Node::XML::Scraper.new(type: :fruits).tap(&loggable).verbosify
+  XMLParser.new.tap(&loggable).seekable.append(
+    AnimalsXMLScraper.new.tap(&loggable).verbosify,
+    FruitsXMLScraper.new.tap(&loggable).verbosify
   )
 )
 
 ...
 ```
 
-Also, see `examples/class/hooks.rb` for detail about `CallableTree::Node::Hooks::*`.
+Also, see `examples/builder/hooks.rb` for detail about `CallableTree::Node::Hooks::*`.
 
-Run `examples/class/logging.rb`:
+Run `examples/builder/logging.rb`:
 ```sh
-% ruby examples/class/logging.rb
-* Node::JSON::Parser: [matched: true]
-  * Node::JSON::Scraper(animals): [matched: true]
+% ruby examples/builder/logging.rb
+* JSONParser: [matched: true]
+  * AnimalsJSONScraper: [matched: true]
     Input : {"animals"=>[{"name"=>"Dog", "emoji"=>"🐶"}, {"name"=>"Cat", "emoji"=>"🐱"}]}
     Output: {"Dog"=>"🐶", "Cat"=>"🐱"}
 #<struct CallableTree::Node::External::Output
  value={"Dog"=>"🐶", "Cat"=>"🐱"},
  options={:foo=>:bar},
- routes=
-  [#<Node::Identity:0x00007ffd840347b8
-    @klass=Node::JSON::Scraper,
-    @type=:animals>,
-   Node::JSON::Parser,
-   CallableTree::Node::Root]>
+ routes=[AnimalsJSONScraper, JSONParser, CallableTree::Node::Root]>
 ---
-* Node::JSON::Parser: [matched: false]
-* Node::XML::Parser: [matched: true]
-  * Node::XML::Scraper(animals): [matched: true]
+* JSONParser: [matched: false]
+* XMLParser: [matched: true]
+  * AnimalsXMLScraper: [matched: true]
     Input : <root><animals><animal emoji='🐶' name='Dog'/><animal emoji='🐱' name='Cat'/></animals></root>
     Output: {"Dog"=>"🐶", "Cat"=>"🐱"}
 #<struct CallableTree::Node::External::Output
  value={"Dog"=>"🐶", "Cat"=>"🐱"},
  options={:foo=>:bar},
- routes=
-  [#<Node::Identity:0x00007ffd7403f1f0
-    @klass=Node::XML::Scraper,
-    @type=:animals>,
-   Node::XML::Parser,
-   CallableTree::Node::Root]>
+ routes=[AnimalsXMLScraper, XMLParser, CallableTree::Node::Root]>
 ---
-* Node::JSON::Parser: [matched: true]
-  * Node::JSON::Scraper(animals): [matched: false]
-  * Node::JSON::Scraper(fruits): [matched: true]
+* JSONParser: [matched: true]
+  * AnimalsJSONScraper: [matched: false]
+  * FruitsJSONScraper: [matched: true]
     Input : {"fruits"=>[{"name"=>"Red Apple", "emoji"=>"🍎"}, {"name"=>"Green Apple", "emoji"=>"🍏"}]}
     Output: {"Red Apple"=>"🍎", "Green Apple"=>"🍏"}
 #<struct CallableTree::Node::External::Output
  value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"},
  options={:foo=>:bar},
- routes=
-  [#<Node::Identity:0x00007ffd8512bdf0
-    @klass=Node::JSON::Scraper,
-    @type=:fruits>,
-   Node::JSON::Parser,
-   CallableTree::Node::Root]>
+ routes=[FruitsJSONScraper, JSONParser, CallableTree::Node::Root]>
 ---
-* Node::JSON::Parser: [matched: false]
-* Node::XML::Parser: [matched: true]
-  * Node::XML::Scraper(animals): [matched: false]
-  * Node::XML::Scraper(fruits): [matched: true]
+* JSONParser: [matched: false]
+* XMLParser: [matched: true]
+  * AnimalsXMLScraper: [matched: false]
+  * FruitsXMLScraper: [matched: true]
     Input : <root><fruits><fruit emoji='🍎' name='Red Apple'/><fruit emoji='🍏' name='Green Apple'/></fruits></root>
     Output: {"Red Apple"=>"🍎", "Green Apple"=>"🍏"}
 #<struct CallableTree::Node::External::Output
  value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"},
  options={:foo=>:bar},
- routes=
-  [#<Node::Identity:0x00007ffd8407a740
-    @klass=Node::XML::Scraper,
-    @type=:fruits>,
-   Node::XML::Parser,
-   CallableTree::Node::Root]>
+ routes=[FruitsXMLScraper, XMLParser, CallableTree::Node::Root]>
+```
+
+#### `CallableTree::Node#identity`
+
+If you want to customize the node identity, specify identifier.
+
+`examples/builder/identity.rb`:
+```ruby
+JSONParser =
+  CallableTree::Node::Internal::Builder
+  .new
+  ...
+  .identifier { |_node_:| _node_.object_id }
+  .build
+
+XMLParser =
+  CallableTree::Node::Internal::Builder
+  .new
+  ...
+  .identifier { |_node_:| _node_.object_id }
+  .build
+
+def build_json_scraper(type)
+  CallableTree::Node::External::Builder
+    .new
+    ...
+    .identifier { |_node_:| _node_.object_id }
+    .build
+end
+
+...
+
+def build_xml_scraper(type)
+  CallableTree::Node::External::Builder
+    .new
+    ...
+    .identifier { |_node_:| _node_.object_id }
+    .build
+end
+
+...
+```
+
+Run `examples/class/identity.rb`:
+```sh
+ % ruby examples/builder/identity.rb
+#<struct CallableTree::Node::External::Output
+  value={"Dog"=>"🐶", "Cat"=>"🐱"},
+  options={:foo=>:bar},
+  routes=[60, 80, CallableTree::Node::Root]>
+---
+#<struct CallableTree::Node::External::Output
+  value={"Dog"=>"🐶", "Cat"=>"🐱"},
+  options={:foo=>:bar},
+  routes=[220, 240, CallableTree::Node::Root]>
+---
+#<struct CallableTree::Node::External::Output
+ value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"},
+ options={:foo=>:bar},
+ routes=[260, 80, CallableTree::Node::Root]>
+---
+#<struct CallableTree::Node::External::Output
+ value={"Red Apple"=>"🍎", "Green Apple"=>"🍏"},
+ options={:foo=>:bar},
+ routes=[400, 240, CallableTree::Node::Root]>
 ---
 ```
 

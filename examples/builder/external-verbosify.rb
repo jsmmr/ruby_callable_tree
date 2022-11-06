@@ -10,15 +10,14 @@ JSONParser =
   .matcher do |input, **_options|
     File.extname(input) == '.json'
   end
-  .caller do |input, **options, &original|
+  .caller do |input, **options, &block|
     File.open(input) do |file|
       json = ::JSON.load(file)
       # The following block call is equivalent to calling `super` in the class style.
-      original.call(json, **options)
+      block.call(json, **options)
     end
   end
   .terminator { true }
-  .hookable
   .build
 
 XMLParser =
@@ -27,14 +26,13 @@ XMLParser =
   .matcher do |input, **_options|
     File.extname(input) == '.xml'
   end
-  .caller do |input, **options, &original|
+  .caller do |input, **options, &block|
     File.open(input) do |file|
       # The following block call is equivalent to calling `super` in the class style.
-      original.call(REXML::Document.new(file), **options)
+      block.call(REXML::Document.new(file), **options)
     end
   end
   .terminator { true }
-  .hookable
   .build
 
 def build_json_scraper(type)
@@ -47,7 +45,6 @@ def build_json_scraper(type)
       input[type.to_s]
         .to_h { |element| [element['name'], element['emoji']] }
     end
-    .hookable
     .build
 end
 
@@ -66,53 +63,20 @@ def build_xml_scraper(type)
         .first
         .to_h { |element| [element['name'], element['emoji']] }
     end
-    .hookable
     .build
 end
 
 AnimalsXMLScraper = build_xml_scraper(:animals)
 FruitsXMLScraper = build_xml_scraper(:fruits)
 
-module Logging
-  INDENT_SIZE = 2
-  BLANK = ' '
-  LIST_STYLE = '*'
-  INPUT_LABEL  = 'Input :'
-  OUTPUT_LABEL = 'Output:'
-
-  def self.loggable(node)
-    node.after_matcher! do |matched, _node_:, **|
-      prefix = LIST_STYLE.rjust((_node_.depth * INDENT_SIZE) - INDENT_SIZE + LIST_STYLE.length, BLANK)
-      puts "#{prefix} #{_node_.identity}: [matched: #{matched}]"
-      matched
-    end
-
-    if node.external?
-      node
-        .before_caller! do |input, *, _node_:, **|
-          input_prefix = INPUT_LABEL.rjust((_node_.depth * INDENT_SIZE) + INPUT_LABEL.length, BLANK)
-          puts "#{input_prefix} #{input}"
-          input
-        end
-        .after_caller! do |output, _node_:, **|
-          output_prefix = OUTPUT_LABEL.rjust((_node_.depth * INDENT_SIZE) + OUTPUT_LABEL.length, BLANK)
-          puts "#{output_prefix} #{output}"
-          output
-        end
-    end
-  end
-end
-
-loggable = Logging.method(:loggable)
-
 tree = CallableTree::Node::Root.new.seekable.append(
-  JSONParser.new.tap(&loggable).seekable.append(
-    AnimalsJSONScraper.new.tap(&loggable).verbosify,
-    FruitsJSONScraper.new.tap(&loggable).verbosify
+  JSONParser.new.seekable.append(
+    AnimalsJSONScraper.new.verbosify,
+    FruitsJSONScraper.new.verbosify
   ),
-  XMLParser.new.tap(&loggable).seekable.append(
-    AnimalsXMLScraper.new.tap(&loggable).verbosify,
-    FruitsXMLScraper.new.tap(&loggable).verbosify
+  XMLParser.new.seekable.append(
+    AnimalsXMLScraper.new.verbosify,
+    FruitsXMLScraper.new.verbosify
   )
 )
 
