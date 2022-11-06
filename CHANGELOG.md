@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+- Change `CallableTree::Node::Internal#broadcastable` to take `terminable` keyword parameter as boolean. It defaults to `false`, which is the same behavior as before.
+- Change `CallableTree::Node::Internal#composable` to take `terminable` keyword parameter as boolean. It defaults to `false`, which is the same behavior as before.
+- Change `CallableTree::Node::Internal#seekable` to take `terminable` keyword parameter as boolean. It defaults to `true`, which is the same behavior as before.
+
 ## [0.3.8] - 2022-05-05
 
 - (Experimental) Add `CallableTree::Node::Internal::Builder#identifier`.

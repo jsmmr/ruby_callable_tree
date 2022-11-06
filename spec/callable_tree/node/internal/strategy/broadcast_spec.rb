@@ -7,10 +7,18 @@ RSpec.describe CallableTree::Node::Internal::Strategy::Broadcast do
   end
 
   describe '#==' do
-    subject { described_class.new }
+    subject { described_class.new(terminable: terminable) }
+
+    let(:terminable) { [true, false].sample }
 
     context 'when strategies are the same' do
-      it { is_expected.to eq described_class.new }
+      context 'when options are the same' do
+        it { is_expected.to eq described_class.new(terminable: terminable) }
+      end
+
+      context 'when options are not the same' do
+        it { is_expected.not_to eq described_class.new(terminable: !terminable) }
+      end
     end
 
     context 'when strategies are not the same' do
@@ -20,15 +28,23 @@ RSpec.describe CallableTree::Node::Internal::Strategy::Broadcast do
           CallableTree::Node::Internal::Strategy::Seek
         ].sample
       end
-      it { is_expected.not_to eq other.new }
+      it { is_expected.not_to eq other.new(terminable: terminable) }
     end
   end
 
   describe '#eql?' do
-    subject { described_class.new }
+    subject { described_class.new(terminable: terminable) }
+
+    let(:terminable) { [true, false].sample }
 
     context 'when strategies are the same' do
-      it { is_expected.to eql described_class.new }
+      context 'when options are the same' do
+        it { is_expected.to eql described_class.new(terminable: terminable) }
+      end
+
+      context 'when options are not the same' do
+        it { is_expected.not_to eql described_class.new(terminable: !terminable) }
+      end
     end
 
     context 'when strategies are not the same' do
@@ -38,15 +54,23 @@ RSpec.describe CallableTree::Node::Internal::Strategy::Broadcast do
           CallableTree::Node::Internal::Strategy::Seek
         ].sample
       end
-      it { is_expected.not_to eql other.new }
+      it { is_expected.not_to eql other.new(terminable: terminable) }
     end
   end
 
   describe '#hash' do
-    subject { described_class.new.hash }
+    subject { described_class.new(terminable: terminable).hash }
+
+    let(:terminable) { [true, false].sample }
 
     context 'when strategies are the same' do
-      it { is_expected.to eq described_class.new.hash }
+      context 'when options are the same' do
+        it { is_expected.to eq described_class.new(terminable: terminable).hash }
+      end
+
+      context 'when options are not the same' do
+        it { is_expected.not_to eq described_class.new(terminable: !terminable).hash }
+      end
     end
 
     context 'when strategies are not the same' do
@@ -56,37 +80,73 @@ RSpec.describe CallableTree::Node::Internal::Strategy::Broadcast do
           CallableTree::Node::Internal::Strategy::Seek
         ].sample
       end
-      it { is_expected.not_to eq other.new.hash }
+      it { is_expected.not_to eq other.new(terminable: terminable).hash }
+    end
+  end
+
+  describe '#terminable?' do
+    subject { described_class.new(terminable: terminable).terminable? }
+
+    context 'terminable: true' do
+      let(:terminable) { true }
+      it { is_expected.to be true }
+    end
+
+    context 'terminable: false' do
+      let(:terminable) { false }
+      it { is_expected.to be false }
     end
   end
 
   describe '#call' do
-    subject { described_class.new.call(nodes, *inputs, **options) }
+    subject { described_class.new(terminable: terminable).call(tree.children, *inputs, **options) }
 
-    let(:nodes) do
-      [
-        LessThan.new(10).compose.append(
-          proc { |input| format('%03d', input) },
-          ->(input, *, prefix:, suffix:) { "#{prefix}#{input}#{suffix}" }
+    let(:tree) do
+      decorator = ->(input, *, prefix:, suffix:, **) { "#{prefix}#{input}#{suffix}" }
+
+      CallableTree::Node::Root.new.broadcastable.append(
+        build_less_than(10).new.compose.append(
+          build_formatter('%03d').new,
+          decorator
         ),
-        LessThan.new(20).compose.append(
+        build_less_than(20).new.compose.append(
           ->(*inputs, **) { inputs.sum },
-          proc { |input| format('%04d', input) },
-          ->(input, *, prefix:, suffix:) { "#{prefix}#{input}#{suffix}" }
+          build_formatter('%04d').new,
+          decorator
         )
-      ]
+      )
     end
 
-    context 'input: less than 10' do
-      let(:inputs) { 9 }
-      let(:options) { { prefix: '(', suffix: ')' } }
-      it { is_expected.to eq ['(009)', '(0009)'] }
+    context 'terminable: true' do
+      let(:terminable) { true }
+
+      context 'input: less than 10' do
+        let(:inputs) { 9 }
+        let(:options) { { prefix: '(', suffix: ')' } }
+        it { is_expected.to eq ['(009)'] }
+      end
+
+      context 'input: greater than 10' do
+        let(:inputs) { [13, 4, 1] }
+        let(:options) { { prefix: '[', suffix: ']' } }
+        it { is_expected.to eq [nil, '[0018]'] }
+      end
     end
 
-    context 'input: greater than 10' do
-      let(:inputs) { [13, 4, 1] }
-      let(:options) { { prefix: '[', suffix: ']' } }
-      it { is_expected.to eq [nil, '[0018]'] }
+    context 'terminable: false' do
+      let(:terminable) { false }
+
+      context 'input: less than 10' do
+        let(:inputs) { 9 }
+        let(:options) { { prefix: '(', suffix: ')' } }
+        it { is_expected.to eq ['(009)', '(0009)'] }
+      end
+
+      context 'input: greater than 10' do
+        let(:inputs) { [13, 4, 1] }
+        let(:options) { { prefix: '[', suffix: ']' } }
+        it { is_expected.to eq [nil, '[0018]'] }
+      end
     end
   end
 end

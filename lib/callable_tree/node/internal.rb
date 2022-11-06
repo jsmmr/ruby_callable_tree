@@ -89,20 +89,18 @@ module CallableTree
         strategy.is_a?(Strategy::Seek)
       end
 
-      def seek
-        if seek?
+      def seek(terminable: true)
+        if strategy == Strategy::Seek.new(terminable: terminable)
           self
         else
-          clone.tap do |node|
-            node.strategy = Strategy::Seek.new
-          end
+          clone.seek!(terminable: terminable)
         end
       end
 
-      def seek!
-        tap do |node|
-          node.strategy = Strategy::Seek.new unless seek?
-        end
+      def seek!(terminable: true)
+        self.strategy = Strategy::Seek.new(terminable: terminable)
+
+        self
       end
 
       alias seekable? seek?
@@ -113,20 +111,18 @@ module CallableTree
         strategy.is_a?(Strategy::Broadcast)
       end
 
-      def broadcast
-        if broadcast?
+      def broadcast(terminable: false)
+        if strategy == Strategy::Broadcast.new(terminable: terminable)
           self
         else
-          clone.tap do |node|
-            node.strategy = Strategy::Broadcast.new
-          end
+          clone.broadcast!(terminable: terminable)
         end
       end
 
-      def broadcast!
-        tap do |node|
-          node.strategy = Strategy::Broadcast.new unless broadcast?
-        end
+      def broadcast!(terminable: false)
+        self.strategy = Strategy::Broadcast.new(terminable: terminable)
+
+        self
       end
 
       alias broadcastable? broadcast?
@@ -137,20 +133,18 @@ module CallableTree
         strategy.is_a?(Strategy::Compose)
       end
 
-      def compose
-        if compose?
+      def compose(terminable: false)
+        if strategy == Strategy::Compose.new(terminable: terminable)
           self
         else
-          clone.tap do |node|
-            node.strategy = Strategy::Compose.new
-          end
+          clone.compose!(terminable: terminable)
         end
       end
 
-      def compose!
-        tap do |node|
-          node.strategy = Strategy::Compose.new unless compose?
-        end
+      def compose!(terminable: false)
+        self.strategy = Strategy::Compose.new(terminable: terminable)
+
+        self
       end
 
       alias composable? compose?

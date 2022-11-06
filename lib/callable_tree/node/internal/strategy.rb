@@ -13,7 +13,7 @@ module CallableTree
         end
 
         def ==(other)
-          name == other.name
+          name == other.name && terminable? == other.terminable?
         end
 
         def eql?(other)
@@ -21,8 +21,16 @@ module CallableTree
         end
 
         def hash
-          self.class.name.hash
+          [self.class.name, terminable].join('-').hash
         end
+
+        def terminable?
+          terminable
+        end
+
+        private
+
+        attr_accessor :terminable
       end
     end
   end
