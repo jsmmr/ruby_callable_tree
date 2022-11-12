@@ -31,6 +31,15 @@ module CallableTree
         private
 
         attr_accessor :terminable
+
+        def terminator
+          @terminator ||=
+            if terminable
+              proc { |node, output, *inputs, **options| node.terminate?(output, *inputs, **options) }
+            else
+              proc { false }
+            end
+        end
       end
     end
   end

@@ -9,12 +9,6 @@ module CallableTree
 
           def initialize(terminable: false)
             self.terminable = terminable
-            @terminator =
-              if terminable
-                proc { |node, output, *inputs, **options| node.terminate?(output, *inputs, **options) }
-              else
-                proc { false }
-              end
           end
 
           def call(nodes, *inputs, **options)
@@ -22,7 +16,7 @@ module CallableTree
               output = (node.call(*inputs, **options) if node.match?(*inputs, **options))
               outputs << output
 
-              if @terminator.call(node, output, *inputs, **options)
+              if terminator.call(node, output, *inputs, **options)
                 break outputs
               else
                 outputs
