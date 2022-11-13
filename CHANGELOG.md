@@ -1,5 +1,9 @@
 ## [Unreleased]
 
+- Change `CallableTree::Node::Internal#broadcastable` to take `matchable` keyword parameter as boolean. It defaults to `true`, which is the same behavior as before.
+- Change `CallableTree::Node::Internal#composable` to take `matchable` keyword parameter as boolean. It defaults to `true`, which is the same behavior as before.
+- Change `CallableTree::Node::Internal#seekable` to take `matchable` keyword parameter as boolean. It defaults to `true`, which is the same behavior as before.
+
 ## [0.3.9] - 2022-11-06
 
 - Change `CallableTree::Node::Internal#broadcastable` to take `terminable` keyword parameter as boolean. It defaults to `false`, which is the same behavior as before.

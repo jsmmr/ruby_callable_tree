@@ -7,13 +7,14 @@ module CallableTree
         class Broadcast
           include Strategy
 
-          def initialize(terminable: false)
+          def initialize(matchable: true, terminable: false)
+            self.matchable = matchable
             self.terminable = terminable
           end
 
           def call(nodes, *inputs, **options)
-            nodes.reduce([]) do |outputs, node|
-              output = (node.call(*inputs, **options) if node.match?(*inputs, **options))
+            nodes.each_with_object([]) do |node, outputs|
+              output = (node.call(*inputs, **options) if matcher.call(node, *inputs, **options))
               outputs << output
 
               if terminator.call(node, output, *inputs, **options)
