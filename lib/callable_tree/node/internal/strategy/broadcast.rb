@@ -17,11 +17,9 @@ module CallableTree
               output = (node.call(*inputs, **options) if matcher.call(node, *inputs, **options))
               outputs << output
 
-              if terminator.call(node, output, *inputs, **options)
-                break outputs
-              else
-                outputs
-              end
+              break outputs if terminator.call(node, output, *inputs, **options)
+
+              outputs
             end
           end
         end

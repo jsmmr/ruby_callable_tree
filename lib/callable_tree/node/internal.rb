@@ -7,10 +7,10 @@ module CallableTree
       include Node
 
       def self.included(mod)
-        if mod.include?(External)
-          raise ::CallableTree::Error,
-                "#{mod} cannot include #{self} together with #{External}"
-        end
+        return unless mod.include?(External)
+
+        raise ::CallableTree::Error,
+              "#{mod} cannot include #{self} together with #{External}"
       end
 
       def_delegators :child_nodes, :[], :at
@@ -39,14 +39,14 @@ module CallableTree
         node = child_nodes.find(&block)
         return node if node
 
-        if recursive
-          child_nodes
-            .lazy
-            .select(&:internal?)
-            .map { |node| node.find(recursive: true, &block) }
-            .reject(&:nil?)
-            .first
-        end
+        return unless recursive
+
+        child_nodes
+          .lazy
+          .select(&:internal?)
+          .map { |node| node.find(recursive: true, &block) }
+          .reject(&:nil?)
+          .first
       end
 
       def reject(recursive: false, &block)

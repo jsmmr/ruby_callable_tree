@@ -119,7 +119,9 @@ RSpec.describe CallableTree::Node::Internal::Strategy::Seek do
   end
 
   describe '#call' do
-    subject { described_class.new(matchable: matchable, terminable: terminable).call(tree.children, *inputs, **options) }
+    subject do
+      described_class.new(matchable: matchable, terminable: terminable).call(tree.children, *inputs, **options)
+    end
 
     let(:tree) do
       decorator = ->(input, *, prefix:, suffix:) { "#{prefix}#{input}#{suffix}" }
