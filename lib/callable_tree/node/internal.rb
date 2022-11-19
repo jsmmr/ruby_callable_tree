@@ -89,16 +89,16 @@ module CallableTree
         strategy.is_a?(Strategy::Seek)
       end
 
-      def seek(terminable: true)
-        if strategy == Strategy::Seek.new(terminable: terminable)
+      def seek(matchable: true, terminable: true)
+        if strategy == Strategy::Seek.new(matchable: matchable, terminable: terminable)
           self
         else
-          clone.seek!(terminable: terminable)
+          clone.seek!(matchable: matchable, terminable: terminable)
         end
       end
 
-      def seek!(terminable: true)
-        self.strategy = Strategy::Seek.new(terminable: terminable)
+      def seek!(matchable: true, terminable: true)
+        self.strategy = Strategy::Seek.new(matchable: matchable, terminable: terminable)
 
         self
       end
@@ -111,16 +111,16 @@ module CallableTree
         strategy.is_a?(Strategy::Broadcast)
       end
 
-      def broadcast(terminable: false)
-        if strategy == Strategy::Broadcast.new(terminable: terminable)
+      def broadcast(matchable: true, terminable: false)
+        if strategy == Strategy::Broadcast.new(matchable: matchable, terminable: terminable)
           self
         else
-          clone.broadcast!(terminable: terminable)
+          clone.broadcast!(matchable: matchable, terminable: terminable)
         end
       end
 
-      def broadcast!(terminable: false)
-        self.strategy = Strategy::Broadcast.new(terminable: terminable)
+      def broadcast!(matchable: true, terminable: false)
+        self.strategy = Strategy::Broadcast.new(matchable: matchable, terminable: terminable)
 
         self
       end
@@ -133,16 +133,16 @@ module CallableTree
         strategy.is_a?(Strategy::Compose)
       end
 
-      def compose(terminable: false)
-        if strategy == Strategy::Compose.new(terminable: terminable)
+      def compose(matchable: true, terminable: false)
+        if strategy == Strategy::Compose.new(matchable: matchable, terminable: terminable)
           self
         else
-          clone.compose!(terminable: terminable)
+          clone.compose!(matchable: matchable, terminable: terminable)
         end
       end
 
-      def compose!(terminable: false)
-        self.strategy = Strategy::Compose.new(terminable: terminable)
+      def compose!(matchable: true, terminable: false)
+        self.strategy = Strategy::Compose.new(matchable: matchable, terminable: terminable)
 
         self
       end

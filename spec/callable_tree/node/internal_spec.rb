@@ -880,23 +880,29 @@ RSpec.describe CallableTree::Node::Internal do
   end
 
   describe '#seek' do
-    subject { node.seek(terminable: terminable) }
+    subject { node.seek(**options) }
 
     let(:node) { ::Class.new { include CallableTree::Node::Internal }.new }
-    let(:terminable) { [true, false].sample }
+    let(:options) { { matchable: [true, false].sample, terminable: [true, false].sample } }
 
     context 'when current strategy is `seek`' do
-      before { node.send(:strategy=, described_class::Strategy::Seek.new(terminable: current_terminable)) }
+      before { node.send(:strategy=, described_class::Strategy::Seek.new(**current_options)) }
 
       context 'when options are the same' do
-        let(:current_terminable) { terminable }
+        let(:current_options) { options }
 
         it { is_expected.to be node }
         it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Seek }
       end
 
       context 'when options are not the same' do
-        let(:current_terminable) { !terminable }
+        let(:current_options) do
+          [
+            { matchable: !options[:matchable], terminable: options[:terminable] },
+            { matchable: options[:matchable], terminable: !options[:terminable] },
+            { matchable: !options[:matchable], terminable: !options[:terminable] }
+          ].sample
+        end
 
         it { is_expected.not_to be node }
         it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Seek }
@@ -904,14 +910,14 @@ RSpec.describe CallableTree::Node::Internal do
     end
 
     context 'when current strategy is `broadcast`' do
-      before { node.send(:strategy=, described_class::Strategy::Broadcast.new(terminable: [true, false].sample)) }
+      before { node.send(:strategy=, described_class::Strategy::Broadcast.new(**options)) }
 
       it { is_expected.not_to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Seek }
     end
 
     context 'when current strategy is `compose`' do
-      before { node.send(:strategy=, described_class::Strategy::Compose.new(terminable: [true, false].sample)) }
+      before { node.send(:strategy=, described_class::Strategy::Compose.new(**options)) }
 
       it { is_expected.not_to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Seek }
@@ -919,27 +925,27 @@ RSpec.describe CallableTree::Node::Internal do
   end
 
   describe '#seek!' do
-    subject { node.seek!(terminable: terminable) }
+    subject { node.seek!(**options) }
 
     let(:node) { ::Class.new { include CallableTree::Node::Internal }.new }
-    let(:terminable) { [true, false].sample }
+    let(:options) { { matchable: [true, false].sample, terminable: [true, false].sample } }
 
     context 'when current strategy is `seek`' do
-      before { node.send(:strategy=, described_class::Strategy::Seek.new(terminable: [true, false].sample)) }
+      before { node.send(:strategy=, described_class::Strategy::Seek.new(**options)) }
 
       it { is_expected.to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Seek }
     end
 
     context 'when current strategy is `broadcast`' do
-      before { node.send(:strategy=, described_class::Strategy::Broadcast.new(terminable: [true, false].sample)) }
+      before { node.send(:strategy=, described_class::Strategy::Broadcast.new(**options)) }
 
       it { is_expected.to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Seek }
     end
 
     context 'when current strategy is `compose`' do
-      before { node.send(:strategy=, described_class::Strategy::Compose.new(terminable: [true, false].sample)) }
+      before { node.send(:strategy=, described_class::Strategy::Compose.new(**options)) }
 
       it { is_expected.to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Seek }
@@ -968,30 +974,36 @@ RSpec.describe CallableTree::Node::Internal do
   end
 
   describe '#broadcast' do
-    subject { node.broadcast(terminable: terminable) }
+    subject { node.broadcast(**options) }
 
     let(:node) { ::Class.new { include CallableTree::Node::Internal }.new }
-    let(:terminable) { [true, false].sample }
+    let(:options) { { matchable: [true, false].sample, terminable: [true, false].sample } }
 
     context 'when current strategy is `seek`' do
-      before { node.send(:strategy=, described_class::Strategy::Seek.new(terminable: [true, false].sample)) }
+      before { node.send(:strategy=, described_class::Strategy::Seek.new(**options)) }
 
       it { is_expected.not_to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Broadcast }
     end
 
     context 'when current strategy is `broadcast`' do
-      before { node.send(:strategy=, described_class::Strategy::Broadcast.new(terminable: current_terminable)) }
+      before { node.send(:strategy=, described_class::Strategy::Broadcast.new(**current_options)) }
 
       context 'when options are the same' do
-        let(:current_terminable) { terminable }
+        let(:current_options) { options }
 
         it { is_expected.to be node }
         it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Broadcast }
       end
 
       context 'when options are not the same' do
-        let(:current_terminable) { !terminable }
+        let(:current_options) do
+          [
+            { matchable: !options[:matchable], terminable: options[:terminable] },
+            { matchable: options[:matchable], terminable: !options[:terminable] },
+            { matchable: !options[:matchable], terminable: !options[:terminable] }
+          ].sample
+        end
 
         it { is_expected.not_to be node }
         it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Broadcast }
@@ -999,7 +1011,7 @@ RSpec.describe CallableTree::Node::Internal do
     end
 
     context 'when current strategy is `compose`' do
-      before { node.send(:strategy=, described_class::Strategy::Compose.new(terminable: [true, false].sample)) }
+      before { node.send(:strategy=, described_class::Strategy::Compose.new(**options)) }
 
       it { is_expected.not_to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Broadcast }
@@ -1007,27 +1019,27 @@ RSpec.describe CallableTree::Node::Internal do
   end
 
   describe '#broadcast!' do
-    subject { node.broadcast!(terminable: terminable) }
+    subject { node.broadcast!(**options) }
 
     let(:node) { ::Class.new { include CallableTree::Node::Internal }.new }
-    let(:terminable) { [true, false].sample }
+    let(:options) { { matchable: [true, false].sample, terminable: [true, false].sample } }
 
     context 'when current strategy is `seek`' do
-      before { node.send(:strategy=, described_class::Strategy::Seek.new(terminable: [true, false].sample)) }
+      before { node.send(:strategy=, described_class::Strategy::Seek.new(**options)) }
 
       it { is_expected.to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Broadcast }
     end
 
     context 'when current strategy is `broadcast`' do
-      before { node.send(:strategy=, described_class::Strategy::Broadcast.new(terminable: [true, false].sample)) }
+      before { node.send(:strategy=, described_class::Strategy::Broadcast.new(**options)) }
 
       it { is_expected.to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Broadcast }
     end
 
     context 'when current strategy is `compose`' do
-      before { node.send(:strategy=, described_class::Strategy::Compose.new(terminable: [true, false].sample)) }
+      before { node.send(:strategy=, described_class::Strategy::Compose.new(**options)) }
 
       it { is_expected.to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Broadcast }
@@ -1056,37 +1068,43 @@ RSpec.describe CallableTree::Node::Internal do
   end
 
   describe '#compose' do
-    subject { node.compose(terminable: terminable) }
+    subject { node.compose(**options) }
 
     let(:node) { ::Class.new { include CallableTree::Node::Internal }.new }
-    let(:terminable) { [true, false].sample }
+    let(:options) { { matchable: [true, false].sample, terminable: [true, false].sample } }
 
     context 'when current strategy is `seek`' do
-      before { node.send(:strategy=, described_class::Strategy::Seek.new(terminable: [true, false].sample)) }
+      before { node.send(:strategy=, described_class::Strategy::Seek.new(**options)) }
 
       it { is_expected.not_to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Compose }
     end
 
     context 'when current strategy is `broadcast`' do
-      before { node.send(:strategy=, described_class::Strategy::Broadcast.new(terminable: [true, false].sample)) }
+      before { node.send(:strategy=, described_class::Strategy::Broadcast.new(**options)) }
 
       it { is_expected.not_to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Compose }
     end
 
     context 'when current strategy is `compose`' do
-      before { node.send(:strategy=, described_class::Strategy::Compose.new(terminable: current_terminable)) }
+      before { node.send(:strategy=, described_class::Strategy::Compose.new(**current_options)) }
 
       context 'when options are the same' do
-        let(:current_terminable) { terminable }
+        let(:current_options) { options }
 
         it { is_expected.to be node }
         it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Compose }
       end
 
       context 'when options are not the same' do
-        let(:current_terminable) { !terminable }
+        let(:current_options) do
+          [
+            { matchable: !options[:matchable], terminable: options[:terminable] },
+            { matchable: options[:matchable], terminable: !options[:terminable] },
+            { matchable: !options[:matchable], terminable: !options[:terminable] }
+          ].sample
+        end
 
         it { is_expected.not_to be node }
         it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Compose }
@@ -1095,27 +1113,27 @@ RSpec.describe CallableTree::Node::Internal do
   end
 
   describe '#compose!' do
-    subject { node.compose!(terminable: terminable) }
+    subject { node.compose!(**options) }
 
     let(:node) { ::Class.new { include CallableTree::Node::Internal }.new }
-    let(:terminable) { [true, false].sample }
+    let(:options) { { matchable: [true, false].sample, terminable: [true, false].sample } }
 
     context 'when current strategy is `seek`' do
-      before { node.send(:strategy=, described_class::Strategy::Seek.new(terminable: [true, false].sample)) }
+      before { node.send(:strategy=, described_class::Strategy::Seek.new(**options)) }
 
       it { is_expected.to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Compose }
     end
 
     context 'when current strategy is `broadcast`' do
-      before { node.send(:strategy=, described_class::Strategy::Broadcast.new(terminable: [true, false].sample)) }
+      before { node.send(:strategy=, described_class::Strategy::Broadcast.new(**options)) }
 
       it { is_expected.to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Compose }
     end
 
     context 'when current strategy is `compose`' do
-      before { node.send(:strategy=, described_class::Strategy::Compose.new(terminable: [true, false].sample)) }
+      before { node.send(:strategy=, described_class::Strategy::Compose.new(**options)) }
 
       it { is_expected.to be node }
       it { expect(subject.send(:strategy)).to be_a described_class::Strategy::Compose }
