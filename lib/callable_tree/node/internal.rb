@@ -5,6 +5,7 @@ module CallableTree
     module Internal
       extend ::Forwardable
       include Node
+      include Strategyable
 
       def self.included(mod)
         return unless mod.include?(External)
@@ -85,72 +86,6 @@ module CallableTree
         strategy.call(child_nodes, *inputs, **options)
       end
 
-      def seek?
-        strategy.is_a?(Strategy::Seek)
-      end
-
-      def seek(matchable: true, terminable: true)
-        if strategy == Strategy::Seek.new(matchable: matchable, terminable: terminable)
-          self
-        else
-          clone.seek!(matchable: matchable, terminable: terminable)
-        end
-      end
-
-      def seek!(matchable: true, terminable: true)
-        self.strategy = Strategy::Seek.new(matchable: matchable, terminable: terminable)
-
-        self
-      end
-
-      alias seekable? seek?
-      alias seekable seek
-      alias seekable! seek!
-
-      def broadcast?
-        strategy.is_a?(Strategy::Broadcast)
-      end
-
-      def broadcast(matchable: true, terminable: false)
-        if strategy == Strategy::Broadcast.new(matchable: matchable, terminable: terminable)
-          self
-        else
-          clone.broadcast!(matchable: matchable, terminable: terminable)
-        end
-      end
-
-      def broadcast!(matchable: true, terminable: false)
-        self.strategy = Strategy::Broadcast.new(matchable: matchable, terminable: terminable)
-
-        self
-      end
-
-      alias broadcastable? broadcast?
-      alias broadcastable broadcast
-      alias broadcastable! broadcast!
-
-      def compose?
-        strategy.is_a?(Strategy::Compose)
-      end
-
-      def compose(matchable: true, terminable: false)
-        if strategy == Strategy::Compose.new(matchable: matchable, terminable: terminable)
-          self
-        else
-          clone.compose!(matchable: matchable, terminable: terminable)
-        end
-      end
-
-      def compose!(matchable: true, terminable: false)
-        self.strategy = Strategy::Compose.new(matchable: matchable, terminable: terminable)
-
-        self
-      end
-
-      alias composable? compose?
-      alias composable compose
-      alias composable! compose!
-
       def outline(&block)
         key = block ? block.call(self) : identity
         value = child_nodes.reduce({}) { |memo, node| memo.merge!(node.outline(&block)) }
@@ -164,10 +99,6 @@ module CallableTree
       def external?
         false
       end
-
-      protected
-
-      attr_writer :strategy
 
       def child_nodes
         @child_nodes ||= []
@@ -184,10 +115,6 @@ module CallableTree
           External.proxify(callable)
         end
           .tap { |node| node.parent = self }
-      end
-
-      def strategy
-        @strategy ||= Strategy::Seek.new
       end
 
       def initialize_copy(_node)
