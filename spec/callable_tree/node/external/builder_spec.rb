@@ -41,7 +41,7 @@ RSpec.describe CallableTree::Node::External::Builder do
           .terminator(&terminator)
       end
 
-      it { is_expected.to be_a ::CallableTree::Node::External }
+      it { is_expected.to be_a CallableTree::Node::External }
 
       describe '#match?' do
         subject { node.match?(*inputs) }

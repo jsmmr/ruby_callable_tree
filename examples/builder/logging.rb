@@ -12,7 +12,7 @@ JSONParser =
   end
   .caller do |input, **options, &original|
     File.open(input) do |file|
-      json = ::JSON.load(file)
+      json = JSON.load(file)
       # The following block call is equivalent to calling `super` in the class style.
       original.call(json, **options)
     end
@@ -87,19 +87,19 @@ module Logging
       matched
     end
 
-    if node.external?
-      node
-        .before_caller! do |input, *, _node_:, **|
-          input_prefix = INPUT_LABEL.rjust((_node_.depth * INDENT_SIZE) + INPUT_LABEL.length, BLANK)
-          puts "#{input_prefix} #{input}"
-          input
-        end
-        .after_caller! do |output, _node_:, **|
-          output_prefix = OUTPUT_LABEL.rjust((_node_.depth * INDENT_SIZE) + OUTPUT_LABEL.length, BLANK)
-          puts "#{output_prefix} #{output}"
-          output
-        end
-    end
+    return unless node.external?
+
+    node
+      .before_caller! do |input, *, _node_:, **|
+        input_prefix = INPUT_LABEL.rjust((_node_.depth * INDENT_SIZE) + INPUT_LABEL.length, BLANK)
+        puts "#{input_prefix} #{input}"
+        input
+      end
+      .after_caller! do |output, _node_:, **|
+        output_prefix = OUTPUT_LABEL.rjust((_node_.depth * INDENT_SIZE) + OUTPUT_LABEL.length, BLANK)
+        puts "#{output_prefix} #{output}"
+        output
+      end
   end
 end
 

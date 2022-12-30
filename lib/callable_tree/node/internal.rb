@@ -5,12 +5,13 @@ module CallableTree
     module Internal
       extend ::Forwardable
       include Node
+      include Strategyable
 
       def self.included(mod)
-        if mod.include?(External)
-          raise ::CallableTree::Error,
-                "#{mod} cannot include #{self} together with #{External}"
-        end
+        return unless mod.include?(External)
+
+        raise ::CallableTree::Error,
+              "#{mod} cannot include #{self} together with #{External}"
       end
 
       def_delegators :child_nodes, :[], :at
@@ -39,14 +40,14 @@ module CallableTree
         node = child_nodes.find(&block)
         return node if node
 
-        if recursive
-          child_nodes
-            .lazy
-            .select(&:internal?)
-            .map { |node| node.find(recursive: true, &block) }
-            .reject(&:nil?)
-            .first
-        end
+        return unless recursive
+
+        child_nodes
+          .lazy
+          .select(&:internal?)
+          .map { |node| node.find(recursive: true, &block) }
+          .reject(&:nil?)
+          .first
       end
 
       def reject(recursive: false, &block)
@@ -85,72 +86,6 @@ module CallableTree
         strategy.call(child_nodes, *inputs, **options)
       end
 
-      def seek?
-        strategy.is_a?(Strategy::Seek)
-      end
-
-      def seek(terminable: true)
-        if strategy == Strategy::Seek.new(terminable: terminable)
-          self
-        else
-          clone.seek!(terminable: terminable)
-        end
-      end
-
-      def seek!(terminable: true)
-        self.strategy = Strategy::Seek.new(terminable: terminable)
-
-        self
-      end
-
-      alias seekable? seek?
-      alias seekable seek
-      alias seekable! seek!
-
-      def broadcast?
-        strategy.is_a?(Strategy::Broadcast)
-      end
-
-      def broadcast(terminable: false)
-        if strategy == Strategy::Broadcast.new(terminable: terminable)
-          self
-        else
-          clone.broadcast!(terminable: terminable)
-        end
-      end
-
-      def broadcast!(terminable: false)
-        self.strategy = Strategy::Broadcast.new(terminable: terminable)
-
-        self
-      end
-
-      alias broadcastable? broadcast?
-      alias broadcastable broadcast
-      alias broadcastable! broadcast!
-
-      def compose?
-        strategy.is_a?(Strategy::Compose)
-      end
-
-      def compose(terminable: false)
-        if strategy == Strategy::Compose.new(terminable: terminable)
-          self
-        else
-          clone.compose!(terminable: terminable)
-        end
-      end
-
-      def compose!(terminable: false)
-        self.strategy = Strategy::Compose.new(terminable: terminable)
-
-        self
-      end
-
-      alias composable? compose?
-      alias composable compose
-      alias composable! compose!
-
       def outline(&block)
         key = block ? block.call(self) : identity
         value = child_nodes.reduce({}) { |memo, node| memo.merge!(node.outline(&block)) }
@@ -164,10 +99,6 @@ module CallableTree
       def external?
         false
       end
-
-      protected
-
-      attr_writer :strategy
 
       def child_nodes
         @child_nodes ||= []
@@ -184,10 +115,6 @@ module CallableTree
           External.proxify(callable)
         end
           .tap { |node| node.parent = self }
-      end
-
-      def strategy
-        @strategy ||= Strategy::Seek.new
       end
 
       def initialize_copy(_node)

@@ -13,7 +13,7 @@ module CallableTree
         node = self
         loop do
           y << node
-          break unless node = node.parent
+          break unless (node = node.parent)
         end
       end
     end

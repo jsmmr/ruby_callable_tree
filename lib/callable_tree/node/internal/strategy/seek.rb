@@ -7,23 +7,18 @@ module CallableTree
         class Seek
           include Strategy
 
-          def initialize(terminable: true)
+          def initialize(matchable: true, terminable: true)
+            self.matchable = matchable
             self.terminable = terminable
-            @terminator =
-              if terminable
-                proc { |node, output, *inputs, **options| node.terminate?(output, *inputs, **options) }
-              else
-                proc { false }
-              end
           end
 
           def call(nodes, *inputs, **options)
             nodes
               .lazy
-              .select { |node| node.match?(*inputs, **options) }
+              .select { |node| matcher.call(node, *inputs, **options) }
               .map do |node|
                 output = node.call(*inputs, **options)
-                terminated = @terminator.call(node, output, *inputs, **options)
+                terminated = terminator.call(node, output, *inputs, **options)
                 [output, terminated]
               end
               .select { |_output, terminated| terminated }

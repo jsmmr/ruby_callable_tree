@@ -37,7 +37,7 @@ RSpec.describe CallableTree::Node::Internal::Builder do
 
     context '#new' do
       subject { node }
-      it { is_expected.to be_a ::CallableTree::Node::Internal }
+      it { is_expected.to be_a CallableTree::Node::Internal }
 
       context '#match?' do
         subject { node.match?(*inputs, **options) }

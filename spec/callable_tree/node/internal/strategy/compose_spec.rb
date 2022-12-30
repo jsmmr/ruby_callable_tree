@@ -7,17 +7,19 @@ RSpec.describe CallableTree::Node::Internal::Strategy::Compose do
   end
 
   describe '#==' do
-    subject { described_class.new(terminable: terminable) }
+    subject { described_class.new(matchable: matchable, terminable: terminable) }
 
+    let(:matchable) { [true, false].sample }
     let(:terminable) { [true, false].sample }
 
     context 'when strategies are the same' do
       context 'when options are the same' do
-        it { is_expected.to eq described_class.new(terminable: terminable) }
+        it { is_expected.to eq described_class.new(matchable: matchable, terminable: terminable) }
       end
 
       context 'when options are not the same' do
-        it { is_expected.not_to eq described_class.new(terminable: !terminable) }
+        it { is_expected.not_to eq described_class.new(matchable: !matchable, terminable: terminable) }
+        it { is_expected.not_to eq described_class.new(matchable: matchable, terminable: !terminable) }
       end
     end
 
@@ -28,22 +30,24 @@ RSpec.describe CallableTree::Node::Internal::Strategy::Compose do
           CallableTree::Node::Internal::Strategy::Seek
         ].sample
       end
-      it { is_expected.not_to eq other.new(terminable: terminable) }
+      it { is_expected.not_to eq other.new(matchable: matchable, terminable: terminable) }
     end
   end
 
   describe '#eql?' do
-    subject { described_class.new(terminable: terminable) }
+    subject { described_class.new(matchable: matchable, terminable: terminable) }
 
+    let(:matchable) { [true, false].sample }
     let(:terminable) { [true, false].sample }
 
     context 'when strategies are the same' do
       context 'when options are the same' do
-        it { is_expected.to eql described_class.new(terminable: terminable) }
+        it { is_expected.to eql described_class.new(matchable: matchable, terminable: terminable) }
       end
 
       context 'when options are not the same' do
-        it { is_expected.not_to eql described_class.new(terminable: !terminable) }
+        it { is_expected.not_to eq described_class.new(matchable: !matchable, terminable: terminable) }
+        it { is_expected.not_to eq described_class.new(matchable: matchable, terminable: !terminable) }
       end
     end
 
@@ -54,22 +58,24 @@ RSpec.describe CallableTree::Node::Internal::Strategy::Compose do
           CallableTree::Node::Internal::Strategy::Seek
         ].sample
       end
-      it { is_expected.not_to eql other.new(terminable: terminable) }
+      it { is_expected.not_to eql other.new(matchable: matchable, terminable: terminable) }
     end
   end
 
   describe '#hash' do
-    subject { described_class.new(terminable: terminable).hash }
+    subject { described_class.new(matchable: matchable, terminable: terminable).hash }
 
+    let(:matchable) { [true, false].sample }
     let(:terminable) { [true, false].sample }
 
     context 'when strategies are the same' do
       context 'when options are the same' do
-        it { is_expected.to eq described_class.new(terminable: terminable).hash }
+        it { is_expected.to eq described_class.new(matchable: matchable, terminable: terminable).hash }
       end
 
       context 'when options are not the same' do
-        it { is_expected.not_to eq described_class.new(terminable: !terminable).hash }
+        it { is_expected.not_to eq described_class.new(matchable: !matchable, terminable: terminable).hash }
+        it { is_expected.not_to eq described_class.new(matchable: matchable, terminable: !terminable).hash }
       end
     end
 
@@ -80,7 +86,21 @@ RSpec.describe CallableTree::Node::Internal::Strategy::Compose do
           CallableTree::Node::Internal::Strategy::Seek
         ].sample
       end
-      it { is_expected.not_to eq other.new(terminable: terminable).hash }
+      it { is_expected.not_to eq other.new(matchable: matchable, terminable: terminable).hash }
+    end
+  end
+
+  describe '#matchable?' do
+    subject { described_class.new(matchable: matchable).matchable? }
+
+    context 'matchable: true' do
+      let(:matchable) { true }
+      it { is_expected.to be true }
+    end
+
+    context 'matchable: false' do
+      let(:matchable) { false }
+      it { is_expected.to be false }
     end
   end
 
@@ -99,7 +119,9 @@ RSpec.describe CallableTree::Node::Internal::Strategy::Compose do
   end
 
   describe '#call' do
-    subject { described_class.new(terminable: terminable).call(tree.children, *inputs, **options) }
+    subject do
+      described_class.new(matchable: matchable, terminable: terminable).call(tree.children, *inputs, **options)
+    end
 
     let(:tree) do
       CallableTree::Node::Root.new.composable.append(
@@ -107,6 +129,41 @@ RSpec.describe CallableTree::Node::Internal::Strategy::Compose do
         build_less_than(20).new.append(proc { |*inputs, **| inputs.sum * 3 }),
         ->(input, *, prefix:, suffix:, **) { "#{prefix}#{input}#{suffix}" }
       )
+    end
+
+    let(:matchable) { true }
+    let(:terminable) { false }
+
+    context 'matchable: true' do
+      let(:matchable) { true }
+
+      context 'input: less than 10' do
+        let(:inputs) { [9, 1] }
+        let(:options) { { prefix: '(', suffix: ')' } }
+        it { is_expected.to eq '(57)' }
+      end
+
+      context 'input: greater than 10' do
+        let(:inputs) { [13, 4, 1] }
+        let(:options) { { prefix: '[', suffix: ']' } }
+        it { is_expected.to eq '[54]' }
+      end
+    end
+
+    context 'matchable: false' do
+      let(:matchable) { false }
+
+      context 'input: less than 10' do
+        let(:inputs) { [9, 1] }
+        let(:options) { { prefix: '(', suffix: ')' } }
+        it { is_expected.to eq 9 }
+      end
+
+      context 'input: greater than 10' do
+        let(:inputs) { [13, 4, 1] }
+        let(:options) { { prefix: '[', suffix: ']' } }
+        it { is_expected.to eq 13 }
+      end
     end
 
     context 'terminable: true' do
