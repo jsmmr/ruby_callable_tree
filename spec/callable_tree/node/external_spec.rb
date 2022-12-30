@@ -3,7 +3,7 @@
 RSpec.describe CallableTree::Node::External do
   describe '.included' do
     subject do
-      ::Class
+      Class
         .new do
           include CallableTree::Node::Internal
           include CallableTree::Node::External
@@ -13,7 +13,7 @@ RSpec.describe CallableTree::Node::External do
 
     it {
       expect { subject }.to raise_error(
-        ::CallableTree::Error,
+        CallableTree::Error,
         /.+ cannot include CallableTree::Node::External together with CallableTree::Node::Internal/
       )
     }
@@ -350,7 +350,7 @@ RSpec.describe CallableTree::Node::External do
 
       context 'when node has parent' do
         before do
-          parent_node = ::Class.new { include CallableTree::Node::Internal }.new
+          parent_node = Class.new { include CallableTree::Node::Internal }.new
           parent_node.append!(node)
           node.send(:parent=, parent_node)
         end
@@ -370,7 +370,7 @@ RSpec.describe CallableTree::Node::External do
 
       context 'when node has parent' do
         before do
-          parent_node = ::Class.new { include CallableTree::Node::Internal }.new
+          parent_node = Class.new { include CallableTree::Node::Internal }.new
           parent_node.append!(node)
           node.send(:parent=, parent_node)
         end

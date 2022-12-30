@@ -3,7 +3,7 @@
 RSpec.describe CallableTree::Node::Builder do
   describe '#build' do
     let(:node_class) do
-      ::Class
+      Class
         .new do
           include CallableTree::Node::Builder
 
@@ -22,7 +22,7 @@ RSpec.describe CallableTree::Node::Builder do
     context '#new' do
       subject { node_class.new }
       let(:hookable) { [true, false].sample }
-      it { is_expected.to be_a ::CallableTree::Node }
+      it { is_expected.to be_a CallableTree::Node }
 
       context 'hookable: true' do
         let(:hookable) { true }

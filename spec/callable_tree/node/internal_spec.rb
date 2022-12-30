@@ -3,7 +3,7 @@
 RSpec.describe CallableTree::Node::Internal do
   describe '.included' do
     subject do
-      ::Class
+      Class
         .new do
           include CallableTree::Node::External
           include CallableTree::Node::Internal
@@ -13,7 +13,7 @@ RSpec.describe CallableTree::Node::Internal do
 
     it {
       expect { subject }.to raise_error(
-        ::CallableTree::Error,
+        CallableTree::Error,
         /.+ cannot include CallableTree::Node::Internal together with CallableTree::Node::External/
       )
     }
@@ -634,7 +634,7 @@ RSpec.describe CallableTree::Node::Internal do
   describe '#match?' do
     subject { node.match? }
 
-    let(:node) { ::Class.new { include CallableTree::Node::Internal }.new }
+    let(:node) { Class.new { include CallableTree::Node::Internal }.new }
 
     context 'when node does not have child nodes' do
       it { is_expected.to eq false }
@@ -649,7 +649,7 @@ RSpec.describe CallableTree::Node::Internal do
   describe '#terminate?' do
     subject { node.terminate?(output) }
 
-    let(:node) { ::Class.new { include CallableTree::Node::Internal }.new }
+    let(:node) { Class.new { include CallableTree::Node::Internal }.new }
 
     context 'when return value of call method is nil' do
       let(:output) { nil }
@@ -665,7 +665,7 @@ RSpec.describe CallableTree::Node::Internal do
   describe '#call' do
     subject { node.call(*inputs, **options) }
 
-    let(:node) { ::Class.new { include CallableTree::Node::Internal }.new.append!(*child_nodes) }
+    let(:node) { Class.new { include CallableTree::Node::Internal }.new.append!(*child_nodes) }
     let(:child_nodes) { [->(input) { input }, ->(input) { input }] }
 
     let(:inputs) { %i[input1 input2 input3] }
@@ -682,7 +682,7 @@ RSpec.describe CallableTree::Node::Internal do
   describe '#identity' do
     subject { node.identity }
 
-    let(:node) { ::Class.new { include CallableTree::Node::Internal }.new }
+    let(:node) { Class.new { include CallableTree::Node::Internal }.new }
     before { expect(node).to receive(:identity).and_return('identity') }
 
     it { is_expected.to eq 'identity' }
@@ -902,13 +902,13 @@ RSpec.describe CallableTree::Node::Internal do
 
   describe '#internal?' do
     subject { node.internal? }
-    let(:node) { ::Class.new { include CallableTree::Node::Internal }.new }
+    let(:node) { Class.new { include CallableTree::Node::Internal }.new }
     it { is_expected.to be true }
   end
 
   describe '#external?' do
     subject { node.external? }
-    let(:node) { ::Class.new { include CallableTree::Node::Internal }.new }
+    let(:node) { Class.new { include CallableTree::Node::Internal }.new }
     it { is_expected.to be false }
   end
 

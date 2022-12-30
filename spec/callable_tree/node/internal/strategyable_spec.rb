@@ -11,7 +11,7 @@ RSpec.describe CallableTree::Node::Internal::Strategyable do
     let(:key) { :test }
     let(:config) do
       {
-        klass: ::Class.new do
+        klass: Class.new do
           include Internal::Strategy
 
           def initialize(matchable:, terminable:)
@@ -47,7 +47,7 @@ RSpec.describe CallableTree::Node::Internal::Strategyable do
   describe '#seek?' do
     subject { node.seek? }
 
-    let(:node) { ::Class.new { include Internal }.new }
+    let(:node) { Class.new { include Internal }.new }
 
     context 'when strategy is `seek`' do
       before { node.send(:strategy=, Internal::Strategy::Seek.new) }
@@ -68,7 +68,7 @@ RSpec.describe CallableTree::Node::Internal::Strategyable do
   describe '#seek' do
     subject { node.seek(**options) }
 
-    let(:node) { ::Class.new { include Internal }.new }
+    let(:node) { Class.new { include Internal }.new }
     let(:options) { { matchable: [true, false].sample, terminable: [true, false].sample } }
 
     context 'when current strategy is `seek`' do
@@ -113,7 +113,7 @@ RSpec.describe CallableTree::Node::Internal::Strategyable do
   describe '#seek!' do
     subject { node.seek!(**options) }
 
-    let(:node) { ::Class.new { include Internal }.new }
+    let(:node) { Class.new { include Internal }.new }
     let(:options) { { matchable: [true, false].sample, terminable: [true, false].sample } }
 
     context 'when current strategy is `seek`' do
@@ -141,7 +141,7 @@ RSpec.describe CallableTree::Node::Internal::Strategyable do
   describe '#broadcast?' do
     subject { node.broadcast? }
 
-    let(:node) { ::Class.new { include Internal }.new }
+    let(:node) { Class.new { include Internal }.new }
 
     context 'when strategy is `broadcast`' do
       before { node.send(:strategy=, Internal::Strategy::Broadcast.new) }
@@ -162,7 +162,7 @@ RSpec.describe CallableTree::Node::Internal::Strategyable do
   describe '#broadcast' do
     subject { node.broadcast(**options) }
 
-    let(:node) { ::Class.new { include Internal }.new }
+    let(:node) { Class.new { include Internal }.new }
     let(:options) { { matchable: [true, false].sample, terminable: [true, false].sample } }
 
     context 'when current strategy is `seek`' do
@@ -207,7 +207,7 @@ RSpec.describe CallableTree::Node::Internal::Strategyable do
   describe '#broadcast!' do
     subject { node.broadcast!(**options) }
 
-    let(:node) { ::Class.new { include Internal }.new }
+    let(:node) { Class.new { include Internal }.new }
     let(:options) { { matchable: [true, false].sample, terminable: [true, false].sample } }
 
     context 'when current strategy is `seek`' do
@@ -235,7 +235,7 @@ RSpec.describe CallableTree::Node::Internal::Strategyable do
   describe '#compose?' do
     subject { node.compose? }
 
-    let(:node) { ::Class.new { include Internal }.new }
+    let(:node) { Class.new { include Internal }.new }
 
     context 'when strategy is `compose`' do
       before { node.send(:strategy=, Internal::Strategy::Compose.new) }
@@ -256,7 +256,7 @@ RSpec.describe CallableTree::Node::Internal::Strategyable do
   describe '#compose' do
     subject { node.compose(**options) }
 
-    let(:node) { ::Class.new { include Internal }.new }
+    let(:node) { Class.new { include Internal }.new }
     let(:options) { { matchable: [true, false].sample, terminable: [true, false].sample } }
 
     context 'when current strategy is `seek`' do
@@ -301,7 +301,7 @@ RSpec.describe CallableTree::Node::Internal::Strategyable do
   describe '#compose!' do
     subject { node.compose!(**options) }
 
-    let(:node) { ::Class.new { include Internal }.new }
+    let(:node) { Class.new { include Internal }.new }
     let(:options) { { matchable: [true, false].sample, terminable: [true, false].sample } }
 
     context 'when current strategy is `seek`' do

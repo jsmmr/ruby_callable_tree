@@ -12,7 +12,7 @@ JSONParser =
   end
   .caller do |input, **options, &block|
     File.open(input) do |file|
-      json = ::JSON.load(file)
+      json = JSON.load(file)
       # The following block call is equivalent to calling `super` in the class style.
       block.call(json, **options)
     end

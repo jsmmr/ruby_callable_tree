@@ -5,6 +5,6 @@ RSpec.describe CallableTree::Node::Root do
 
   describe '.new' do
     subject { node }
-    it { is_expected.to be_a ::CallableTree::Node::Internal }
+    it { is_expected.to be_a CallableTree::Node::Internal }
   end
 end
