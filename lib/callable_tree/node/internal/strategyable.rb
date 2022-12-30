@@ -12,7 +12,7 @@ module CallableTree
           klass.new(matchable: matchable, terminable: terminable)
         end
 
-        @@strategies = {
+        @@strategy_configs = {
           seek: {
             klass: Strategy::Seek,
             alias: :seekable,
@@ -39,28 +39,26 @@ module CallableTree
         class << self
           private
 
-          def strategies
-            @@strategies
+          def strategy_configs
+            @@strategy_configs
           end
 
-          def define_strategy_methods(_key, config)
+          def define_strategy_methods(key, config)
             define_method(:"#{config[:alias]}?") { strategy.is_a?(config[:klass]) }
 
             define_method(config[:alias]) do |*args, matchable: config[:matchable], terminable: config[:terminable], **kwargs|
+              # TODO: Modify to use strategize method
               if strategy == config[:factory].call(
                 config[:klass], *args, matchable: matchable, terminable: terminable, **kwargs
               )
                 self
               else
-                clone.__send__(:"#{config[:alias]}!", matchable: matchable, terminable: terminable)
+                clone.__send__(:"#{config[:alias]}!", *args, matchable: matchable, terminable: terminable, **kwargs)
               end
             end
 
             define_method(:"#{config[:alias]}!") do |*args, matchable: config[:matchable], terminable: config[:terminable], **kwargs|
-              self.strategy = config[:factory].call(
-                config[:klass], *args, matchable: matchable, terminable: terminable, **kwargs
-              )
-              self
+              strategize!(key, *args, matchable: matchable, terminable: terminable, **kwargs)
             end
           end
         end
@@ -72,12 +70,12 @@ module CallableTree
             key = key.to_sym
             config[:alias] = key unless config[:alias]
             config[:factory] = DEFAUTL_FACTORY unless config[:factory]
-            Strategyable.__send__(:strategies)[key] = config
+            Strategyable.__send__(:strategy_configs)[key] = config
             Strategyable.__send__(:define_strategy_methods, key, config)
           end
         end
 
-        @@strategies.each { |key, config| define_strategy_methods(key, config) }
+        @@strategy_configs.each { |key, config| define_strategy_methods(key, config) }
 
         # Backward compatibility
         alias seek? seekable?
@@ -96,8 +94,22 @@ module CallableTree
 
         private
 
+        def strategize(name, *args, matchable:, terminable:, **kwargs)
+          clone.strategy!(name, *args, matchable: matchable, terminable: terminable, **kwargs)
+        end
+
+        def strategize!(name, *args, matchable:, terminable:, **kwargs)
+          config = @@strategy_configs[name.to_sym]
+          raise ::CallableTree::Error, "Strategy is not found. [#{name}]" unless config
+
+          self.strategy = config[:factory].call(
+            config[:klass], *args, matchable: matchable, terminable: terminable, **kwargs
+          )
+          self
+        end
+
         def strategy
-          @strategy ||= @@strategies[:seek][:klass].new
+          @strategy ||= @@strategy_configs[:seek][:klass].new
         end
       end
     end
