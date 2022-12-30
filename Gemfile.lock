@@ -23,7 +23,7 @@ GEM
     rspec-support (3.11.1)
 
 PLATFORMS
-  x86_64-darwin-21
+  x86_64-darwin-22
 
 DEPENDENCIES
   callable_tree!
@@ -31,4 +31,4 @@ DEPENDENCIES
   rspec (~> 3.0)
 
 BUNDLED WITH
-   2.3.7
+   2.3.26
