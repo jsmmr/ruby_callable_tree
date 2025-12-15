@@ -12,7 +12,7 @@ jobs:
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
-      - uses: actions/cache@v4
+      - uses: actions/cache@v5
         with:
           path: vendor/bundle
           key: ${{ runner.os }}-ruby-${{ matrix.ruby }}-gems-${{ hashFiles('**/Gemfile.lock') }}
