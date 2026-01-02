@@ -5,7 +5,7 @@ module CallableTree
     module Internal
       extend ::Forwardable
       include Node
-      include Strategyable
+      include Strategizable
 
       def self.included(mod)
         return unless mod.include?(External)
