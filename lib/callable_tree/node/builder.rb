@@ -50,6 +50,7 @@ module CallableTree
         ::Class
           .new do
             include node_type
+
             if hookable
               prepend Hooks::Matcher
               prepend Hooks::Caller

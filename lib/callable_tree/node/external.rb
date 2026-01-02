@@ -32,6 +32,7 @@ module CallableTree
 
       def verbosify!
         extend Verbose
+
         self
       end
 

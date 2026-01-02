@@ -166,7 +166,7 @@ RSpec.describe CallableTree::Node::External do
 
     describe '#verbosify' do
       subject { node.verbosify }
-      it { expect { subject }.not_to change { node.verbosified? } }
+      it { expect { subject }.not_to(change { node.verbosified? }) }
       it { is_expected.not_to eq node }
       it { is_expected.to be_verbosified }
 
@@ -344,7 +344,7 @@ RSpec.describe CallableTree::Node::External do
 
     describe '#verbosify' do
       subject { node.verbosify }
-      it { expect { subject }.not_to change { node.verbosified? } }
+      it { expect { subject }.not_to(change { node.verbosified? }) }
       it { is_expected.not_to eq node }
       it { is_expected.to be_verbosified }
 

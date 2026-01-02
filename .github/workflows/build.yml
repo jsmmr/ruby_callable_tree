@@ -1,7 +1,21 @@
 name: build
 on: [push]
 jobs:
-  build:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 4.0
+          bundler-cache: true
+      - name: Run bundle install
+        run: |
+          bundle config path vendor/bundle
+          bundle install --jobs 4 --retry 3
+      - run: bundle exec rubocop
+
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
