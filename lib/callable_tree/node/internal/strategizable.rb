@@ -95,7 +95,7 @@ module CallableTree
         private
 
         def strategize(name, *args, matchable:, terminable:, **kwargs)
-          clone.strategy!(name, *args, matchable: matchable, terminable: terminable, **kwargs)
+          clone.strategize!(name, *args, matchable: matchable, terminable: terminable, **kwargs)
         end
 
         def strategize!(name, *args, matchable:, terminable:, **kwargs)
