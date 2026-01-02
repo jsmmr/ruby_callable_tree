@@ -11,7 +11,7 @@ module CallableTree
         end
 
         def call(*inputs, **options)
-          output = super(*inputs, **options)
+          output = super
           options.delete(:_node_)
           routes = self.routes
 

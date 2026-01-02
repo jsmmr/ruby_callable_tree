@@ -42,7 +42,7 @@ module CallableTree
 
           terminated =
             if around_terminator_callbacks.empty?
-              super(output, *inputs, **options)
+              super
             else
               around_terminator_callbacks_head, *around_terminator_callbacks_tail = around_terminator_callbacks
               terminator = proc { super(output, *inputs, **options) }
