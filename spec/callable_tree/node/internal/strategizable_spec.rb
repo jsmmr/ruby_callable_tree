@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe CallableTree::Node::Internal::Strategyable do
+RSpec.describe CallableTree::Node::Internal::Strategizable do
   Internal = CallableTree::Node::Internal
 
   describe '.store_strategy' do

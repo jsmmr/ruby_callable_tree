@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+- Fix a typo in `Strategizable#strategize` where it incorrectly called `strategy!` instead of `strategize!`.`
+
 ## [0.3.10] - 2022-12-30
 
 - Change `CallableTree::Node::Internal#broadcastable` to take `matchable` keyword parameter as boolean. It defaults to `true`, which is the same behavior as before.
