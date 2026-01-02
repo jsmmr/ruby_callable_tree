@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.3.11] - 2026-01-03
+
 - Fix a typo in `Strategizable#strategize` where it incorrectly called `strategy!` instead of `strategize!`.`
 
 ## [0.3.10] - 2022-12-30
