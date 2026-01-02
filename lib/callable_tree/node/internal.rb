@@ -46,7 +46,7 @@ module CallableTree
           .lazy
           .select(&:internal?)
           .map { |node| node.find(recursive: true, &block) }
-          .reject(&:nil?)
+          .reject(&:nil?) # rubocop:disable Style/CollectionCompact
           .first
       end
 
