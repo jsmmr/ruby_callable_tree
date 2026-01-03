@@ -78,7 +78,7 @@ RSpec.describe CallableTree::Node::Internal do
     end
 
     it { is_expected.not_to be node }
-    it { expect { subject }.not_to change { node.children.size } }
+    it { expect { subject }.not_to(change { node.children.size }) }
 
     it 'should generate new child nodes' do
       expect(subject[0]).not_to be child_nodes[0]
@@ -228,7 +228,7 @@ RSpec.describe CallableTree::Node::Internal do
       it { is_expected.not_to be node }
 
       it 'does not reject children from the source node' do
-        expect { subject }.not_to change { node.children.size }
+        expect { subject }.not_to(change { node.children.size })
       end
 
       it 'returns a node instance without rejected child nodes' do
@@ -255,7 +255,7 @@ RSpec.describe CallableTree::Node::Internal do
       it { is_expected.not_to be node }
 
       it 'does not reject children from the source node' do
-        expect { subject }.not_to change { node.children.size }
+        expect { subject }.not_to(change { node.children.size })
       end
 
       it 'returns a node instance without rejected child nodes' do
@@ -284,7 +284,7 @@ RSpec.describe CallableTree::Node::Internal do
       it { is_expected.not_to be node }
 
       it 'does not reject children from the source node' do
-        expect { subject }.not_to change { node.children.size }
+        expect { subject }.not_to(change { node.children.size })
       end
 
       it 'returns the node instance without rejected child nodes' do
@@ -309,7 +309,7 @@ RSpec.describe CallableTree::Node::Internal do
       it { is_expected.not_to be node }
 
       it 'does not reject children from the source node' do
-        expect { subject }.not_to change { node.children.size }
+        expect { subject }.not_to(change { node.children.size })
       end
 
       it 'returns the node instance without rejected child nodes' do

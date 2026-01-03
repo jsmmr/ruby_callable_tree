@@ -15,7 +15,7 @@ module Node
 
       def call(input, **options)
         File.open(input) do |file|
-          json = ::JSON.load(file)
+          json = ::JSON.parse(file.read)
           super(json, **options)
         end
       end

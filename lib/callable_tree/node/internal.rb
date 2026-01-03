@@ -5,7 +5,7 @@ module CallableTree
     module Internal
       extend ::Forwardable
       include Node
-      include Strategyable
+      include Strategizable
 
       def self.included(mod)
         return unless mod.include?(External)
@@ -46,7 +46,7 @@ module CallableTree
           .lazy
           .select(&:internal?)
           .map { |node| node.find(recursive: true, &block) }
-          .reject(&:nil?)
+          .reject(&:nil?) # rubocop:disable Style/CollectionCompact
           .first
       end
 

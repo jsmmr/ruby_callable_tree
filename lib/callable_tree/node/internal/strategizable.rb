@@ -3,7 +3,7 @@
 module CallableTree
   module Node
     module Internal
-      module Strategyable
+      module Strategizable
         def self.included(mod)
           mod.extend ClassMethods
         end
@@ -70,8 +70,8 @@ module CallableTree
             key = key.to_sym
             config[:alias] = key unless config[:alias]
             config[:factory] = DEFAUTL_FACTORY unless config[:factory]
-            Strategyable.__send__(:strategy_configs)[key] = config
-            Strategyable.__send__(:define_strategy_methods, key, config)
+            Strategizable.__send__(:strategy_configs)[key] = config
+            Strategizable.__send__(:define_strategy_methods, key, config)
           end
         end
 
@@ -95,7 +95,7 @@ module CallableTree
         private
 
         def strategize(name, *args, matchable:, terminable:, **kwargs)
-          clone.strategy!(name, *args, matchable: matchable, terminable: terminable, **kwargs)
+          clone.strategize!(name, *args, matchable: matchable, terminable: terminable, **kwargs)
         end
 
         def strategize!(name, *args, matchable:, terminable:, **kwargs)

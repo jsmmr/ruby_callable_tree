@@ -21,14 +21,14 @@ Or install it yourself as:
 
 ## Usage
 
-Builds a tree by linking `CallableTree` node instances. The `call` methods of the nodes where the `match?` method returns a truthy value are called in a chain from the root node to the leaf node.
+Builds a tree of `CallableTree` nodes. Invokes the `call` method on nodes where `match?` returns a truthy value, chaining execution from root to leaf.
 
 - `CallableTree::Node::Internal`
-  - This `module` is used to define a node that can have child nodes. This node has several strategies (`seekable`, `broadcastable`, `composable`).
+  - Defines a node that can have child nodes. Supports several strategies (`seekable`, `broadcastable`, `composable`).
 - `CallableTree::Node::External`
-  - This `module` is used to define a leaf node that cannot have child nodes.
+  - Defines a leaf node, which cannot have child nodes.
 - `CallableTree::Node::Root`
-  - This `class` includes `CallableTree::Node::Internal`. When there is no need to customize the internal node, use this `class`.
+  - Includes `CallableTree::Node::Internal`. Use this class when customization of the internal node is not required.
 
 ### Basic
 
@@ -36,7 +36,7 @@ There are two ways to define the nodes: class style and builder style.
 
 #### `CallableTree::Node::Internal#seekable` (default strategy)
 
-This strategy does not call the next sibling node if the `call` method of the current node returns a value other than `nil`. This behavior is changeable by overriding the `terminate?` method.
+This strategy stops processing subsequent sibling nodes if the current node's `call` method returns a non-nil value. This behavior is changeable by overriding the `terminate?` method.
 
 ##### Class style
 
@@ -51,8 +51,7 @@ module Node
         File.extname(input) == '.json'
       end
 
-      # If there is need to convert the input values for
-      # child nodes, override the `call` method.
+      # Override `call` if you need to transform input values for child nodes.
       def call(input, **options)
         File.open(input) do |file|
           json = ::JSON.load(file)
@@ -60,9 +59,7 @@ module Node
         end
       end
 
-      # If a returned value of the `call` method is `nil`,
-      # but there is no need to call the sibling nodes,
-      # override the `terminate?` method to return `true`.
+      # Override `terminate?` to return `true` to stop processing sibling nodes even if `call` returns `nil`.
       def terminate?(_output, *_inputs, **_options)
         true
       end
@@ -94,17 +91,14 @@ module Node
         File.extname(input) == '.xml'
       end
 
-      # If there is need to convert the input values for
-      # child nodes, override the `call` method.
+      # Override `call` if you need to transform input values for child nodes.
       def call(input, **options)
         File.open(input) do |file|
           super(REXML::Document.new(file), **options)
         end
       end
 
-      # If a returned value of the `call` method is `nil`,
-      # but there is no need to call the sibling nodes,
-      # override the `terminate?` method to return `true`.
+      # Override `terminate?` to return `true` to stop processing sibling nodes even if `call` returns `nil`.
       def terminate?(_output, *_inputs, **_options)
         true
       end
@@ -131,7 +125,7 @@ module Node
   end
 end
 
-# The `seekable` method call can be omitted since it is the default strategy.
+# The `seekable` call can be omitted as it is the default strategy.
 tree = CallableTree::Node::Root.new.seekable.append(
   Node::JSON::Parser.new.seekable.append(
     Node::JSON::Scraper.new(type: :animals),
@@ -265,7 +259,7 @@ Run `examples/builder/internal-seekable.rb`:
 
 #### `CallableTree::Node::Internal#broadcastable`
 
-This strategy broadcasts to output a result of the child nodes as array. It also ignores their `terminate?` methods by default.
+This strategy broadcasts input to all child nodes and returns their results as an array. It ignores child `terminate?` methods by default.
 
 ##### Class style
 
@@ -411,7 +405,7 @@ Run `examples/builder/internal-broadcastable.rb`:
 
 #### `CallableTree::Node::Internal#composable`
 
-This strategy composes the child nodes to input the output of the previous node into the next node and to output a result.
+This strategy chains child nodes, passing the output of the previous node as input to the next.
 It also ignores their `terminate?` methods by default.
 
 ##### Class style
@@ -560,7 +554,7 @@ Run `examples/builder/internal-composable.rb`:
 
 #### `CallableTree::Node::External#verbosify`
 
-If you want verbose output results, call this method.
+Use this method to enable verbose output.
 
 `examples/builder/external-verbosify.rb`:
 ```ruby
@@ -739,7 +733,7 @@ Run `examples/builder/logging.rb`:
 
 #### `CallableTree::Node#identity`
 
-If you want to customize the node identity, specify identifier.
+Specify an identifier to customize the node identity.
 
 `examples/builder/identity.rb`:
 ```ruby
