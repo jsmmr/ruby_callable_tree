@@ -3,6 +3,10 @@
 [![build](https://github.com/jsmmr/ruby_callable_tree/actions/workflows/build.yml/badge.svg)](https://github.com/jsmmr/ruby_callable_tree/actions/workflows/build.yml)
 [![CodeQL](https://github.com/jsmmr/ruby_callable_tree/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/jsmmr/ruby_callable_tree/actions/workflows/codeql-analysis.yml)
 
+A framework for building tree-structured executable workflows in Ruby.
+
+Construct trees of callable nodes to handle complex execution flows. Supports strategies to seek specific handlers, broadcast to multiple listeners, or compose processing pipelines. Nodes are matched against input and executed in a chain, offering a structured, modular alternative to complex conditional logic.
+
 ## Installation
 
 Add this line to your application's Gemfile:
