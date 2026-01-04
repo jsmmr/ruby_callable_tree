@@ -30,6 +30,7 @@
 - `examples/`: Usage examples.
   - `examples/class/`: Class-style node definitions (using `include CallableTree::Node::*`).
   - `examples/builder/`: Builder-style definitions (using `Builder.new.matcher { }.caller { }.build`).
+  - `examples/factory/`: Factory-style definitions (using `External.create(caller: ...)` or `External::Pod.new`).
   - `examples/docs/`: Sample data files (JSON, XML) used by examples.
 
 ## Development
@@ -52,4 +53,4 @@
 ## Architecture
 - **Composite Pattern**: Used for `Internal` nodes to treat individual objects and compositions uniformly.
 - **Builder Pattern**: `CallableTree::Node::Internal::Builder` and `CallableTree::Node::External::Builder` provide a fluent interface for constructing complex trees.
-
+- **Pod Pattern**: `CallableTree::Node::Internal::Pod` and `CallableTree::Node::External::Pod` enable inline node creation via `External.create` / `Internal.create` factory methods with proc-based behaviors.

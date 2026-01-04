@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+- Add Factory style for inline node creation as a third option alongside Class and Builder styles.
+  - `CallableTree::Node::External::Pod` and `CallableTree::Node::Internal::Pod` classes
+  - `CallableTree::Node::External.create` and `CallableTree::Node::Internal.create` factory methods
+  - Supports `hookable: true` option for Hooks (before/around/after callbacks)
+  - See `examples/factory/*.rb` for details.
+
 ## [0.3.11] - 2026-01-03
 
 - Fix a typo in `Strategizable#strategize` where it incorrectly called `strategy!` instead of `strategize!`.`
