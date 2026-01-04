@@ -1,7 +1,7 @@
 # Agent Guide for callable_tree
 
 ## Project Overview
-`callable_tree` is a Ruby gem that builds a tree of callable nodes. It allows for complex logic flow (like nested `if`/`case`) to be represented as a tree of objects. Nodes are traversed based on matching conditions (`match?`), and executed (`call`).
+`callable_tree` is a Ruby gem for building tree-structured executable workflows. It provides a framework for organizing complex logic into a tree of callable nodes, offering a structured, modular alternative to complex conditional logic. Nodes are matched against input (`match?`) and executed (`call`) in a chain from root to leaf.
 
 ## Core Concepts
 - **Nodes**:
@@ -15,11 +15,22 @@
   - `match?(input)`: Determines if a node should process the input.
   - `call(input)`: Executes the node logic.
   - `terminate?`: Controls when to stop traversal (mostly for `seekable`).
+- **Hooks** (`hookable`):
+  - Enable instrumentation (logging, debugging) by adding callbacks.
+  - `before_matcher!`, `after_matcher!`: Hook into matching phase.
+  - `before_caller!`, `after_caller!`: Hook into call phase.
+  - `before_terminator!`, `after_terminator!`: Hook into termination phase.
+- **Verbosify** (`verbosify`):
+  - Wraps External node output in `CallableTree::Node::External::Output` struct.
+  - Provides `value`, `options`, and `routes` (call path) for debugging.
 
 ## Directory Structure
 - `lib/`: Source code.
 - `spec/`: RSpec tests.
-- `examples/`: Usage examples (Class-style and Builder-style).
+- `examples/`: Usage examples.
+  - `examples/class/`: Class-style node definitions (using `include CallableTree::Node::*`).
+  - `examples/builder/`: Builder-style definitions (using `Builder.new.matcher { }.caller { }.build`).
+  - `examples/docs/`: Sample data files (JSON, XML) used by examples.
 
 ## Development
 - **Tool Version Manager**: mise
