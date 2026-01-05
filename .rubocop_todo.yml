@@ -27,6 +27,8 @@ Lint/UnderscorePrefixedVariableName:
     - 'examples/builder/identity.rb'
     - 'examples/builder/logging.rb'
     - 'examples/class/logging.rb'
+    - 'examples/factory/identity.rb'
+    - 'examples/factory/logging.rb'
 
 # Offense count: 8
 # This cop supports safe autocorrection (--autocorrect).
@@ -74,6 +76,10 @@ Naming/FileName:
     - 'examples/class/internal-broadcastable.rb'
     - 'examples/class/internal-composable.rb'
     - 'examples/class/internal-seekable.rb'
+    - 'examples/factory/external-verbosify.rb'
+    - 'examples/factory/internal-broadcastable.rb'
+    - 'examples/factory/internal-composable.rb'
+    - 'examples/factory/internal-seekable.rb'
 
 # Offense count: 1
 # Configuration parameters: Mode, AllowedMethods, AllowedPatterns, AllowBangMethods, WaywardPredicates.
@@ -103,6 +109,8 @@ Style/MultilineBlockChain:
     - 'examples/builder/logging.rb'
     - 'examples/class/hooks.rb'
     - 'examples/class/logging.rb'
+    - 'examples/factory/hooks.rb'
+    - 'examples/factory/logging.rb'
     - 'lib/callable_tree/node/internal/strategy/seek.rb'
 
 # Offense count: 1

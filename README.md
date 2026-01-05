@@ -36,7 +36,7 @@ Builds a tree of `CallableTree` nodes. Invokes the `call` method on nodes where 
 
 ### Basic
 
-There are two ways to define the nodes: class style and builder style.
+There are three ways to define nodes: class style, builder style, and factory style.
 
 #### `CallableTree::Node::Internal#seekable` (default strategy)
 
@@ -261,6 +261,84 @@ Run `examples/builder/internal-seekable.rb`:
 ---
 ```
 
+##### Factory style
+
+Factory style defines behaviors as procs first, then assembles the tree structure separately. This makes the tree structure clearly visible.
+
+`examples/factory/internal-seekable.rb`:
+```ruby
+# === Behavior Definitions ===
+
+json_matcher = ->(input, **) { File.extname(input) == '.json' }
+json_caller = lambda do |input, **options, &original|
+  File.open(input) do |file|
+    json = JSON.parse(file.read)
+    original.call(json, **options)
+  end
+end
+
+xml_matcher = ->(input, **) { File.extname(input) == '.xml' }
+xml_caller = lambda do |input, **options, &original|
+  File.open(input) do |file|
+    original.call(REXML::Document.new(file), **options)
+  end
+end
+
+animals_json_matcher = ->(input, **) { !input['animals'].nil? }
+animals_json_caller = ->(input, **) { input['animals'].to_h { |e| [e['name'], e['emoji']] } }
+
+fruits_json_matcher = ->(input, **) { !input['fruits'].nil? }
+fruits_json_caller = ->(input, **) { input['fruits'].to_h { |e| [e['name'], e['emoji']] } }
+
+animals_xml_matcher = ->(input, **) { !input.get_elements('//animals').empty? }
+animals_xml_caller = ->(input, **) { input.get_elements('//animals').first.to_h { |e| [e['name'], e['emoji']] } }
+
+fruits_xml_matcher = ->(input, **) { !input.get_elements('//fruits').empty? }
+fruits_xml_caller = ->(input, **) { input.get_elements('//fruits').first.to_h { |e| [e['name'], e['emoji']] } }
+
+terminator_true = ->(*) { true }
+
+# === Tree Structure (clearly visible!) ===
+
+tree = CallableTree::Node::Root.new.seekable.append(
+  CallableTree::Node::Internal.create(
+    matcher: json_matcher,
+    caller: json_caller,
+    terminator: terminator_true
+  ).seekable.append(
+    CallableTree::Node::External.create(matcher: animals_json_matcher, caller: animals_json_caller),
+    CallableTree::Node::External.create(matcher: fruits_json_matcher, caller: fruits_json_caller)
+  ),
+  CallableTree::Node::Internal.create(
+    matcher: xml_matcher,
+    caller: xml_caller,
+    terminator: terminator_true
+  ).seekable.append(
+    CallableTree::Node::External.create(matcher: animals_xml_matcher, caller: animals_xml_caller),
+    CallableTree::Node::External.create(matcher: fruits_xml_matcher, caller: fruits_xml_caller)
+  )
+)
+
+Dir.glob("#{__dir__}/../docs/*") do |file|
+  options = { foo: :bar }
+  pp tree.call(file, **options)
+  puts '---'
+end
+```
+
+Run `examples/factory/internal-seekable.rb`:
+```sh
+% ruby examples/factory/internal-seekable.rb
+{"Dog"=>"🐶", "Cat"=>"🐱"}
+---
+{"Dog"=>"🐶", "Cat"=>"🐱"}
+---
+{"Red Apple"=>"🍎", "Green Apple"=>"🍏"}
+---
+{"Red Apple"=>"🍎", "Green Apple"=>"🍏"}
+---
+```
+
 #### `CallableTree::Node::Internal#broadcastable`
 
 This strategy broadcasts input to all child nodes and returns their results as an array. It ignores child `terminate?` methods by default.
@@ -394,6 +472,55 @@ end
 Run `examples/builder/internal-broadcastable.rb`:
 ```sh
 % ruby examples/builder/internal-broadcastable.rb
+0 -> [[0, 1], [0, -1]]
+1 -> [[2, 2], [3, 0]]
+2 -> [[4, 3], [6, 1]]
+3 -> [[6, 4], [9, 2]]
+4 -> [[8, 5], [12, 3]]
+5 -> [nil, [15, 4]]
+6 -> [nil, [18, 5]]
+7 -> [nil, [21, 6]]
+8 -> [nil, [24, 7]]
+9 -> [nil, [27, 8]]
+10 -> [nil, nil]
+```
+
+##### Factory style
+
+`examples/factory/internal-broadcastable.rb`:
+```ruby
+# === Behavior Definitions ===
+
+less_than_5_matcher = ->(input, **, &original) { original.call(input) && input < 5 }
+less_than_10_matcher = ->(input, **, &original) { original.call(input) && input < 10 }
+
+multiply_2_caller = ->(input, **) { input * 2 }
+add_1_caller = ->(input, **) { input + 1 }
+multiply_3_caller = ->(input, **) { input * 3 }
+subtract_1_caller = ->(input, **) { input - 1 }
+
+# === Tree Structure ===
+
+tree = CallableTree::Node::Root.new.broadcastable.append(
+  CallableTree::Node::Internal.create(matcher: less_than_5_matcher).broadcastable.append(
+    CallableTree::Node::External.create(caller: multiply_2_caller),
+    CallableTree::Node::External.create(caller: add_1_caller)
+  ),
+  CallableTree::Node::Internal.create(matcher: less_than_10_matcher).broadcastable.append(
+    CallableTree::Node::External.create(caller: multiply_3_caller),
+    CallableTree::Node::External.create(caller: subtract_1_caller)
+  )
+)
+
+(0..10).each do |input|
+  output = tree.call(input)
+  puts "#{input} -> #{output}"
+end
+```
+
+Run `examples/factory/internal-broadcastable.rb`:
+```sh
+% ruby examples/factory/internal-broadcastable.rb
 0 -> [[0, 1], [0, -1]]
 1 -> [[2, 2], [3, 0]]
 2 -> [[4, 3], [6, 1]]
@@ -541,6 +668,55 @@ end
 Run `examples/builder/internal-composable.rb`:
 ```sh
 % ruby examples/builder/internal-composable.rb
+0 -> 2
+1 -> 8
+2 -> 14
+3 -> 20
+4 -> 26
+5 -> 14
+6 -> 17
+7 -> 20
+8 -> 23
+9 -> 26
+10 -> 10
+```
+
+##### Factory style
+
+`examples/factory/internal-composable.rb`:
+```ruby
+# === Behavior Definitions ===
+
+less_than_5_matcher = ->(input, **, &original) { original.call(input) && input < 5 }
+less_than_10_matcher = ->(input, **, &original) { original.call(input) && input < 10 }
+
+multiply_2_caller = ->(input, **) { input * 2 }
+add_1_caller = ->(input, **) { input + 1 }
+multiply_3_caller = ->(input, **) { input * 3 }
+subtract_1_caller = ->(input, **) { input - 1 }
+
+# === Tree Structure ===
+
+tree = CallableTree::Node::Root.new.composable.append(
+  CallableTree::Node::Internal.create(matcher: less_than_5_matcher).composable.append(
+    CallableTree::Node::External.create(caller: multiply_2_caller),
+    CallableTree::Node::External.create(caller: add_1_caller)
+  ),
+  CallableTree::Node::Internal.create(matcher: less_than_10_matcher).composable.append(
+    CallableTree::Node::External.create(caller: multiply_3_caller),
+    CallableTree::Node::External.create(caller: subtract_1_caller)
+  )
+)
+
+(0..10).each do |input|
+  output = tree.call(input)
+  puts "#{input} -> #{output}"
+end
+```
+
+Run `examples/factory/internal-composable.rb`:
+```sh
+% ruby examples/factory/internal-composable.rb
 0 -> 2
 1 -> 8
 2 -> 14
