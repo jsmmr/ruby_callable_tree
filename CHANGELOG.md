@@ -1,5 +1,7 @@
 ## [Unreleased]
 
+## [0.3.12] - 2026-01-07
+
 - Add Factory style for inline node creation as a third option alongside Class and Builder styles.
   - `CallableTree::Node::External.create` and `CallableTree::Node::Internal.create` factory methods
   - Supports `hookable: true` option for Hooks (before/around/after callbacks)
