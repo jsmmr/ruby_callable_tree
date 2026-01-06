@@ -8,8 +8,14 @@ Gem::Specification.new do |spec|
   spec.authors       = ['jsmmr']
   spec.email         = ['jsmmr@icloud.com']
 
-  spec.summary       = 'Builds a tree by linking callable nodes. The nodes that match the conditions are called in a chain from the root node to the leaf node. These are like nested `if` or `case` expressions.'
-  spec.description   = 'Builds a tree by linking callable nodes. The nodes that match the conditions are called in a chain from the root node to the leaf node. These are like nested `if` or `case` expressions.'
+  spec.summary       = 'Builds executable trees of callable nodes with flexible strategies like seek, broadcast, and compose.'
+  spec.description = <<~DESC
+    CallableTree provides a framework for organizing complex logic into a tree of callable nodes.
+    It allows you to chain execution from a root node to leaf nodes based on matching conditions.
+    Key features include multiple traversal strategies: `seekable` (like nested `if`/`case`),
+    `broadcastable` (one-to-many execution), and `composable` (pipelined processing).
+    Supports class-based, builder-style and factory-style definitions.
+  DESC
   spec.homepage      = 'https://github.com/jsmmr/ruby_callable_tree'
   spec.license       = 'MIT'
   spec.required_ruby_version = Gem::Requirement.new('>= 2.4.0')

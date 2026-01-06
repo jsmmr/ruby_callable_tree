@@ -3,25 +3,21 @@
 require_relative '../../lib/callable_tree'
 # require 'callable_tree'
 
-module Node
-  class HooksSample
-    include CallableTree::Node::Internal
-    prepend CallableTree::Node::Hooks::Matcher
-    prepend CallableTree::Node::Hooks::Caller
-    prepend CallableTree::Node::Hooks::Terminator
-  end
+# Hooks example using Factory style with pre-defined procs
+# Demonstrates before/around/after callbacks on matcher, caller, and terminator
+
+# === Behavior Definitions ===
+
+external_caller = lambda do |input, **_options|
+  puts "external input: #{input}"
+  input * 2
 end
 
+# === Tree Structure with Hooks ===
+
 CallableTree::Node::Root.new.append(
-  Node::HooksSample
-    .new
-    .append(
-      # anonymous external node
-      lambda do |input, **_options|
-        puts "external input: #{input}"
-        input * 2
-      end
-    )
+  CallableTree::Node::Internal.create(hookable: true)
+    .append(external_caller)
     .before_matcher do |input, **_options|
       puts "before_matcher input: #{input}"
       input + 1
