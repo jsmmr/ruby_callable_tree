@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../lib/callable_tree'
+# require 'callable_tree'
 
 # Broadcastable example using Factory style with pre-defined procs
 # All matching child nodes are called and results are collected

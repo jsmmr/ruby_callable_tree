@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../lib/callable_tree'
+# require 'callable_tree'
 
 # Composable example using Factory style with pre-defined procs
 # Output of one node becomes input to the next (pipeline)

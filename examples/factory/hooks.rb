@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../lib/callable_tree'
+# require 'callable_tree'
 
 # Hooks example using Factory style with pre-defined procs
 # Demonstrates before/around/after callbacks on matcher, caller, and terminator
